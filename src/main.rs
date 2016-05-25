@@ -14,6 +14,7 @@ use hyper::header::{Accept, Cookie, ContentType, SetCookie, UserAgent, qitem};
 use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use rustc_serialize::json;
 use std::io::Read;
+// use std::thread;
 
 #[derive(RustcDecodable, RustcEncodable)]
 struct PostUserLoginBody {
@@ -27,13 +28,29 @@ struct PostUserLogin {
     postUserLogin: PostUserLoginBody,
 }
 
+// {"userLogin":{"profile":"/gdc/account/profile/3cf6a27afeed76b55caedf292691ac8a","state":"/gdc/account/login/3cf6a27afeed76b55caedf292691ac8a"}}
+
+#[derive(RustcDecodable, RustcEncodable, Debug)]
+struct UserLoginBody {
+    profile: String,
+    state: String,
+}
+
+#[derive(RustcDecodable, RustcEncodable)]
+struct UserLogin {
+    userLogin: UserLoginBody,
+}
+
 struct GoodDataClient {
     client: Client,
     server: String,
     jar: CookieJar<'static>,
+    user: String,
 }
 
 #[allow(dead_code)]
+#[allow(unused_variables)]
+#[allow(unreachable_code)]
 impl GoodDataClient {
     /// Create Instance of GoodData Client
     fn new() -> GoodDataClient {
@@ -41,6 +58,7 @@ impl GoodDataClient {
             client: Client::new(),
             server: "https://secure.gooddata.com".to_string(),
             jar: CookieJar::new(b"f8f9eaf1ecdedff5e5b749c58115441e"),
+            user: String::new(),
         }
     }
 
@@ -64,10 +82,20 @@ impl GoodDataClient {
             },
         };
 
-        self.post("/gdc/account/login".to_string(),
-                  json::encode(&payload).unwrap());
+        let mut raw = self.post("/gdc/account/login".to_string(),
+                                json::encode(&payload).unwrap());
 
         self.refresh_token();
+
+        let content = self.get_content(&mut raw);
+
+        let user: UserLogin = json::decode(&content[..]).unwrap();
+        let uri = user.userLogin.profile;
+
+        let mut raw = self.get(uri);
+        let rawUser = self.get_content(&mut raw);
+
+        self.user = rawUser;
     }
 
     /// HTTP Method GET Wrapper
@@ -134,8 +162,15 @@ impl GoodDataClient {
 
     /// Print HTTP Response
     fn print_response(&mut self, res: &mut hyper::client::Response) {
-        println!("{:?}", res);
-        println!("{}", self.get_content(res));
+        return;
+
+        let obj = res;
+
+        println!("{:?}", obj);
+
+        let content = self.get_content(obj);
+        // let json = json::decode::<String>(&content[..]);
+        println!("{}", content);
     }
 
     /// Update Cookies in Jar from HTTP Response
@@ -154,6 +189,10 @@ impl GoodDataClient {
         self.get("/gdc/account/token");
     }
 
+    fn user(&mut self) -> &String {
+        &self.user
+    }
+
     /// Construct User-Agent HTTP Header
     fn user_agent() -> String {
         const VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -164,5 +203,6 @@ impl GoodDataClient {
 fn main() {
     let mut gd = GoodDataClient::new();
     gd.connect("tomas.korcak+gem_tester@gooddata.com", "jindrisska");
+    println!("{}", gd.user());
     println!("{}", gd.projects());
 }
