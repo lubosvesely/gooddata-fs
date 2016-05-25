@@ -36,6 +36,7 @@ struct GoodDataClient {
 
 #[allow(dead_code)]
 impl GoodDataClient {
+    /// Create Instance of GoodData Client
     fn new() -> GoodDataClient {
         GoodDataClient {
             client: Client::new(),
@@ -60,6 +61,7 @@ impl GoodDataClient {
         self.refresh_token();
     }
 
+    /// HTTP Method GET Wrapper
     fn get<S: Into<String>>(&mut self, path: S) -> hyper::client::response::Response {
         let uri = format!("{}{}", self.server, path.into());
         let mut res = self.client
@@ -84,6 +86,7 @@ impl GoodDataClient {
         return res;
     }
 
+    /// HTTP Method POST Wrapper
     fn post<S: Into<String>>(&mut self, path: S, body: S) -> hyper::client::response::Response {
         let uri = format!("{}{}", self.server, path.into());
         let payload = body.into();
@@ -109,6 +112,7 @@ impl GoodDataClient {
         return res;
     }
 
+    /// Print HTTP Response
     fn print_response(&mut self, res: &mut hyper::client::Response) {
         println!("{:?}", res);
 
@@ -120,6 +124,7 @@ impl GoodDataClient {
         println!("{}", buf);
     }
 
+    /// Update Cookies in Jar from HTTP Response
     fn update_cookie_jar(&mut self, res: &hyper::client::Response) {
         for setCookie in res.headers.get::<SetCookie>().iter() {
             for cookie in setCookie.iter() {
@@ -129,11 +134,13 @@ impl GoodDataClient {
         }
     }
 
+    /// Refresh GoodData TT (Temporary Token)
     fn refresh_token(&mut self) {
         // Refresh token
         self.get("/gdc/account/token");
     }
 
+    /// Construct User-Agent HTTP Header
     fn user_agent() -> String {
         const VERSION: &'static str = env!("CARGO_PKG_VERSION");
         return format!("gooddata-rust/{}", VERSION);
