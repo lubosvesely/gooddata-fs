@@ -57,8 +57,7 @@ impl GoodDataClient {
         self.post("/gdc/account/login".to_string(),
                   json::encode(&payload).unwrap());
 
-        // Refresh token
-        self.get("/gdc/account/token");
+        self.refresh_token();
     }
 
     fn get<S: Into<String>>(&mut self, path: S) -> hyper::client::response::Response {
@@ -130,6 +129,11 @@ impl GoodDataClient {
         }
     }
 
+    fn refresh_token(&mut self) {
+        // Refresh token
+        self.get("/gdc/account/token");
+    }
+
     fn user_agent() -> String {
         const VERSION: &'static str = env!("CARGO_PKG_VERSION");
         return format!("gooddata-rust/{}", VERSION);
@@ -138,5 +142,5 @@ impl GoodDataClient {
 
 fn main() {
     let mut gd = GoodDataClient::new();
-    gd.login("tomas.korcak@gooddata.com", "");
+    gd.login("tomas.korcak+gem_tester@gooddata.com", "jindrisska");
 }
