@@ -45,6 +45,12 @@ impl GoodDataClient {
         }
     }
 
+    /// Get Projects
+    fn projects(&mut self) -> String {
+        let mut res = self.get("/gdc/md/projects");
+        return self.get_content(&mut res);
+    }
+
     /// Login to GoodData platform
     fn login<S: Into<String>>(&mut self, username: S, password: S) {
         let payload = PostUserLogin {
@@ -112,15 +118,22 @@ impl GoodDataClient {
         return res;
     }
 
-    /// Print HTTP Response
-    fn print_response(&mut self, res: &mut hyper::client::Response) {
-        println!("{:?}", res);
-
+    /// Get HTTP Response body
+    fn get_content(&mut self, res: &mut hyper::client::Response) -> String {
         let mut buf = String::new();
         match res.read_to_string(&mut buf) {
             Ok(_) => (),
             Err(_) => panic!("I give up."),
         };
+
+        return buf;
+    }
+
+    /// Print HTTP Response
+    fn print_response(&mut self, res: &mut hyper::client::Response) {
+        println!("{:?}", res);
+
+        let buf = self.get_content(res);
         println!("{}", buf);
     }
 
@@ -150,4 +163,5 @@ impl GoodDataClient {
 fn main() {
     let mut gd = GoodDataClient::new();
     gd.login("tomas.korcak+gem_tester@gooddata.com", "jindrisska");
+    println!("{}", gd.projects());
 }
