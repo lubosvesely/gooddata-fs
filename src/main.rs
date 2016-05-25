@@ -132,9 +132,7 @@ impl GoodDataClient {
     /// Print HTTP Response
     fn print_response(&mut self, res: &mut hyper::client::Response) {
         println!("{:?}", res);
-
-        let buf = self.get_content(res);
-        println!("{}", buf);
+        println!("{}", self.get_content(res));
     }
 
     /// Update Cookies in Jar from HTTP Response
