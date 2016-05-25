@@ -13,8 +13,34 @@ use hyper::client::Client;
 use hyper::header::{Accept, Cookie, ContentType, SetCookie, UserAgent, qitem};
 use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use rustc_serialize::json;
+
+use std::collections::HashMap;
 use std::io::Read;
 // use std::thread;
+
+#[derive(RustcDecodable, RustcEncodable)]
+struct AccountSettingBody {
+    country: Option<String>,
+    firstName: Option<String>,
+    language: Option<String>,
+    ssoProvider: Option<String>,
+    timezone: Option<String>,
+    position: Option<String>,
+    authenticationModes: std::vec::Vec<String>,
+    companyName: Option<String>,
+    login: Option<String>,
+    email: Option<String>,
+    created: Option<String>,
+    updated: Option<String>,
+    lastName: Option<String>,
+    phoneNumber: Option<String>,
+    links: Option<HashMap<String, String>>,
+}
+
+#[derive(RustcDecodable, RustcEncodable)]
+struct AccountSetting {
+    accountSetting: AccountSettingBody,
+}
 
 #[derive(RustcDecodable, RustcEncodable)]
 struct PostUserLoginBody {
@@ -28,9 +54,7 @@ struct PostUserLogin {
     postUserLogin: PostUserLoginBody,
 }
 
-// {"userLogin":{"profile":"/gdc/account/profile/3cf6a27afeed76b55caedf292691ac8a","state":"/gdc/account/login/3cf6a27afeed76b55caedf292691ac8a"}}
-
-#[derive(RustcDecodable, RustcEncodable, Debug)]
+#[derive(RustcDecodable, RustcEncodable)]
 struct UserLoginBody {
     profile: String,
     state: String,
@@ -95,7 +119,9 @@ impl GoodDataClient {
         let mut raw = self.get(uri);
         let rawUser = self.get_content(&mut raw);
 
-        self.user = rawUser;
+        let user: AccountSetting = json::decode(&rawUser[..]).unwrap();
+
+        self.user = user.accountSetting.login.unwrap();
     }
 
     /// HTTP Method GET Wrapper
@@ -169,7 +195,6 @@ impl GoodDataClient {
         println!("{:?}", obj);
 
         let content = self.get_content(obj);
-        // let json = json::decode::<String>(&content[..]);
         println!("{}", content);
     }
 
