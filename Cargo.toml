@@ -1,13 +1,16 @@
 [package]
 name = "gooddata-rust"
 version = "0.0.1"
-authors = [ "Tomas Korcak <korczis@gmail.com>" ]
+authors = [
+  "Tomas Korcak <korczis@gmail.com>"
+]
 
 [dependencies]
 chomp = "0.2.5"
+cookie = "0.2.4"
 env_logger = "0.3"
 hyper = "0.9"
 log = "0.3"
 rand = "0.3.0"
 rustc-serialize = "0.3"
-cookie = "0.2.4"
+simple_parallel = "0.3"

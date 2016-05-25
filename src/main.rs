@@ -27,7 +27,6 @@ struct PostUserLogin {
     postUserLogin: PostUserLoginBody,
 }
 
-#[allow(dead_code)]
 struct GoodDataClient {
     client: Client,
     server: String,
@@ -45,14 +44,18 @@ impl GoodDataClient {
         }
     }
 
+    fn drop(&mut self) {
+        println!("NOTE: Logging out is not implemented yet!");
+    }
+
     /// Get Projects
     fn projects(&mut self) -> String {
-        let mut res = self.get("/gdc/md/projects");
+        let mut res = self.get("/gdc/md");
         return self.get_content(&mut res);
     }
 
     /// Login to GoodData platform
-    fn login<S: Into<String>>(&mut self, username: S, password: S) {
+    fn connect<S: Into<String>>(&mut self, username: S, password: S) {
         let payload = PostUserLogin {
             postUserLogin: PostUserLoginBody {
                 login: username.into(),
@@ -160,6 +163,6 @@ impl GoodDataClient {
 
 fn main() {
     let mut gd = GoodDataClient::new();
-    gd.login("tomas.korcak+gem_tester@gooddata.com", "jindrisska");
+    gd.connect("tomas.korcak+gem_tester@gooddata.com", "jindrisska");
     println!("{}", gd.projects());
 }
