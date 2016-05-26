@@ -36,14 +36,14 @@ gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 .
 ├── projects
 │   ├── $ocka
-│   ├── Boot\ Camp\ 3\ Exercises\ 01
-│   ├── Date\ Dictionary
-│   ├── GDC\ Git\ 0.2
-│   ├── GoodDuty\ &\ Calendars
-│   ├── GoodStatistics\ Demo
-│   ├── MAQL\ Boot\ Camp\ 01
-│   ├── MS\ ETL\ 3.0
-│   ├── Ruby\ downloaders
-│   └── Training\ March
+│   ├── Boot Camp 3 Exercises 01
+│   ├── Date Dictionary
+│   ├── GDC Git 0.2
+│   ├── GoodDuty & Calendars
+│   ├── GoodStatistics Demo
+│   ├── MAQL Boot Camp 01
+│   ├── MS ETL 3.0
+│   ├── Ruby downloaders
+│   └── Training March
 └── user.json
 ```
