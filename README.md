@@ -13,12 +13,17 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 * [Rust language](https://www.rust-lang.org/)
 * [libfuse](https://github.com/libfuse/libfuse) or [FUSE OSX](https://osxfuse.github.io/) 
 
+*Optional*
+
+* [Docker](https://www.docker.com/)
+
 ### Mac Specific
 
 * [Homebew](http://brew.sh/)
 
-### Map Specific (Optional)
+*Optional*
 
+* [Virtualbox](https://www.virtualbox.org/)
 * [Docker Toolbox](https://www.docker.com/products/docker-toolbox)
 
 ## Getting Started
