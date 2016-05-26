@@ -20,7 +20,7 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 ### Map Specific (Optional)
 
 * [Docker Toolbox](https://www.docker.com/products/docker-toolbox)
-* 
+
 ## Getting Started
 
 ```
