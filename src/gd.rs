@@ -62,6 +62,43 @@ pub struct UserLogin {
     pub userLogin: UserLoginBody,
 }
 
+#[derive(RustcDecodable, RustcEncodable)]
+pub struct ProjectContent {
+    pub environment: Option<String>,
+    pub cluster: Option<String>,
+    pub guidedNavigation: Option<String>,
+    pub isPublic: Option<String>,
+    pub driver: Option<String>,
+    pub state: Option<String>,
+}
+
+#[derive(RustcDecodable, RustcEncodable)]
+pub struct ProjectMeta {
+    pub created: Option<String>,
+    pub summary: Option<String>,
+    pub updated: Option<String>,
+    pub author: Option<String>,
+    pub title: Option<String>,
+    pub contributor: Option<String>,
+}
+
+#[derive(RustcDecodable, RustcEncodable)]
+pub struct ProjectBody {
+    pub content: ProjectContent,
+    pub links: Option<HashMap<String, String>>,
+    pub meta: ProjectMeta,
+}
+
+#[derive(RustcDecodable, RustcEncodable)]
+pub struct Project {
+    pub project: ProjectBody,
+}
+
+#[derive(RustcDecodable, RustcEncodable)]
+pub struct Projects {
+    pub projects: Vec<Project>,
+}
+
 pub struct GoodDataClient {
     pub client: Client,
     pub server: String,
@@ -69,12 +106,11 @@ pub struct GoodDataClient {
     pub user: Option<AccountSetting>,
 }
 
-// impl Drop for GoodDataClient {
-// fn drop(&mut self) {
-// self.disconnect();
-// }
-// }
-//
+impl Drop for GoodDataClient {
+    fn drop(&mut self) {
+        self.disconnect();
+    }
+}
 
 #[allow(dead_code)]
 #[allow(unused_variables)]
@@ -95,9 +131,22 @@ impl GoodDataClient {
     }
 
     /// Get Projects
-    pub fn projects(&mut self) -> String {
-        let mut res = self.get("/gdc/md");
-        return self.get_content(&mut res);
+    pub fn projects(&mut self) -> Vec<Project> {
+        let uri = format!("{}",
+                          self.user
+                              .as_ref()
+                              .unwrap()
+                              .accountSetting
+                              .links
+                              .as_ref()
+                              .unwrap()
+                              .get("projects")
+                              .unwrap());
+        let mut res = self.get(&uri[..]);
+        let raw_projects = self.get_content(&mut res);
+
+        let projects: Projects = json::decode(&raw_projects[..]).unwrap();
+        return projects.projects;
     }
 
     /// Login to GoodData platform
@@ -209,7 +258,6 @@ impl GoodDataClient {
     fn update_cookie_jar(&mut self, res: &hyper::client::Response) {
         for setCookie in res.headers.get::<SetCookie>().iter() {
             for cookie in setCookie.iter() {
-                // println!("{:?}", cookie);
                 self.jar.add(cookie.clone());
             }
         }
@@ -228,6 +276,6 @@ impl GoodDataClient {
     /// Construct User-Agent HTTP Header
     fn user_agent() -> String {
         const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-        return format!("gooddata-ruby/{}", VERSION);
+        return format!("gooddata-rust/{}", VERSION);
     }
 }

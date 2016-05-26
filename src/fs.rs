@@ -1,6 +1,7 @@
 extern crate chrono;
 extern crate fuse;
 extern crate libc;
+extern crate regex;
 extern crate rustc_serialize;
 extern crate time;
 
@@ -11,6 +12,7 @@ use fuse::{FileType, FileAttr, Filesystem, Request, ReplyData, ReplyEntry, Reply
            ReplyDirectory};
 use rustc_serialize::json;
 use std::path::Path;
+// use regex::Regex;
 
 use gd;
 
@@ -108,8 +110,34 @@ impl Filesystem for GoodDataFS {
         if parent == INODE_ROOT && name.to_str() == Some("user.json") {
             reply.entry(&TTL, &self.get_user_file_attributes(), 0);
         } else if parent == INODE_ROOT && name.to_str() == Some("projects") {
-            println!("Reading projects folder");
             reply.entry(&TTL, &PROJECTS_DIR_ATTR, 0);
+        } else if parent == INODE_PROJECTS {
+            let mut i: u64 = 0;
+            let projects = self.client.projects();
+            for project in projects.into_iter() {
+                if project.project.meta.title.unwrap().to_string() == name.to_str().unwrap() {
+                    break;
+                }
+                i += 1;
+            }
+
+            let attr = FileAttr {
+                ino: i + 1000,
+                size: 0,
+                blocks: 0,
+                atime: CREATE_TIME,
+                mtime: CREATE_TIME,
+                ctime: CREATE_TIME,
+                crtime: CREATE_TIME,
+                kind: FileType::Directory,
+                perm: 0o755,
+                nlink: 2,
+                uid: 501,
+                gid: 20,
+                rdev: 0,
+                flags: 0,
+            };
+            reply.entry(&TTL, &attr, 0);
         } else {
             reply.error(ENOENT);
         }
@@ -161,6 +189,17 @@ impl Filesystem for GoodDataFS {
             if offset == 0 {
                 reply.add(INODE_PROJECTS, 0, FileType::Directory, ".");
                 reply.add(INODE_PROJECTS, 1, FileType::Directory, "..");
+
+                let mut i: u64 = 0;
+                let projects = self.client.projects();
+                // let re = Regex::new("[^a-zA-Z0-9]+").unwrap();
+
+                for project in projects.into_iter() {
+                    let title = format!("{}", project.project.meta.title.unwrap().to_string());
+                    // let sanitized = re.replace_all(&title[..], "_");
+                    reply.add(INODE_PROJECTS, 2 + i, FileType::Directory, title);
+                    i += 1;
+                }
             }
             reply.ok();
         } else {

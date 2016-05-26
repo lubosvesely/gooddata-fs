@@ -5,6 +5,7 @@ extern crate env_logger;
 extern crate fuse;
 extern crate hyper;
 extern crate libc;
+extern crate regex;
 extern crate rustc_serialize;
 extern crate time;
 
@@ -20,9 +21,7 @@ fn main() {
     gd.connect(username.to_str().unwrap().to_string(),
                password.to_str().unwrap().to_string());
 
-    // println!("{}", json::as_pretty_json(&gd.user()));
-    // println!("{}", gd.user());
-    println!("{}", gd.projects());
+    // println!("{}", gd.projects().as_ref()[0].meta.title.unwrap());
 
     // Mount GoodData
     let mountpoint = env::args_os().nth(3).unwrap();
