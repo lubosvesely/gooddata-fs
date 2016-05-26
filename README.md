@@ -26,5 +26,6 @@ cargo install
 
 ```
 # gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
+
 gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 ```
