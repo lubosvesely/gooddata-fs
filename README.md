@@ -70,5 +70,6 @@ brew link --force openssl
 ### Tools
 
 ```
-cargo install racer rustfmt
+cargo install racer
+cargo install rustfmt
 ```
