@@ -33,3 +33,25 @@ install: installing component 'cargo'
 
     Rust is ready to roll.
 
+ ---> 8b289b5010f5
+Removing intermediate container fa455eafd7b2
+Step 10 : COPY . .
+ ---> a24df13f8b4c
+Removing intermediate container 7290334695e9
+Step 11 : RUN cargo build
+ ---> Running in 995957a0a26f
+    Updating registry `https://github.com/rust-lang/crates.io-index`
+ Downloading hyper v0.9.6
+ Downloading regex v0.1.71
+ Downloading env_logger v0.3.3
+ Downloading chomp v0.2.5
+ Downloading chrono v0.2.22
+ Downloading rustc-serialize v0.3.19
+ Downloading fuse v0.2.7
+ Downloading libc v0.2.11
+ Downloading time v0.1.35
+ Downloading rand v0.3.14
+ Downloading log v0.3.6
+ Downloading cookie v0.2.4
+ Downloading openssl v0.7.13
+ Downloading traitobject v0.0.1
