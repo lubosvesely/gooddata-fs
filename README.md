@@ -53,3 +53,22 @@ gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 │   └── Training March
 └── user.json
 ```
+
+## Development
+
+### Environment
+
+### Mac Specific
+
+Make sure you have openssl installed and linked.
+
+```
+brew install openssl
+brew link --force openssl
+```
+
+### Tools
+
+```
+cargo install racer rustfmt
+```
