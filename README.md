@@ -32,6 +32,8 @@ gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 
 ## Filesystem structure
 
+### root
+
 ```
 .
 ├── projects
