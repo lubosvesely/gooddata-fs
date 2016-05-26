@@ -17,6 +17,10 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 
 * [Homebew](http://brew.sh/)
 
+### Map Specific (Optional)
+
+* [Docker Toolbox](https://www.docker.com/products/docker-toolbox)
+* 
 ## Getting Started
 
 ```
