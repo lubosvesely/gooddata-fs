@@ -7,9 +7,13 @@ authors = [
 
 [dependencies]
 chomp = "0.2.5"
+chrono = "0.2"
 cookie = "0.2.4"
 env_logger = "0.3"
+fuse = "0.2"
 hyper = "0.9"
+libc = "0.2.11"
 log = "0.3"
 rand = "0.3.0"
 rustc-serialize = "0.3"
+time = "0.1.35"
