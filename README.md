@@ -65,6 +65,13 @@ gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 
 ## Development
 
+### Docker
+
+```
+cd scripts/docker
+./build-local.sh
+```
+
 ### Environment
 
 ### Mac Specific
