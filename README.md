@@ -1,6 +1,6 @@
 # gooddata-rust
 
-GoodData Rust Language SDK
+GoodData as Filesystem (using FUSE) and Rust Language SDK
 
 ## Status
 
