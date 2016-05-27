@@ -1,0 +1,14 @@
+FROM alpine:3.3
+
+# USER rust
+
+RUN apk update && apk add --update bash file curl sudo && rm -rf /var/cache/apk/*
+
+RUN curl -sSf https://static.rust-lang.org/rustup.sh | sh -s -- -y
+
+# RUN /sbin/ldconfig -v
+
+# Copy package json and install dependencies
+COPY . .
+
+RUN /bin/bash -c "/usr/local/bin/cargo"

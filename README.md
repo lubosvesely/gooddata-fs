@@ -13,6 +13,19 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 * [Rust language](https://www.rust-lang.org/)
 * [libfuse](https://github.com/libfuse/libfuse) or [FUSE OSX](https://osxfuse.github.io/)
 
+*Optional*
+
+* [Docker](https://www.docker.com/)
+
+### Mac Specific
+
+* [Homebew](http://brew.sh/)
+
+*Optional*
+
+* [Virtualbox](https://www.virtualbox.org/)
+* [Docker Toolbox](https://www.docker.com/products/docker-toolbox)
+
 ## Getting Started
 
 ```
@@ -48,4 +61,31 @@ gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 │   ├── Ruby downloaders
 │   └── Training March
 └── user.json
+```
+
+## Development
+
+### Docker
+
+```
+cd scripts/docker
+./build-local.sh
+```
+
+### Environment
+
+### Mac Specific
+
+Make sure you have openssl installed and linked.
+
+```
+brew install openssl
+brew link --force openssl
+```
+
+### Tools
+
+```
+cargo install racer
+cargo install rustfmt
 ```

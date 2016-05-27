@@ -1,0 +1,57 @@
+Sending build context to Docker daemon 557.1 kBSending build context to Docker daemon 1.114 MBSending build context to Docker daemon 1.671 MBSending build context to Docker daemon 2.051 MB
+Step 1 : FROM debian:jessie
+ ---> 1742affe03b5
+Step 2 : MAINTAINER Andrew Scorpil "dev@scorpil.com"
+ ---> Using cache
+ ---> 3b32183add56
+Step 3 : ENV DEBIAN_FRONTEND noninteractive
+ ---> Using cache
+ ---> b70c2a82a686
+Step 4 : RUN apt-get update &&     apt-get install        ca-certificates        curl        gcc        libc6-dev        libfuse-dev        -qqy        --no-install-recommends     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 8a44f03e7cc5
+Step 5 : ENV RUST_ARCHIVE rust-1.8.0-x86_64-unknown-linux-gnu.tar.gz
+ ---> Using cache
+ ---> 2d6963b5dfe9
+Step 6 : ENV RUST_DOWNLOAD_URL https://static.rust-lang.org/dist/$RUST_ARCHIVE
+ ---> Using cache
+ ---> bc8a0bb84198
+Step 7 : RUN mkdir /rust
+ ---> Using cache
+ ---> 859e1ada020b
+Step 8 : WORKDIR /rust
+ ---> Using cache
+ ---> 2157b8ddbfc2
+Step 9 : RUN curl -fsOSL $RUST_DOWNLOAD_URL     && curl -s $RUST_DOWNLOAD_URL.sha256 | sha256sum -c -     && tar -C /rust -xzf $RUST_ARCHIVE --strip-components=1     && rm $RUST_ARCHIVE     && ./install.sh
+ ---> Running in fa455eafd7b2
+rust-1.8.0-x86_64-unknown-linux-gnu.tar.gz: OK
+install: creating uninstall script at /usr/local/lib/rustlib/uninstall.sh
+install: installing component 'rustc'
+install: installing component 'rust-std-x86_64-unknown-linux-gnu'
+install: installing component 'rust-docs'
+install: installing component 'cargo'
+
+    Rust is ready to roll.
+
+ ---> 8b289b5010f5
+Removing intermediate container fa455eafd7b2
+Step 10 : COPY . .
+ ---> a24df13f8b4c
+Removing intermediate container 7290334695e9
+Step 11 : RUN cargo build
+ ---> Running in 995957a0a26f
+    Updating registry `https://github.com/rust-lang/crates.io-index`
+ Downloading hyper v0.9.6
+ Downloading regex v0.1.71
+ Downloading env_logger v0.3.3
+ Downloading chomp v0.2.5
+ Downloading chrono v0.2.22
+ Downloading rustc-serialize v0.3.19
+ Downloading fuse v0.2.7
+ Downloading libc v0.2.11
+ Downloading time v0.1.35
+ Downloading rand v0.3.14
+ Downloading log v0.3.6
+ Downloading cookie v0.2.4
+ Downloading openssl v0.7.13
+ Downloading traitobject v0.0.1
