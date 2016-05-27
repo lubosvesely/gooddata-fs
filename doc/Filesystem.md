@@ -58,7 +58,7 @@ i-node ID has 64 bits and is used as follow
 | 42  | uploads                      |
 | 43  | users                        |
 
-## Files
+## Files - Category Type `internal`
 
 | Offset | File              |
 |--------|-------------------|
@@ -88,7 +88,7 @@ Items marked `✓` are already implemented.
 
 .
 ├── projects ✓
-│   ├── MyProject
+│   ├── MyProject ✓
 │   │   ├── connectors
 │   │   ├── dataload
 │   │   │   ├── download
@@ -146,6 +146,5 @@ Items marked `✓` are already implemented.
 └── user.json ✓
 
 44 directories, 13 files
-
 
 ```
