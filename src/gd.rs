@@ -324,6 +324,6 @@ impl GoodDataClient {
     /// Construct User-Agent HTTP Header
     fn user_agent() -> String {
         const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-        return format!("gooddata-ruby/{}", VERSION);
+        return format!("gooddata-rust/{}", VERSION);
     }
 }
