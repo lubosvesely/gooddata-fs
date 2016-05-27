@@ -82,6 +82,33 @@ pub struct ProjectMeta {
     pub contributor: Option<String>,
 }
 
+#[allow(dead_code)]
+impl ProjectMeta {
+    pub fn created(&self) -> &Option<String> {
+        &self.created
+    }
+
+    pub fn summary(&self) -> &Option<String> {
+        &self.summary
+    }
+
+    pub fn updated(&self) -> &Option<String> {
+        &self.updated
+    }
+
+    pub fn author(&self) -> &Option<String> {
+        &self.author
+    }
+
+    pub fn title(&self) -> &Option<String> {
+        &self.title
+    }
+
+    pub fn contributor(&self) -> &Option<String> {
+        &self.contributor
+    }
+}
+
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct ProjectBody {
     pub content: ProjectContent,
@@ -89,9 +116,21 @@ pub struct ProjectBody {
     pub meta: ProjectMeta,
 }
 
+impl ProjectBody {
+    pub fn meta(&self) -> &ProjectMeta {
+        &self.meta
+    }
+}
+
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct Project {
     pub project: ProjectBody,
+}
+
+impl Project {
+    pub fn project(&self) -> &ProjectBody {
+        &self.project
+    }
 }
 
 #[derive(RustcDecodable, RustcEncodable)]
@@ -104,6 +143,7 @@ pub struct GoodDataClient {
     pub server: String,
     pub jar: CookieJar<'static>,
     pub user: Option<AccountSetting>,
+    pub projects: Option<Vec<Project>>,
 }
 
 impl Drop for GoodDataClient {
@@ -123,6 +163,7 @@ impl GoodDataClient {
             server: "https://secure.gooddata.com".to_string(),
             jar: CookieJar::new(b"f8f9eaf1ecdedff5e5b749c58115441e"),
             user: None,
+            projects: None,
         }
     }
 
@@ -131,7 +172,12 @@ impl GoodDataClient {
     }
 
     /// Get Projects
-    pub fn projects(&mut self) -> Vec<Project> {
+    pub fn projects(&self) -> &Option<Vec<Project>> {
+        // self.projects_fetch();
+        &self.projects
+    }
+
+    pub fn projects_fetch(&mut self) -> &Option<Vec<Project>> {
         let uri = format!("{}",
                           self.user
                               .as_ref()
@@ -146,7 +192,9 @@ impl GoodDataClient {
         let raw_projects = self.get_content(&mut res);
 
         let projects: Projects = json::decode(&raw_projects[..]).unwrap();
-        return projects.projects;
+
+        self.projects = Some(projects.projects);
+        &self.projects
     }
 
     /// Login to GoodData platform
@@ -276,6 +324,6 @@ impl GoodDataClient {
     /// Construct User-Agent HTTP Header
     fn user_agent() -> String {
         const VERSION: &'static str = env!("CARGO_PKG_VERSION");
-        return format!("gooddata-rust/{}", VERSION);
+        return format!("gooddata-ruby/{}", VERSION);
     }
 }

@@ -11,7 +11,7 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 ## Prerequisites
 
 * [Rust language](https://www.rust-lang.org/)
-* [libfuse](https://github.com/libfuse/libfuse) or [FUSE OSX](https://osxfuse.github.io/) 
+* [libfuse](https://github.com/libfuse/libfuse) or [FUSE OSX](https://osxfuse.github.io/)
 
 ## Getting Started
 
