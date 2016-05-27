@@ -81,6 +81,8 @@ i-node ID has 64 bits and is used as follow
 
 ### root
 
+Items marked `✓` are already implemented.
+
 ```
 # tree --dirsfirst .
 
