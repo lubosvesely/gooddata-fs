@@ -87,7 +87,7 @@ Items marked `✓` are already implemented.
 # tree --dirsfirst .
 
 .
-├── projects
+├── projects ✓
 │   ├── MyProject
 │   │   ├── connectors
 │   │   ├── dataload
