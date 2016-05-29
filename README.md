@@ -1,4 +1,4 @@
-# gooddata-fuse
+# gooddata-fs
 
 GoodData as Filesystem (using FUSE)
 
