@@ -2,7 +2,7 @@
 
 ## i-node ID format
 
-i-node ID has 64 bits and is used as follow
+i-node has 64 bits and is used as follow
 
 | Bits | Offset | Description  | Limit            |
 |------|--------|--------------|------------------|
