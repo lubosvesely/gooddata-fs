@@ -1,4 +1,4 @@
-# gooddata-rust
+# gooddata-fuse
 
 GoodData as Filesystem (using FUSE) and Rust Language SDK
 
