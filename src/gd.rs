@@ -2,6 +2,7 @@
 #![allow(non_snake_case)]
 #[allow(unused_imports)]
 
+extern crate time;
 extern crate hyper;
 
 use cookie::CookieJar;
@@ -144,6 +145,7 @@ pub struct GoodDataClient {
     pub jar: CookieJar<'static>,
     pub user: Option<AccountSetting>,
     pub projects: Option<Vec<Project>>,
+    pub token_updated: Option<time::PreciseTime>,
 }
 
 impl Drop for GoodDataClient {
@@ -164,11 +166,8 @@ impl GoodDataClient {
             jar: CookieJar::new(b"f8f9eaf1ecdedff5e5b749c58115441e"),
             user: None,
             projects: None,
+            token_updated: None,
         }
-    }
-
-    pub fn drop(&mut self) {
-        println!("NOTE: Logging out is not implemented yet!");
     }
 
     /// Get Projects
@@ -230,8 +229,11 @@ impl GoodDataClient {
 
     /// HTTP Method GET Wrapper
     pub fn get<S: Into<String>>(&mut self, path: S) -> Response {
-        let uri = format!("{}{}", self.server, path.into());
-        let mut res = self.client
+        self.refresh_token_check();
+
+        let uriPath = format!("{}", path.into());
+        let uri = format!("{}{}", self.server, uriPath);
+        let raw = self.client
             .get(&uri[..])
             .header(ContentType(Mime(TopLevel::Application,
                                      SubLevel::Json,
@@ -242,8 +244,14 @@ impl GoodDataClient {
             ]))
             .header(UserAgent(GoodDataClient::user_agent().to_owned()))
             .header(Cookie::from_cookie_jar(&self.jar))
-            .send()
-            .unwrap();
+            .send();
+
+        println!("{:?}", raw);
+        if !raw.is_ok() {
+            return self.get(uriPath);
+        }
+
+        let mut res = raw.unwrap();
         assert_eq!(res.status, hyper::Ok);
         println!("{:?}", res);
 
@@ -255,10 +263,13 @@ impl GoodDataClient {
 
     /// HTTP Method POST Wrapper
     fn post<S: Into<String>>(&mut self, path: S, body: S) -> hyper::client::response::Response {
-        let uri = format!("{}{}", self.server, path.into());
+        self.refresh_token_check();
+
+        let uriPath = format!("{}", path.into());
+        let uri = format!("{}{}", self.server, uriPath);
         let payload = body.into();
 
-        let mut res = self.client
+        let raw = self.client
             .post(&uri[..])
             .header(ContentType(Mime(TopLevel::Application,
                                      SubLevel::Json,
@@ -269,9 +280,17 @@ impl GoodDataClient {
                             vec![(Attr::Charset, Value::Utf8)])),
             ]))
             .body(&payload[..])
-            .send()
-            .unwrap();
+            .send();
+
+
+        println!("{:?}", raw);
+        if !raw.is_ok() {
+            return self.post(uriPath, payload);
+        }
+
+        let mut res = raw.unwrap();
         assert_eq!(res.status, hyper::Ok);
+        println!("{:?}", res);
 
         self.print_response(&mut res);
         self.update_cookie_jar(&res);
@@ -314,7 +333,43 @@ impl GoodDataClient {
     /// Refresh GoodData TT (Temporary Token)
     fn refresh_token(&mut self) {
         // Refresh token
-        self.get("/gdc/account/token");
+        // self.get("/gdc/account/token");
+
+        let uri = format!("{}/gdc/account/token", self.server);
+        let raw = self.client
+            .get(&uri[..])
+            .header(ContentType(Mime(TopLevel::Application,
+                                     SubLevel::Json,
+                                     vec![(Attr::Charset, Value::Utf8)])))
+            .header(Accept(vec![
+                             qitem(Mime(TopLevel::Application, SubLevel::Json,
+                             vec![(Attr::Charset, Value::Utf8)])),
+            ]))
+            .header(UserAgent(GoodDataClient::user_agent().to_owned()))
+            .header(Cookie::from_cookie_jar(&self.jar))
+            .send();
+
+        println!("{:?}", raw);
+        if !raw.is_ok() {
+            return self.refresh_token();
+        }
+
+        let mut res = raw.unwrap();
+        assert_eq!(res.status, hyper::Ok);
+        println!("{:?}", res);
+
+        self.print_response(&mut res);
+        self.update_cookie_jar(&res);
+
+        self.token_updated = Some(time::PreciseTime::now());
+    }
+
+    fn refresh_token_check(&mut self) {
+        if self.token_updated.is_some() &&
+           self.token_updated.unwrap().to(time::PreciseTime::now()) >
+           time::Duration::seconds(4 * 60) {
+            self.refresh_token();
+        }
     }
 
     pub fn user(&self) -> &Option<AccountSetting> {

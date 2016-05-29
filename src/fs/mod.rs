@@ -72,7 +72,34 @@ impl Drop for GoodDataFS {
     }
 }
 
+#[allow(dead_code)]
 impl GoodDataFS {
+    pub fn drop(&mut self) {
+        println!("NOTE: Logging out is not implemented yet!");
+    }
+
+    pub fn inode_get_project(inode: u64) -> u16 {
+        (inode >> 48) as u16
+    }
+
+    pub fn inode_get_category(inode: u64) -> u8 {
+        ((inode >> 40) & 0xff) as u8
+    }
+
+    pub fn inode_get_item(inode: u64) -> u32 {
+        ((inode >> 8) & 0xffffffff) as u32
+    }
+
+    pub fn inode_get_reserved(inode: u64) -> u8 {
+        (inode & 0xff) as u8
+    }
+
+    pub fn inode_create(project: u16, category: u8, item: u32, reserved: u8) -> u64 {
+        let inode: u64 = ((project as u64) << 48) | ((category as u64) << 40) |
+                         ((item as u64) << 8) | (reserved as u64);
+        return inode;
+    }
+
     fn client(&self) -> &gd::GoodDataClient {
         &self.client
     }
@@ -201,11 +228,38 @@ impl Filesystem for GoodDataFS {
             };
             reply.entry(&TTL, &attr, 0);
         } else {
-            let projectid = parent >> 48;
+            let projectid = GoodDataFS::inode_get_project(parent);
             if projectid > 0 {
-                println!("GoodDataFS::lookup() - Adding project projectid {}",
-                         projectid - 1);
-                reply.error(ENOENT);
+                println!("GoodDataFS::lookup() - Adding project projectid {}, path {:?}",
+                         projectid - 1,
+                         name.to_str());
+                if name.to_str() == Some("project.json") {
+                    let inode = GoodDataFS::inode_create(projectid, 0, 0, 1);
+
+                    let client: &gd::GoodDataClient = self.client();
+                    let projects = client.projects().as_ref();
+                    let json = json::as_pretty_json(&projects.unwrap()[(projectid - 1) as usize])
+                        .to_string();
+                    let attr = FileAttr {
+                        ino: inode,
+                        size: json.len() as u64,
+                        blocks: 1,
+                        atime: CREATE_TIME,
+                        mtime: CREATE_TIME,
+                        ctime: CREATE_TIME,
+                        crtime: CREATE_TIME,
+                        kind: FileType::RegularFile,
+                        perm: 0o444,
+                        nlink: 1,
+                        uid: 501,
+                        gid: 20,
+                        rdev: 0,
+                        flags: 0,
+                    };
+                    reply.entry(&TTL, &attr, 0);
+                } else {
+                    reply.error(ENOENT);
+                }
             } else {
                 reply.error(ENOENT);
             }
@@ -300,7 +354,7 @@ impl Filesystem for GoodDataFS {
                     i += 1;
                 }
 
-                reply.add(INODE_PROJECTS,
+                reply.add(INODE_PROJECTS_JSON,
                           i + 3,
                           FileType::RegularFile,
                           "projects.json");
@@ -309,16 +363,52 @@ impl Filesystem for GoodDataFS {
         } else {
             let projectid = ino >> 48;
             if projectid > 0 {
-                println!("GoodDataFS::readdir() - Reading project specific inode {}, projectid \
-                          {:?}",
-                         ino,
-                         projectid - 1);
+                if offset == 0 {
+                    println!("GoodDataFS::readdir() - Reading project specific inode {}, \
+                              projectid {:?}",
+                             ino,
+                             projectid - 1);
 
-                reply.add(ino, 0, FileType::Directory, ".");
-                reply.add(ino, 1, FileType::Directory, "..");
+                    reply.add(ino, 0, FileType::Directory, ".");
+                    reply.add(ino, 1, FileType::Directory, "..");
 
-                println!("GoodDataFS::readdir() - Adding project.json");
-                reply.add(ino, 2, FileType::Directory, "project.json");
+                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                              featureflags.json",
+                             GoodDataFS::inode_create(projectid as u16, 0, 0, 1),
+                             projectid - 1);
+                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 1),
+                              2,
+                              FileType::RegularFile,
+                              "featureflags.json");
+
+                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                              permissions.json",
+                             GoodDataFS::inode_create(projectid as u16, 0, 0, 2),
+                             projectid - 1);
+                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 2),
+                              3,
+                              FileType::RegularFile,
+                              "permissions.json");
+
+                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                              project.json",
+                             GoodDataFS::inode_create(projectid as u16, 0, 0, 3),
+                             projectid - 1);
+                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 3),
+                              4,
+                              FileType::RegularFile,
+                              "project.json");
+
+                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                              roles.json",
+                             GoodDataFS::inode_create(projectid as u16, 0, 0, 4),
+                             projectid - 1);
+                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 4),
+                              5,
+                              FileType::RegularFile,
+                              "roles.json");
+                }
+                reply.ok();
             } else {
                 println!("GoodDataFS::readdir() - Unknown inode {}", ino);
                 reply.error(ENOENT);
