@@ -4,10 +4,12 @@
 
 i-node ID has 64 bits and is used as follow
 
-* 16b - Project ID
-* 8b  - Category ID
-* 32b - Item ID
-* 8b - Reserved
+| Bits | Description  |
+|------|--------------|
+| 16b  | Project ID   |
+| 8b   | Category ID  |
+| 32b  | Item ID      |
+| 8b   | Reserved     |
 
 ## Category ID
 
