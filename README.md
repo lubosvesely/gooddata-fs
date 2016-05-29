@@ -34,8 +34,8 @@ GoodData as Filesystem (using FUSE)
 ### Clone & Build
 
 ```
-git clone https://github.com/korczis/gooddata-rust
-cd gooddata-rust
+git clone https://github.com/korczis/gooddata-fs
+cd gooddata-fs
 cargo build
 ```
 
@@ -47,20 +47,20 @@ cargo install
 
 ## Mounting GoodData as Filesystem
 
-### Running built binary 
+### Running built binary
 
 ```
 # gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
 
-RUST_BACKTRACE=1 RUST_LOG=debug ./target/debug/gooddata-fuse joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
+RUST_BACKTRACE=1 RUST_LOG=debug ./target/debug/gooddata-fs joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 ```
 
-### Running installed binary 
+### Running installed binary
 
 ```
 # gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
 
-RUST_BACKTRACE=1 RUST_LOG=debug gooddata-fuse joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
+RUST_BACKTRACE=1 RUST_LOG=debug gooddata-fs joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 ```
 
 ## Filesystem structure
