@@ -373,9 +373,6 @@ impl Filesystem for GoodDataFS {
         } else {
             let projectid = GoodDataFS::inode_get_project(parent);
             if projectid > 0 {
-                println!("GoodDataFS::lookup() - Adding project projectid {}, path {:?}",
-                         projectid - 1,
-                         name.to_str());
                 if name.to_str() == Some("project.json") {
                     let inode = GoodDataFS::inode_create(projectid, 0, 0, 1);
 
@@ -425,11 +422,27 @@ impl Filesystem for GoodDataFS {
             reply.attr(&TTL, &self.get_user_file_attributes());
         } else {
             if inode.project > 0 {
-                println!("GoodDataFS::getattr() - Project Specific Info {:?}",
-                         inode.project - 1);
-
                 if inode.reserved == 0 {
                     reply.attr(&TTL, &self.get_project_dir_attributes(ino));
+                } else if inode.reserved == ReservedFile::ProjectJson as u8 {
+                    println!("!!!! PROJECT.JSON");
+                    let attr = FileAttr {
+                        ino: ino,
+                        size: 1,
+                        blocks: 1,
+                        atime: CREATE_TIME,
+                        mtime: CREATE_TIME,
+                        ctime: CREATE_TIME,
+                        crtime: CREATE_TIME,
+                        kind: FileType::RegularFile,
+                        perm: 0o444,
+                        nlink: 1,
+                        uid: 501,
+                        gid: 20,
+                        rdev: 0,
+                        flags: 0,
+                    };
+                    reply.attr(&TTL, &attr);
                 }
             } else {
                 println!("GoodDataFS::getattr() - Not found inode {:?}", ino);
@@ -514,11 +527,6 @@ impl Filesystem for GoodDataFS {
             let projectid = ino >> 48;
             if projectid > 0 {
                 if offset == 0 {
-                    println!("GoodDataFS::readdir() - Reading project specific inode {}, \
-                              projectid {:?}",
-                             ino,
-                             projectid - 1);
-
                     reply.add(ino, 0, FileType::Directory, ".");
                     reply.add(ino, 1, FileType::Directory, "..");
 
