@@ -408,7 +408,7 @@ impl Filesystem for GoodDataFS {
 
     fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
         let inode = GoodDataFS::inode_deserialize(ino);
-        println!("GoodDataFS::getattr() - Getting attributes inode {}, {:?}",
+        println!("GoodDataFS::getattr() - Getting attributes inode {} - {:?}",
                  ino,
                  inode);
 
@@ -454,11 +454,15 @@ impl Filesystem for GoodDataFS {
     fn read(&mut self,
             _req: &Request,
             ino: u64,
-            _fh: u64,
+            fh: u64,
             offset: u64,
-            _size: u32,
+            size: u32,
             reply: ReplyData) {
-        println!("GoodDataFS::read() - Reading inode {}", ino);
+        println!("GoodDataFS::read() - Reading inode {}, fh {}, offset {}, size {}",
+                 ino,
+                 fh,
+                 offset,
+                 size);
         if ino == INODE_USER {
             let json = format!("{}\n",
                                json::as_pretty_json(&self.client.user()).to_string());
