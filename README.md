@@ -1,4 +1,4 @@
-# gooddata-rust
+# gooddata-fuse
 
 GoodData as Filesystem (using FUSE) and Rust Language SDK
 
@@ -7,6 +7,9 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 [![Build Status](https://travis-ci.org/korczis/gooddata-rust.svg?branch=master)](https://travis-ci.org/korczis/gooddata-rust)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/korczis/gooddata-rust/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/korczis/gooddata-rust.svg)](https://github.com/korczis/gooddata-rust/issues)
+
+## Supported Operating Systems
+* [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
 
 ## Prerequisites
 
@@ -28,19 +31,36 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 
 ## Getting Started
 
+### Clone & Build
+
 ```
 git clone https://github.com/korczis/gooddata-rust
 cd gooddata-rust
 cargo build
+```
+
+### Install (optional)
+
+```
 cargo install
 ```
 
 ## Mounting GoodData as Filesystem
 
+### Running built binary 
+
 ```
 # gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
 
-gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
+RUST_BACKTRACE=1 RUST_LOG=debug ./target/debug/gooddata-fuse joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
+```
+
+### Running installed binary 
+
+```
+# gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
+
+RUST_BACKTRACE=1 RUST_LOG=debug gooddata-fuse joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 ```
 
 ## Filesystem structure
