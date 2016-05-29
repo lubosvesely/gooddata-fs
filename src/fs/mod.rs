@@ -126,6 +126,14 @@ impl Drop for GoodDataFS {
     }
 }
 
+#[derive(Debug)]
+pub struct Inode {
+    pub project: u16,
+    pub category: u8,
+    pub item: u32,
+    pub reserved: u8,
+}
+
 #[allow(dead_code)]
 impl GoodDataFS {
     pub fn drop(&mut self) {
@@ -152,6 +160,15 @@ impl GoodDataFS {
         let inode: u64 = ((project as u64) << 48) | ((category as u64) << 40) |
                          ((item as u64) << 8) | (reserved as u64);
         return inode;
+    }
+
+    pub fn inode_parse(inode: u64) -> Inode {
+        Inode {
+            project: GoodDataFS::inode_get_project(inode),
+            category: GoodDataFS::inode_get_category(inode),
+            item: GoodDataFS::inode_get_item(inode),
+            reserved: GoodDataFS::inode_get_reserved(inode),
+        }
     }
 
     fn client(&self) -> &gd::GoodDataClient {
@@ -363,7 +380,8 @@ impl Filesystem for GoodDataFS {
     }
 
     fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
-        println!("GoodDataFS::getattr() - Reading inode {}", ino);
+        let inode = GoodDataFS::inode_parse(ino);
+        println!("GoodDataFS::getattr() - Reading inode {}, {:?}", ino, inode);
 
         if ino == INODE_ROOT {
             reply.attr(&TTL, &ROOT_DIR_ATTR);
@@ -374,11 +392,13 @@ impl Filesystem for GoodDataFS {
         } else if ino == INODE_USER {
             reply.attr(&TTL, &self.get_user_file_attributes());
         } else {
-            let projectid = ino >> 48;
-            if projectid > 0 {
+            if inode.project > 0 {
                 println!("GoodDataFS::getattr() - Project Specific Info {:?}",
-                         projectid - 1);
-                reply.attr(&TTL, &self.get_project_dir_attributes(ino));
+                         inode.project - 1);
+
+                if inode.reserved == 0 {
+                    reply.attr(&TTL, &self.get_project_dir_attributes(ino));
+                }
             } else {
                 println!("GoodDataFS::getattr() - Not found inode {:?}", ino);
                 reply.error(ENOENT);
