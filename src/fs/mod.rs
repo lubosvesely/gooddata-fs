@@ -162,7 +162,11 @@ impl GoodDataFS {
         return inode;
     }
 
-    pub fn inode_parse(inode: u64) -> Inode {
+    pub fn inode_serialize(inode: &Inode) -> u64 {
+        GoodDataFS::inode_create(inode.project, inode.category, inode.item, inode.reserved)
+    }
+
+    pub fn inode_deserialize(inode: u64) -> Inode {
         Inode {
             project: GoodDataFS::inode_get_project(inode),
             category: GoodDataFS::inode_get_category(inode),
@@ -249,45 +253,57 @@ impl GoodDataFS {
     }
 
     pub fn readdir_project(&self, projectid: u16, reply: &mut ReplyDirectory) {
-        let fileinode = GoodDataFS::inode_create(projectid as u16,
-                                                 Category::Internal as u8,
-                                                 0,
-                                                 ReservedFile::FeatureFlagsJson as u8);
+        let inode = Inode {
+            project: projectid as u16,
+            category: Category::Internal as u8,
+            item: 0,
+            reserved: ReservedFile::FeatureFlagsJson as u8,
+        };
+        let fileinode: u64 = GoodDataFS::inode_serialize(&inode);
         println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                   featureflags.json",
                  fileinode,
                  projectid - 1);
         reply.add(fileinode, 2, FileType::RegularFile, "featureflags.json");
 
-        let filenode = GoodDataFS::inode_create(projectid as u16,
-                                                Category::Internal as u8,
-                                                0,
-                                                ReservedFile::PermissionsJson as u8);
+        let inode = Inode {
+            project: projectid as u16,
+            category: Category::Internal as u8,
+            item: 0,
+            reserved: ReservedFile::PermissionsJson as u8,
+        };
+        let fileinode: u64 = GoodDataFS::inode_serialize(&inode);
         println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                   permissions.json",
-                 filenode,
+                 fileinode,
                  projectid - 1);
-        reply.add(filenode, 3, FileType::RegularFile, "permissions.json");
+        reply.add(fileinode, 3, FileType::RegularFile, "permissions.json");
 
-        let filenode = GoodDataFS::inode_create(projectid as u16,
-                                                Category::Internal as u8,
-                                                0,
-                                                ReservedFile::ProjectJson as u8);
+        let inode = Inode {
+            project: projectid as u16,
+            category: Category::Internal as u8,
+            item: 0,
+            reserved: ReservedFile::ProjectJson as u8,
+        };
+        let fileinode: u64 = GoodDataFS::inode_serialize(&inode);
         println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                   project.json",
-                 filenode,
+                 fileinode,
                  projectid - 1);
-        reply.add(filenode, 4, FileType::RegularFile, "project.json");
+        reply.add(fileinode, 4, FileType::RegularFile, "project.json");
 
-        let filenode = GoodDataFS::inode_create(projectid as u16,
-                                                Category::Internal as u8,
-                                                0,
-                                                ReservedFile::RolesJson as u8);
+        let inode = Inode {
+            project: projectid as u16,
+            category: Category::Internal as u8,
+            item: 0,
+            reserved: ReservedFile::RolesJson as u8,
+        };
+        let fileinode: u64 = GoodDataFS::inode_serialize(&inode);
         println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                   roles.json",
-                 filenode,
+                 fileinode,
                  projectid - 1);
-        reply.add(filenode, 5, FileType::RegularFile, "roles.json");
+        reply.add(fileinode, 5, FileType::RegularFile, "roles.json");
     }
 }
 
@@ -380,7 +396,7 @@ impl Filesystem for GoodDataFS {
     }
 
     fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
-        let inode = GoodDataFS::inode_parse(ino);
+        let inode = GoodDataFS::inode_deserialize(ino);
         println!("GoodDataFS::getattr() - Reading inode {}, {:?}", ino, inode);
 
         if ino == INODE_ROOT {
