@@ -2,7 +2,7 @@
 
 GoodData as Filesystem (using FUSE)
 
-For detailed information about GoodData Filesystem see [https://github.com/korczis/gooddata-fs/blob/master/doc/Filesystem.md](detailed doc page)
+For information about GoodData Filesystem see [https://github.com/korczis/gooddata-fs/blob/master/doc/Filesystem.md](detailed doc page)
 
 ## Status
 
