@@ -12,9 +12,63 @@ use fuse::{FileType, FileAttr, Filesystem, Request, ReplyData, ReplyEntry, Reply
            ReplyDirectory};
 use rustc_serialize::json;
 use std::path::Path;
-// use regex::Regex;
 
 use gd;
+
+#[allow(dead_code)]
+enum Category {
+    Internal,
+    Connectors,
+    Dataload,
+    DataloadDownload,
+    DataloadEventstore,
+    DataloadMetadataStorage,
+    DataloadProcesses,
+    EventStores,
+    Invitations,
+    Ldm,
+    Metadata,
+    MetadataAnalyticDashboard,
+    MetadataAttributes,
+    MetadataColumns,
+    MetadataDataLoadingColumns,
+    MetadataDatasets,
+    MetadataDateFilterSettings,
+    MetadataDimensions,
+    MetadataDomains,
+    MetadataEtlFiles,
+    MetadataExecutionContexts,
+    MetadataFacts,
+    MetadataFilters,
+    MetadataFolders,
+    MetadataKpi,
+    MetadataKpiAlert,
+    MetadataListAttributeFilter,
+    MetadataMetrics,
+    MetadataProjectDashboards,
+    MetadataPrompts,
+    MetadataReportDefinition,
+    MetadataReports,
+    MetadataSchedulEdmails,
+    MetadataTableDataLoads,
+    MetadataTables,
+    MetadataUserFilters,
+    MetadataVisualizations,
+    PublicArtifacts,
+    Roles,
+    Schedules,
+    Templates,
+    Uploads,
+    Users,
+}
+
+#[allow(dead_code)]
+enum ReservedFile {
+    FeatureFlagsJson = 2,
+    PermissionsJson,
+    ProjectJson,
+    RolesJson,
+}
 
 const TTL: Timespec = Timespec { sec: 1, nsec: 0 }; // 1 second
 
@@ -374,36 +428,60 @@ impl Filesystem for GoodDataFS {
 
                     println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                               featureflags.json",
-                             GoodDataFS::inode_create(projectid as u16, 0, 0, 1),
+                             GoodDataFS::inode_create(projectid as u16,
+                                                      0,
+                                                      0,
+                                                      ReservedFile::FeatureFlagsJson as u8),
                              projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 1),
+                    reply.add(GoodDataFS::inode_create(projectid as u16,
+                                                       0,
+                                                       0,
+                                                       ReservedFile::FeatureFlagsJson as u8),
                               2,
                               FileType::RegularFile,
                               "featureflags.json");
 
                     println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                               permissions.json",
-                             GoodDataFS::inode_create(projectid as u16, 0, 0, 2),
+                             GoodDataFS::inode_create(projectid as u16,
+                                                      0,
+                                                      0,
+                                                      ReservedFile::PermissionsJson as u8),
                              projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 2),
+                    reply.add(GoodDataFS::inode_create(projectid as u16,
+                                                       0,
+                                                       0,
+                                                       ReservedFile::PermissionsJson as u8),
                               3,
                               FileType::RegularFile,
                               "permissions.json");
 
                     println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                               project.json",
-                             GoodDataFS::inode_create(projectid as u16, 0, 0, 3),
+                             GoodDataFS::inode_create(projectid as u16,
+                                                      0,
+                                                      0,
+                                                      ReservedFile::ProjectJson as u8),
                              projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 3),
+                    reply.add(GoodDataFS::inode_create(projectid as u16,
+                                                       0,
+                                                       0,
+                                                       ReservedFile::ProjectJson as u8),
                               4,
                               FileType::RegularFile,
                               "project.json");
 
                     println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
                               roles.json",
-                             GoodDataFS::inode_create(projectid as u16, 0, 0, 4),
+                             GoodDataFS::inode_create(projectid as u16,
+                                                      0,
+                                                      0,
+                                                      ReservedFile::RolesJson as u8),
                              projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16, 0, 0, 4),
+                    reply.add(GoodDataFS::inode_create(projectid as u16,
+                                                       0,
+                                                       0,
+                                                       ReservedFile::RolesJson as u8),
                               5,
                               FileType::RegularFile,
                               "roles.json");
