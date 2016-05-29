@@ -8,6 +8,9 @@ GoodData as Filesystem (using FUSE) and Rust Language SDK
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/korczis/gooddata-rust/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/korczis/gooddata-rust.svg)](https://github.com/korczis/gooddata-rust/issues)
 
+## Supported Operating Systems
+* [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
+
 ## Prerequisites
 
 * [Rust language](https://www.rust-lang.org/)
