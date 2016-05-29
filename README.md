@@ -40,7 +40,7 @@ cargo install
 ```
 # gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
 
-gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
+RUST_BACKTRACE=1 RUST_LOG=debug gooddata-rust joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 ```
 
 ## Filesystem structure
