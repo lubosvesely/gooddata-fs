@@ -230,6 +230,48 @@ impl GoodDataFS {
             flags: 0,
         }
     }
+
+    pub fn readdir_project(&self, projectid: u16, reply: &mut ReplyDirectory) {
+        let fileinode = GoodDataFS::inode_create(projectid as u16,
+                                                 Category::Internal as u8,
+                                                 0,
+                                                 ReservedFile::FeatureFlagsJson as u8);
+        println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                  featureflags.json",
+                 fileinode,
+                 projectid - 1);
+        reply.add(fileinode, 2, FileType::RegularFile, "featureflags.json");
+
+        let filenode = GoodDataFS::inode_create(projectid as u16,
+                                                Category::Internal as u8,
+                                                0,
+                                                ReservedFile::PermissionsJson as u8);
+        println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                  permissions.json",
+                 filenode,
+                 projectid - 1);
+        reply.add(filenode, 3, FileType::RegularFile, "permissions.json");
+
+        let filenode = GoodDataFS::inode_create(projectid as u16,
+                                                Category::Internal as u8,
+                                                0,
+                                                ReservedFile::ProjectJson as u8);
+        println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                  project.json",
+                 filenode,
+                 projectid - 1);
+        reply.add(filenode, 4, FileType::RegularFile, "project.json");
+
+        let filenode = GoodDataFS::inode_create(projectid as u16,
+                                                Category::Internal as u8,
+                                                0,
+                                                ReservedFile::RolesJson as u8);
+        println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
+                  roles.json",
+                 filenode,
+                 projectid - 1);
+        reply.add(filenode, 5, FileType::RegularFile, "roles.json");
+    }
 }
 
 impl Filesystem for GoodDataFS {
@@ -426,65 +468,7 @@ impl Filesystem for GoodDataFS {
                     reply.add(ino, 0, FileType::Directory, ".");
                     reply.add(ino, 1, FileType::Directory, "..");
 
-                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
-                              featureflags.json",
-                             GoodDataFS::inode_create(projectid as u16,
-                                                      0,
-                                                      0,
-                                                      ReservedFile::FeatureFlagsJson as u8),
-                             projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16,
-                                                       0,
-                                                       0,
-                                                       ReservedFile::FeatureFlagsJson as u8),
-                              2,
-                              FileType::RegularFile,
-                              "featureflags.json");
-
-                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
-                              permissions.json",
-                             GoodDataFS::inode_create(projectid as u16,
-                                                      0,
-                                                      0,
-                                                      ReservedFile::PermissionsJson as u8),
-                             projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16,
-                                                       0,
-                                                       0,
-                                                       ReservedFile::PermissionsJson as u8),
-                              3,
-                              FileType::RegularFile,
-                              "permissions.json");
-
-                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
-                              project.json",
-                             GoodDataFS::inode_create(projectid as u16,
-                                                      0,
-                                                      0,
-                                                      ReservedFile::ProjectJson as u8),
-                             projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16,
-                                                       0,
-                                                       0,
-                                                       ReservedFile::ProjectJson as u8),
-                              4,
-                              FileType::RegularFile,
-                              "project.json");
-
-                    println!("GoodDataFS::readdir() - Adding inode {}, project {}, path \
-                              roles.json",
-                             GoodDataFS::inode_create(projectid as u16,
-                                                      0,
-                                                      0,
-                                                      ReservedFile::RolesJson as u8),
-                             projectid - 1);
-                    reply.add(GoodDataFS::inode_create(projectid as u16,
-                                                       0,
-                                                       0,
-                                                       ReservedFile::RolesJson as u8),
-                              5,
-                              FileType::RegularFile,
-                              "roles.json");
+                    self.readdir_project(projectid as u16, &mut reply);
                 }
                 reply.ok();
             } else {
