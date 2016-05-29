@@ -1,4 +1,4 @@
-# gooddata-fuse
+# gooddata-fs
 
 GoodData as Filesystem (using FUSE)
 
@@ -50,7 +50,7 @@ cargo install
 ### Running built binary
 
 ```
-# gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
+# ./target/debug/gooddata-fs <USERNAME> <PASSWORD> <MOUNTPOINT>
 
 RUST_BACKTRACE=1 RUST_LOG=debug ./target/debug/gooddata-fs joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 ```
@@ -58,7 +58,7 @@ RUST_BACKTRACE=1 RUST_LOG=debug ./target/debug/gooddata-fs joe.doe@gooddata.com 
 ### Running installed binary
 
 ```
-# gooddata-rust <USERNAME> <PASSWORD> <MOUNTPOINT>
+# gooddata-fs <USERNAME> <PASSWORD> <MOUNTPOINT>
 
 RUST_BACKTRACE=1 RUST_LOG=debug gooddata-fs joe.doe@gooddata.com secretpassword /Users/joe.doe/gd
 ```
