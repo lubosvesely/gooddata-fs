@@ -4,12 +4,12 @@
 
 i-node ID has 64 bits and is used as follow
 
-| Bits | Offset | Description  |
-|------|--------|--------------|
-| 16   | 48     | Project ID   |
-| 8    | 40     | Category ID  |
-| 32   | 8      | Item ID      |
-| 8    | 0      | Reserved     |
+| Bits | Offset | Description  | Limit            |
+|------|--------|--------------|------------------|
+| 16   | 48     | Project ID   | 65535 projects   |
+| 8    | 40     | Category ID  | 256 categories   |
+| 32   | 8      | Item ID      | 4294967295 items |
+| 8    | 0      | Reserved     | 256 reserves ;-) |
 
 ## Category ID
 
