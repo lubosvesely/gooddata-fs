@@ -10,7 +10,7 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 
 ## Status
 
-[![Build Status](https://travis-ci.org/korczis/gooddata-rust.svg?branch=master)](https://travis-ci.org/korczis/gooddata-rust)
+[![Build Status](https://travis-ci.org/korczis/gooddata-fs.svg?branch=master)](https://travis-ci.org/korczis/gooddata-fs)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/korczis/gooddata-rust/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/korczis/gooddata-rust.svg)](https://github.com/korczis/gooddata-rust/issues)
 
