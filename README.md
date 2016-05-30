@@ -4,6 +4,10 @@ GoodData as Filesystem (using FUSE)
 
 For more information about GoodData Filesystem Structure see [detailed documentation](https://github.com/korczis/gooddata-fs/blob/master/doc/Filesystem.md) - [root](https://github.com/korczis/gooddata-fs/blob/master/doc/Filesystem.md#root).
 
+## Notice
+
+**This is not official GoodData project nor is supported or recommended for production use. You have been warned.**
+
 ## Status
 
 [![Build Status](https://travis-ci.org/korczis/gooddata-rust.svg?branch=master)](https://travis-ci.org/korczis/gooddata-rust)
