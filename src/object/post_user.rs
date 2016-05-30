@@ -5,6 +5,7 @@ pub struct PostUserLoginBody {
     pub remember: bool,
 }
 
+#[allow(non_snake_case)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct PostUserLogin {
     pub postUserLogin: PostUserLoginBody,

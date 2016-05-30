@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[allow(non_snake_case)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct AccountSettingBody {
     pub country: Option<String>,
@@ -19,6 +20,7 @@ pub struct AccountSettingBody {
     pub links: Option<HashMap<String, String>>,
 }
 
+#[allow(non_snake_case)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct AccountSetting {
     pub accountSetting: AccountSettingBody,

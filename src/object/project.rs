@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[allow(non_snake_case)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct ProjectContent {
     pub environment: Option<String>,
