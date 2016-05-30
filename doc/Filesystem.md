@@ -139,7 +139,7 @@ Items marked `✓` are already implemented.
 │   │   ├── users
 │   │   ├── featureflags.json
 │   │   ├── permissions.json
-│   │   ├── project.json
+│   │   ├── project.json ✓
 │   │   └── roles.json
 │   └── projects.json ✓
 └── user.json ✓

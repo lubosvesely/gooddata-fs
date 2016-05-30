@@ -4,6 +4,7 @@ extern crate libc;
 extern crate regex;
 extern crate rustc_serialize;
 extern crate time;
+extern crate users;
 
 use chrono::*;
 use libc::ENOENT;
@@ -82,42 +83,9 @@ const INODE_USER: u64 = 2;
 const INODE_PROJECTS: u64 = 3;
 const INODE_PROJECTS_JSON: u64 = 4;
 
-const ROOT_DIR_ATTR: FileAttr = FileAttr {
-    ino: INODE_ROOT,
-    size: 0,
-    blocks: 0,
-    atime: CREATE_TIME,
-    mtime: CREATE_TIME,
-    ctime: CREATE_TIME,
-    crtime: CREATE_TIME,
-    kind: FileType::Directory,
-    perm: 0o755,
-    nlink: 2,
-    uid: 501,
-    gid: 20,
-    rdev: 0,
-    flags: 0,
-};
-
-const PROJECTS_DIR_ATTR: FileAttr = FileAttr {
-    ino: INODE_PROJECTS,
-    size: 0,
-    blocks: 0,
-    atime: CREATE_TIME,
-    mtime: CREATE_TIME,
-    ctime: CREATE_TIME,
-    crtime: CREATE_TIME,
-    kind: FileType::Directory,
-    perm: 0o755,
-    nlink: 2,
-    uid: 501,
-    gid: 20,
-    rdev: 0,
-    flags: 0,
-};
-
 pub struct GoodDataFS {
     pub client: gd::GoodDataClient,
+    pub users_cache: users::UsersCache,
 }
 
 impl Drop for GoodDataFS {
@@ -200,8 +168,46 @@ impl GoodDataFS {
             kind: FileType::Directory,
             perm: 0o755,
             nlink: 0,
-            uid: 501,
-            gid: 20,
+            uid: users::get_current_uid(),
+            gid: users::get_current_gid(),
+            rdev: 0,
+            flags: 0,
+        }
+    }
+
+    fn get_projects_dir_attributes(&self) -> fuse::FileAttr {
+        FileAttr {
+            ino: INODE_PROJECTS,
+            size: 0,
+            blocks: 0,
+            atime: CREATE_TIME,
+            mtime: CREATE_TIME,
+            ctime: CREATE_TIME,
+            crtime: CREATE_TIME,
+            kind: FileType::Directory,
+            perm: 0o755,
+            nlink: 2,
+            uid: users::get_current_uid(),
+            gid: users::get_current_gid(),
+            rdev: 0,
+            flags: 0,
+        }
+    }
+
+    fn get_root_dir_attributes(&self) -> fuse::FileAttr {
+        FileAttr {
+            ino: INODE_ROOT,
+            size: 0,
+            blocks: 0,
+            atime: CREATE_TIME,
+            mtime: CREATE_TIME,
+            ctime: CREATE_TIME,
+            crtime: CREATE_TIME,
+            kind: FileType::Directory,
+            perm: 0o755,
+            nlink: 2,
+            uid: users::get_current_uid(),
+            gid: users::get_current_gid(),
             rdev: 0,
             flags: 0,
         }
@@ -231,8 +237,8 @@ impl GoodDataFS {
             kind: FileType::RegularFile,
             perm: 0o444,
             nlink: 1,
-            uid: 501,
-            gid: 20,
+            uid: users::get_current_uid(),
+            gid: users::get_current_gid(),
             rdev: 0,
             flags: 0,
         }
@@ -253,8 +259,8 @@ impl GoodDataFS {
             kind: FileType::RegularFile,
             perm: 0o444,
             nlink: 1,
-            uid: 501,
-            gid: 20,
+            uid: users::get_current_uid(),
+            gid: users::get_current_gid(),
             rdev: 0,
             flags: 0,
         }
@@ -316,6 +322,21 @@ impl GoodDataFS {
                  &inode,
                  projectid - 1);
         reply.add(fileinode, 5, FileType::RegularFile, "roles.json");
+
+
+        let inode = Inode {
+            project: projectid as u16,
+            category: Category::Metadata as u8,
+            item: 0,
+            reserved: 0,
+        };
+        let fileinode: u64 = inode.into();
+        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
+                  metadata",
+                 fileinode,
+                 &inode,
+                 projectid - 1);
+        reply.add(fileinode, 6, FileType::Directory, "metadata");
     }
 }
 
@@ -328,7 +349,7 @@ impl Filesystem for GoodDataFS {
         if parent == INODE_ROOT && name.to_str() == Some("user.json") {
             reply.entry(&TTL, &self.get_user_file_attributes(), 0);
         } else if parent == INODE_ROOT && name.to_str() == Some("projects") {
-            reply.entry(&TTL, &PROJECTS_DIR_ATTR, 0);
+            reply.entry(&TTL, &self.get_projects_dir_attributes(), 0);
         } else if parent == INODE_PROJECTS && name.to_str() == Some("projects.json") {
             reply.entry(&TTL, &self.get_projects_file_attributes(), 0);
         } else if parent == INODE_PROJECTS {
@@ -364,22 +385,28 @@ impl Filesystem for GoodDataFS {
                 kind: FileType::Directory,
                 perm: 0o755,
                 nlink: 2,
-                uid: 501,
-                gid: 20,
+                uid: users::get_current_uid(),
+                gid: users::get_current_gid(),
                 rdev: 0,
                 flags: 0,
             };
             reply.entry(&TTL, &attr, 0);
         } else {
-            let projectid = GoodDataFS::inode_get_project(parent);
-            if projectid > 0 {
+            let inode_parent = GoodDataFS::inode_deserialize(parent);
+            if inode_parent.project > 0 {
                 if name.to_str() == Some("project.json") {
-                    let inode = GoodDataFS::inode_create(projectid, 0, 0, 1);
+                    let inode = GoodDataFS::inode_serialize(&Inode {
+                        project: inode_parent.project,
+                        category: 0,
+                        item: 0,
+                        reserved: ReservedFile::ProjectJson as u8,
+                    });
 
                     let client: &gd::GoodDataClient = self.client();
                     let projects = client.projects().as_ref();
-                    let json = json::as_pretty_json(&projects.unwrap()[(projectid - 1) as usize])
-                        .to_string();
+                    let json =
+                        json::as_pretty_json(&projects.unwrap()[(inode_parent.project - 1) as usize])
+                            .to_string();
                     let attr = FileAttr {
                         ino: inode,
                         size: json.len() as u64,
@@ -391,8 +418,33 @@ impl Filesystem for GoodDataFS {
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
-                        uid: 501,
-                        gid: 20,
+                        uid: users::get_current_uid(),
+                        gid: users::get_current_gid(),
+                        rdev: 0,
+                        flags: 0,
+                    };
+                    reply.entry(&TTL, &attr, 0);
+                } else if name.to_str() == Some("metadata") {
+                    let inode = GoodDataFS::inode_serialize(&Inode {
+                        project: inode_parent.project,
+                        category: Category::Metadata as u8,
+                        item: 0,
+                        reserved: 0,
+                    });
+
+                    let attr = FileAttr {
+                        ino: inode,
+                        size: 0,
+                        blocks: 1,
+                        atime: CREATE_TIME,
+                        mtime: CREATE_TIME,
+                        ctime: CREATE_TIME,
+                        crtime: CREATE_TIME,
+                        kind: FileType::Directory,
+                        perm: 0o755,
+                        nlink: 1,
+                        uid: users::get_current_uid(),
+                        gid: users::get_current_gid(),
                         rdev: 0,
                         flags: 0,
                     };
@@ -413,9 +465,9 @@ impl Filesystem for GoodDataFS {
                  inode);
 
         if ino == INODE_ROOT {
-            reply.attr(&TTL, &ROOT_DIR_ATTR);
+            reply.attr(&TTL, &self.get_root_dir_attributes());
         } else if ino == INODE_PROJECTS {
-            reply.attr(&TTL, &PROJECTS_DIR_ATTR);
+            reply.attr(&TTL, &self.get_projects_dir_attributes());
         } else if ino == INODE_PROJECTS_JSON {
             reply.attr(&TTL, &self.get_projects_file_attributes());
         } else if ino == INODE_USER {
@@ -425,10 +477,15 @@ impl Filesystem for GoodDataFS {
                 if inode.reserved == 0 {
                     reply.attr(&TTL, &self.get_project_dir_attributes(ino));
                 } else if inode.reserved == ReservedFile::ProjectJson as u8 {
-                    println!("!!!! PROJECT.JSON");
+                    let client: &gd::GoodDataClient = self.client();
+                    let projects = client.projects().as_ref();
+                    let json =
+                        json::as_pretty_json(&projects.unwrap()[(inode.project - 1) as usize])
+                            .to_string();
+
                     let attr = FileAttr {
                         ino: ino,
-                        size: 1,
+                        size: json.len() as u64,
                         blocks: 1,
                         atime: CREATE_TIME,
                         mtime: CREATE_TIME,
@@ -437,8 +494,8 @@ impl Filesystem for GoodDataFS {
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
-                        uid: 501,
-                        gid: 20,
+                        uid: users::get_current_uid(),
+                        gid: users::get_current_gid(),
                         rdev: 0,
                         flags: 0,
                     };
@@ -473,7 +530,16 @@ impl Filesystem for GoodDataFS {
                                json::as_pretty_json(&self.client.projects()).to_string());
             reply.data(&json.as_bytes()[offset as usize..]);
         } else {
-            reply.error(ENOENT);
+            let inode = GoodDataFS::inode_deserialize(ino);
+            if inode.project > 0 && (inode.reserved == ReservedFile::ProjectJson as u8) {
+                let client: &gd::GoodDataClient = self.client();
+                let projects = client.projects().as_ref();
+                let json = json::as_pretty_json(&projects.unwrap()[(inode.project - 1) as usize])
+                    .to_string();
+                reply.data(&json.as_bytes()[offset as usize..]);
+            } else {
+                reply.error(ENOENT);
+            }
         }
     }
 

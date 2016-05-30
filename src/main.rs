@@ -12,6 +12,7 @@ extern crate libc;
 extern crate regex;
 extern crate rustc_serialize;
 extern crate time;
+extern crate users;
 
 use std::env;
 
@@ -29,6 +30,9 @@ fn main() {
 
     // Mount GoodData
     let mountpoint = env::args_os().nth(3).unwrap();
-    let fs = fs::GoodDataFS { client: gd };
+    let fs = fs::GoodDataFS {
+        client: gd,
+        users_cache: users::UsersCache::new(),
+    };
     fs.mount(mountpoint.to_str().unwrap().to_string());
 }
