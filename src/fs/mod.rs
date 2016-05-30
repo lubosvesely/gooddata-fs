@@ -20,8 +20,8 @@ use object;
 mod flags;
 mod inode;
 
-pub use self::inode::*;
 pub use self::flags::*;
+pub use self::inode::*;
 
 const TTL: Timespec = Timespec { sec: 1, nsec: 0 }; // 1 second
 
@@ -497,13 +497,13 @@ impl Filesystem for GoodDataFS {
             }
             reply.ok();
         } else {
-            let projectid = ino >> 48;
-            if projectid > 0 {
+            let inode = Inode::deserialize(ino);
+            if inode.project > 0 {
                 if offset == 0 {
                     reply.add(ino, 0, FileType::Directory, ".");
                     reply.add(ino, 1, FileType::Directory, "..");
 
-                    self.readdir_project(projectid as u16, &mut reply);
+                    self.readdir_project(inode.project as u16, &mut reply);
                 }
                 reply.ok();
             } else {
