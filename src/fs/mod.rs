@@ -17,60 +17,11 @@ use std::path::Path;
 use gd;
 use object;
 
-#[allow(dead_code)]
-enum Category {
-    Internal,
-    Connectors,
-    Dataload,
-    DataloadDownload,
-    DataloadEventstore,
-    DataloadMetadataStorage,
-    DataloadProcesses,
-    EventStores,
-    Invitations,
-    Ldm,
-    Metadata,
-    MetadataAnalyticDashboard,
-    MetadataAttributes,
-    MetadataColumns,
-    MetadataDataLoadingColumns,
-    MetadataDatasets,
-    MetadataDateFilterSettings,
-    MetadataDimensions,
-    MetadataDomains,
-    MetadataEtlFiles,
-    MetadataExecutionContexts,
-    MetadataFacts,
-    MetadataFilters,
-    MetadataFolders,
-    MetadataKpi,
-    MetadataKpiAlert,
-    MetadataListAttributeFilter,
-    MetadataMetrics,
-    MetadataProjectDashboards,
-    MetadataPrompts,
-    MetadataReportDefinition,
-    MetadataReports,
-    MetadataSchedulEdmails,
-    MetadataTableDataLoads,
-    MetadataTables,
-    MetadataUserFilters,
-    MetadataVisualizations,
-    PublicArtifacts,
-    Roles,
-    Schedules,
-    Templates,
-    Uploads,
-    Users,
-}
+mod flags;
+mod inode;
 
-#[allow(dead_code)]
-enum ReservedFile {
-    FeatureFlagsJson = 2,
-    PermissionsJson,
-    ProjectJson,
-    RolesJson,
-}
+pub use self::inode::*;
+pub use self::flags::*;
 
 const TTL: Timespec = Timespec { sec: 1, nsec: 0 }; // 1 second
 
@@ -95,59 +46,10 @@ impl Drop for GoodDataFS {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct Inode {
-    pub project: u16,
-    pub category: u8,
-    pub item: u32,
-    pub reserved: u8,
-}
-
-impl Into<u64> for Inode {
-    fn into(self) -> u64 {
-        GoodDataFS::inode_serialize(&self)
-    }
-}
-
 #[allow(dead_code)]
 impl GoodDataFS {
     pub fn drop(&mut self) {
         println!("NOTE: Logging out is not implemented yet!");
-    }
-
-    pub fn inode_get_project(inode: u64) -> u16 {
-        (inode >> 48) as u16
-    }
-
-    pub fn inode_get_category(inode: u64) -> u8 {
-        ((inode >> 40) & 0xff) as u8
-    }
-
-    pub fn inode_get_item(inode: u64) -> u32 {
-        ((inode >> 8) & 0xffffffff) as u32
-    }
-
-    pub fn inode_get_reserved(inode: u64) -> u8 {
-        (inode & 0xff) as u8
-    }
-
-    pub fn inode_create(project: u16, category: u8, item: u32, reserved: u8) -> u64 {
-        let inode: u64 = ((project as u64) << 48) | ((category as u64) << 40) |
-                         ((item as u64) << 8) | (reserved as u64);
-        return inode;
-    }
-
-    pub fn inode_serialize(inode: &Inode) -> u64 {
-        GoodDataFS::inode_create(inode.project, inode.category, inode.item, inode.reserved)
-    }
-
-    pub fn inode_deserialize(inode: u64) -> Inode {
-        Inode {
-            project: GoodDataFS::inode_get_project(inode),
-            category: GoodDataFS::inode_get_category(inode),
-            item: GoodDataFS::inode_get_item(inode),
-            reserved: GoodDataFS::inode_get_reserved(inode),
-        }
     }
 
     fn client(&self) -> &gd::GoodDataClient {
@@ -157,7 +59,7 @@ impl GoodDataFS {
     fn get_project_dir_attributes(&self, inode: u64) -> fuse::FileAttr {
         println!("GoodDataFS::get_project_dir_attributes() inode {} - {:?}",
                  inode,
-                 GoodDataFS::inode_deserialize(inode));
+                 Inode::deserialize(inode));
         FileAttr {
             ino: inode,
             size: 0,
@@ -270,9 +172,9 @@ impl GoodDataFS {
     pub fn readdir_project(&self, projectid: u16, reply: &mut ReplyDirectory) {
         let inode = Inode {
             project: projectid as u16,
-            category: Category::Internal as u8,
+            category: flags::Category::Internal as u8,
             item: 0,
-            reserved: ReservedFile::FeatureFlagsJson as u8,
+            reserved: flags::ReservedFile::FeatureFlagsJson as u8,
         };
         let fileinode: u64 = inode.into();
         println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
@@ -284,9 +186,9 @@ impl GoodDataFS {
 
         let inode = Inode {
             project: projectid as u16,
-            category: Category::Internal as u8,
+            category: flags::Category::Internal as u8,
             item: 0,
-            reserved: ReservedFile::PermissionsJson as u8,
+            reserved: flags::ReservedFile::PermissionsJson as u8,
         };
         let fileinode: u64 = inode.into();
         println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
@@ -298,9 +200,9 @@ impl GoodDataFS {
 
         let inode = Inode {
             project: projectid as u16,
-            category: Category::Internal as u8,
+            category: flags::Category::Internal as u8,
             item: 0,
-            reserved: ReservedFile::ProjectJson as u8,
+            reserved: flags::ReservedFile::ProjectJson as u8,
         };
         let fileinode: u64 = inode.into();
         println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
@@ -312,9 +214,9 @@ impl GoodDataFS {
 
         let inode = Inode {
             project: projectid as u16,
-            category: Category::Internal as u8,
+            category: flags::Category::Internal as u8,
             item: 0,
-            reserved: ReservedFile::RolesJson as u8,
+            reserved: flags::ReservedFile::RolesJson as u8,
         };
         let fileinode: u64 = inode.into();
         println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
@@ -327,7 +229,7 @@ impl GoodDataFS {
 
         let inode = Inode {
             project: projectid as u16,
-            category: Category::Metadata as u8,
+            category: flags::Category::Metadata as u8,
             item: 0,
             reserved: 0,
         };
@@ -345,7 +247,7 @@ impl Filesystem for GoodDataFS {
     fn lookup(&mut self, _req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
         println!("GoodDataFS::lookup() - Reading parent {} - {:?}, path {:?}",
                  parent,
-                 GoodDataFS::inode_deserialize(parent),
+                 Inode::deserialize(parent),
                  name.to_str().unwrap());
         if parent == INODE_ROOT && name.to_str() == Some("user.json") {
             reply.entry(&TTL, &self.get_user_file_attributes(), 0);
@@ -374,7 +276,7 @@ impl Filesystem for GoodDataFS {
             println!("GoodDataFS::lookup() - Adding path {:?}, inode {} - {:?}",
                      name,
                      inode,
-                     GoodDataFS::inode_deserialize(inode));
+                     Inode::deserialize(inode));
             let attr = FileAttr {
                 ino: inode,
                 size: 0,
@@ -393,14 +295,14 @@ impl Filesystem for GoodDataFS {
             };
             reply.entry(&TTL, &attr, 0);
         } else {
-            let inode_parent = GoodDataFS::inode_deserialize(parent);
+            let inode_parent = Inode::deserialize(parent);
             if inode_parent.project > 0 {
                 if name.to_str() == Some("project.json") {
-                    let inode = GoodDataFS::inode_serialize(&Inode {
+                    let inode = Inode::serialize(&Inode {
                         project: inode_parent.project,
                         category: 0,
                         item: 0,
-                        reserved: ReservedFile::ProjectJson as u8,
+                        reserved: flags::ReservedFile::ProjectJson as u8,
                     });
 
                     let client: &gd::GoodDataClient = self.client();
@@ -426,9 +328,9 @@ impl Filesystem for GoodDataFS {
                     };
                     reply.entry(&TTL, &attr, 0);
                 } else if name.to_str() == Some("metadata") {
-                    let inode = GoodDataFS::inode_serialize(&Inode {
+                    let inode = Inode::serialize(&Inode {
                         project: inode_parent.project,
-                        category: Category::Metadata as u8,
+                        category: flags::Category::Metadata as u8,
                         item: 0,
                         reserved: 0,
                     });
@@ -460,7 +362,7 @@ impl Filesystem for GoodDataFS {
     }
 
     fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
-        let inode = GoodDataFS::inode_deserialize(ino);
+        let inode = Inode::deserialize(ino);
         println!("GoodDataFS::getattr() - Getting attributes inode {} - {:?}",
                  ino,
                  inode);
@@ -477,7 +379,7 @@ impl Filesystem for GoodDataFS {
             if inode.project > 0 {
                 if inode.reserved == 0 {
                     reply.attr(&TTL, &self.get_project_dir_attributes(ino));
-                } else if inode.reserved == ReservedFile::ProjectJson as u8 {
+                } else if inode.reserved == flags::ReservedFile::ProjectJson as u8 {
                     let client: &gd::GoodDataClient = self.client();
                     let projects = client.projects().as_ref();
                     let json =
@@ -531,8 +433,8 @@ impl Filesystem for GoodDataFS {
                                json::as_pretty_json(&self.client.projects()).to_string());
             reply.data(&json.as_bytes()[offset as usize..]);
         } else {
-            let inode = GoodDataFS::inode_deserialize(ino);
-            if inode.project > 0 && (inode.reserved == ReservedFile::ProjectJson as u8) {
+            let inode = Inode::deserialize(ino);
+            if inode.project > 0 && (inode.reserved == flags::ReservedFile::ProjectJson as u8) {
                 let client: &gd::GoodDataClient = self.client();
                 let projects = client.projects().as_ref();
                 let json = json::as_pretty_json(&projects.unwrap()[(inode.project - 1) as usize])
@@ -552,7 +454,7 @@ impl Filesystem for GoodDataFS {
                mut reply: ReplyDirectory) {
         println!("GoodDataFS::readdir() - Reading inode {} - {:?}",
                  ino,
-                 GoodDataFS::inode_deserialize(ino));
+                 Inode::deserialize(ino));
         if ino == INODE_ROOT {
             if offset == 0 {
                 // reply.add(INODE_ROOT, 0, FileType::Directory, ".");
