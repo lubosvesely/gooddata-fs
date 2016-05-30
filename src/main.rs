@@ -18,6 +18,7 @@ use std::env;
 
 mod fs;
 mod gd;
+mod object;
 
 fn main() {
     let mut gd = gd::GoodDataClient::new();

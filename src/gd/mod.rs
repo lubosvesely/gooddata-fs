@@ -12,139 +12,17 @@ use hyper::header::{Accept, Cookie, ContentType, SetCookie, UserAgent, qitem};
 use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use rustc_serialize::json;
 
-use std::collections::HashMap;
 use std::io::Read;
 use std::vec::Vec;
 
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct AccountSettingBody {
-    pub country: Option<String>,
-    pub firstName: Option<String>,
-    pub language: Option<String>,
-    pub ssoProvider: Option<String>,
-    pub timezone: Option<String>,
-    pub position: Option<String>,
-    pub authenticationModes: Vec<String>,
-    pub companyName: Option<String>,
-    pub login: Option<String>,
-    pub email: Option<String>,
-    pub created: Option<String>,
-    pub updated: Option<String>,
-    pub lastName: Option<String>,
-    pub phoneNumber: Option<String>,
-    pub links: Option<HashMap<String, String>>,
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct AccountSetting {
-    pub accountSetting: AccountSettingBody,
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct PostUserLoginBody {
-    pub login: String,
-    pub password: String,
-    pub remember: bool,
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct PostUserLogin {
-    pub postUserLogin: PostUserLoginBody,
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct UserLoginBody {
-    pub profile: String,
-    pub state: String,
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct UserLogin {
-    pub userLogin: UserLoginBody,
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct ProjectContent {
-    pub environment: Option<String>,
-    pub cluster: Option<String>,
-    pub guidedNavigation: Option<String>,
-    pub isPublic: Option<String>,
-    pub driver: Option<String>,
-    pub state: Option<String>,
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct ProjectMeta {
-    pub created: Option<String>,
-    pub summary: Option<String>,
-    pub updated: Option<String>,
-    pub author: Option<String>,
-    pub title: Option<String>,
-    pub contributor: Option<String>,
-}
-
-#[allow(dead_code)]
-impl ProjectMeta {
-    pub fn created(&self) -> &Option<String> {
-        &self.created
-    }
-
-    pub fn summary(&self) -> &Option<String> {
-        &self.summary
-    }
-
-    pub fn updated(&self) -> &Option<String> {
-        &self.updated
-    }
-
-    pub fn author(&self) -> &Option<String> {
-        &self.author
-    }
-
-    pub fn title(&self) -> &Option<String> {
-        &self.title
-    }
-
-    pub fn contributor(&self) -> &Option<String> {
-        &self.contributor
-    }
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct ProjectBody {
-    pub content: ProjectContent,
-    pub links: Option<HashMap<String, String>>,
-    pub meta: ProjectMeta,
-}
-
-impl ProjectBody {
-    pub fn meta(&self) -> &ProjectMeta {
-        &self.meta
-    }
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct Project {
-    pub project: ProjectBody,
-}
-
-impl Project {
-    pub fn project(&self) -> &ProjectBody {
-        &self.project
-    }
-}
-
-#[derive(RustcDecodable, RustcEncodable)]
-pub struct Projects {
-    pub projects: Vec<Project>,
-}
+use object;
 
 pub struct GoodDataClient {
     pub client: Client,
     pub server: String,
     pub jar: CookieJar<'static>,
-    pub user: Option<AccountSetting>,
-    pub projects: Option<Vec<Project>>,
+    pub user: Option<object::AccountSetting>,
+    pub projects: Option<Vec<object::Project>>,
     pub token_updated: Option<time::PreciseTime>,
 }
 
@@ -171,12 +49,12 @@ impl GoodDataClient {
     }
 
     /// Get Projects
-    pub fn projects(&self) -> &Option<Vec<Project>> {
+    pub fn projects(&self) -> &Option<Vec<object::Project>> {
         // self.projects_fetch();
         &self.projects
     }
 
-    pub fn projects_fetch(&mut self) -> &Option<Vec<Project>> {
+    pub fn projects_fetch(&mut self) -> &Option<Vec<object::Project>> {
         let uri = format!("{}",
                           self.user
                               .as_ref()
@@ -190,7 +68,7 @@ impl GoodDataClient {
         let mut res = self.get(&uri[..]);
         let raw_projects = self.get_content(&mut res);
 
-        let projects: Projects = json::decode(&raw_projects[..]).unwrap();
+        let projects: object::Projects = json::decode(&raw_projects[..]).unwrap();
 
         self.projects = Some(projects.projects);
         &self.projects
@@ -198,8 +76,8 @@ impl GoodDataClient {
 
     /// Login to GoodData platform
     pub fn connect<S: Into<String>>(&mut self, username: S, password: S) {
-        let payload = PostUserLogin {
-            postUserLogin: PostUserLoginBody {
+        let payload = object::PostUserLogin {
+            postUserLogin: object::PostUserLoginBody {
                 login: username.into(),
                 password: password.into(),
                 remember: false,
@@ -213,13 +91,13 @@ impl GoodDataClient {
 
         let content = self.get_content(&mut raw);
 
-        let user: UserLogin = json::decode(&content[..]).unwrap();
+        let user: object::UserLogin = json::decode(&content[..]).unwrap();
         let uri = user.userLogin.profile;
 
         let mut raw = self.get(uri);
         let rawUser = self.get_content(&mut raw);
 
-        let user: AccountSetting = json::decode(&rawUser[..]).unwrap();
+        let user: object::AccountSetting = json::decode(&rawUser[..]).unwrap();
         self.user = Some(user);
     }
 
@@ -370,7 +248,7 @@ impl GoodDataClient {
         }
     }
 
-    pub fn user(&self) -> &Option<AccountSetting> {
+    pub fn user(&self) -> &Option<object::AccountSetting> {
         &self.user
     }
 

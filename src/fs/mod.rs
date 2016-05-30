@@ -15,6 +15,7 @@ use rustc_serialize::json;
 use std::path::Path;
 
 use gd;
+use object;
 
 #[allow(dead_code)]
 enum Category {
@@ -217,7 +218,7 @@ impl GoodDataFS {
         let json = format!("{}\n",
                            json::as_pretty_json(&self.client.user()).to_string());
 
-        let user = json::decode::<gd::AccountSetting>(&json);
+        let user = json::decode::<object::AccountSetting>(&json);
 
         let ts = UTC.datetime_from_str(&user.unwrap().accountSetting.updated.unwrap()[..],
                                "%Y-%m-%d %H:%M:%S")
@@ -613,7 +614,9 @@ impl Filesystem for GoodDataFS {
 
 impl GoodDataFS {
     pub fn mount(self, mountpoint: String) {
-        println!("Mounting GoodData as Filesystem, mountpoint: {}",
+        const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+        println!("Mounting GoodData as Filesystem ({}), mountpoint: {}",
+                 VERSION,
                  mountpoint);
 
         fuse::mount(self, &mountpoint, &[]);
