@@ -2,12 +2,14 @@
 
 ## i-node ID format
 
-i-node ID has 64 bits and is used as follow
+i-node has 64 bits and is used as follow
 
-* 16b - Project ID
-* 8b  - Category ID
-* 32b - Item ID
-* 8b - Reserved
+| Bits | Offset | Description  | Limit            |
+|------|--------|--------------|------------------|
+| 16   | 48     | Project ID   | 65535 projects   |
+| 8    | 40     | Category ID  | 256 [categories](https://github.com/korczis/gooddata-fs/blob/master/doc/Filesystem.md#category-id)   |
+| 32   | 8      | Item ID      | 4294967295 items |
+| 8    | 0      | Reserved     | 256 reserves ;-) |
 
 ## Category ID
 
