@@ -9,6 +9,7 @@ extern crate env_logger;
 extern crate fuse;
 extern crate hyper;
 extern crate libc;
+extern crate rand;
 extern crate regex;
 extern crate rustc_serialize;
 extern crate time;
@@ -18,6 +19,7 @@ use std::env;
 
 mod fs;
 mod gd;
+mod helpers;
 mod object;
 
 fn main() {
