@@ -9,9 +9,11 @@ extern crate users;
 mod constants;
 mod filesystem;
 mod flags;
+mod helpers;
 mod inode;
 
 pub use self::constants::*;
 pub use self::filesystem::*;
 pub use self::flags::*;
+pub use self::helpers::*;
 pub use self::inode::*;
