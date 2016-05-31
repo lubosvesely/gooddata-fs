@@ -1,6 +1,7 @@
 mod account_setting;
 mod associated_permissions;
 mod associated_roles;
+mod feature_flags;
 mod permissions;
 mod post_user_login;
 mod project;

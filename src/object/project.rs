@@ -5,6 +5,7 @@ use gd::client::GoodDataClient;
 
 pub use object::associated_permissions::*;
 pub use object::associated_roles::*;
+pub use object::feature_flags::*;
 
 #[allow(non_snake_case)]
 #[derive(Debug, Clone)]
@@ -83,6 +84,15 @@ pub struct Project {
 impl Project {
     pub fn project(&self) -> &ProjectBody {
         &self.project
+    }
+
+    pub fn feature_flags(&self, client: &mut GoodDataClient) -> FeatureFlags {
+        let mut res =
+            client.get(self.project().links().as_ref().unwrap()["projectFeatureFlags"].to_string());
+        let raw = client.get_content(&mut res);
+        let obj: FeatureFlags = json::decode(&raw.to_string()).unwrap();
+
+        return obj;
     }
 
     pub fn user_permissions(&self, client: &mut GoodDataClient) -> AssociatedPermissions {
