@@ -1,8 +1,8 @@
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct PostUserLoginBody {
-    pub login: String,
-    pub password: String,
-    pub remember: bool,
+    pub login: Option<String>,
+    pub password: Option<String>,
+    pub remember: Option<bool>,
 }
 
 #[allow(non_snake_case)]

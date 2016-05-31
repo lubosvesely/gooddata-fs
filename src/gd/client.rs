@@ -79,9 +79,9 @@ impl GoodDataClient {
     pub fn connect<S: Into<String>>(&mut self, username: S, password: S) {
         let payload = object::PostUserLogin {
             postUserLogin: object::PostUserLoginBody {
-                login: username.into(),
-                password: password.into(),
-                remember: false,
+                login: Some(username.into()),
+                password: Some(password.into()),
+                remember: Some(false),
             },
         };
 

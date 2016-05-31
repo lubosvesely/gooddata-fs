@@ -1,6 +1,8 @@
 use std::collections::HashMap;
+use rustc_serialize::json;
 
 #[allow(non_snake_case)]
+#[derive(Debug, Clone)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct AccountSettingBody {
     pub country: Option<String>,
@@ -20,8 +22,21 @@ pub struct AccountSettingBody {
     pub links: Option<HashMap<String, String>>,
 }
 
+impl Into<String> for AccountSettingBody {
+    fn into(self) -> String {
+        format!("{}\n", json::as_pretty_json(&self).to_string())
+    }
+}
+
 #[allow(non_snake_case)]
+#[derive(Debug, Clone)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct AccountSetting {
     pub accountSetting: AccountSettingBody,
+}
+
+impl Into<String> for AccountSetting {
+    fn into(self) -> String {
+        format!("{}\n", json::as_pretty_json(&self).to_string())
+    }
 }
