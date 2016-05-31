@@ -33,6 +33,44 @@ impl Drop for GoodDataFS {
     }
 }
 
+fn create_inode_directory_attributes(inode: u64) -> FileAttr {
+    FileAttr {
+        ino: inode,
+        size: fs::constants::DEFAULT_SIZE,
+        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
+        atime: fs::constants::DEFAULT_CREATE_TIME,
+        mtime: fs::constants::DEFAULT_CREATE_TIME,
+        ctime: fs::constants::DEFAULT_CREATE_TIME,
+        crtime: fs::constants::DEFAULT_CREATE_TIME,
+        kind: FileType::Directory,
+        perm: fs::constants::DEFAULT_DIRECTORY_PERMISSIONS,
+        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
+        uid: fs::helpers::default_uid(),
+        gid: fs::helpers::default_guid(),
+        rdev: fs::constants::DEFAULT_RDEV,
+        flags: fs::constants::DEFAULT_FLAGS,
+    }
+}
+
+fn create_inode_file_attributes(inode: u64, size: u64, updated: time::Timespec) -> FileAttr {
+    FileAttr {
+        ino: inode,
+        size: size,
+        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
+        atime: updated,
+        mtime: updated,
+        ctime: updated,
+        crtime: updated,
+        kind: FileType::RegularFile,
+        perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
+        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
+        uid: fs::helpers::default_uid(),
+        gid: fs::helpers::default_guid(),
+        rdev: fs::constants::DEFAULT_RDEV,
+        flags: fs::constants::DEFAULT_FLAGS,
+    }
+}
+
 #[allow(dead_code)]
 impl GoodDataFS {
     fn client(&self) -> &gd::GoodDataClient {
@@ -43,64 +81,18 @@ impl GoodDataFS {
         println!("GoodDataFS::get_project_dir_attributes() inode {} - {:?}",
                  inode,
                  fs::inode::Inode::deserialize(inode));
-        FileAttr {
-            ino: inode,
-            size: fs::constants::DEFAULT_SIZE,
-            blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-            atime: fs::constants::DEFAULT_CREATE_TIME,
-            mtime: fs::constants::DEFAULT_CREATE_TIME,
-            ctime: fs::constants::DEFAULT_CREATE_TIME,
-            crtime: fs::constants::DEFAULT_CREATE_TIME,
-            kind: FileType::Directory,
-            perm: fs::constants::DEFAULT_DIRECTORY_PERMISSIONS,
-            nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-            uid: fs::helpers::default_uid(),
-            gid: fs::helpers::default_guid(),
-            rdev: fs::constants::DEFAULT_RDEV,
-            flags: fs::constants::DEFAULT_FLAGS,
-        }
+        create_inode_directory_attributes(inode)
     }
 
     fn get_projects_dir_attributes(&self) -> fuse::FileAttr {
-        FileAttr {
-            ino: INODE_PROJECTS,
-            size: fs::constants::DEFAULT_SIZE,
-            blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-            atime: fs::constants::DEFAULT_CREATE_TIME,
-            mtime: fs::constants::DEFAULT_CREATE_TIME,
-            ctime: fs::constants::DEFAULT_CREATE_TIME,
-            crtime: fs::constants::DEFAULT_CREATE_TIME,
-            kind: FileType::Directory,
-            perm: fs::constants::DEFAULT_DIRECTORY_PERMISSIONS,
-            nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-            uid: fs::helpers::default_uid(),
-            gid: fs::helpers::default_guid(),
-            rdev: fs::constants::DEFAULT_RDEV,
-            flags: fs::constants::DEFAULT_FLAGS,
-        }
+        create_inode_directory_attributes(INODE_PROJECTS)
     }
 
     fn get_root_dir_attributes(&self) -> fuse::FileAttr {
-        FileAttr {
-            ino: INODE_ROOT,
-            size: fs::constants::DEFAULT_SIZE,
-            blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-            atime: fs::constants::DEFAULT_CREATE_TIME,
-            mtime: fs::constants::DEFAULT_CREATE_TIME,
-            ctime: fs::constants::DEFAULT_CREATE_TIME,
-            crtime: fs::constants::DEFAULT_CREATE_TIME,
-            kind: FileType::Directory,
-            perm: fs::constants::DEFAULT_DIRECTORY_PERMISSIONS,
-            nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-            uid: fs::helpers::default_uid(),
-            gid: fs::helpers::default_guid(),
-            rdev: fs::constants::DEFAULT_RDEV,
-            flags: fs::constants::DEFAULT_FLAGS,
-        }
+        create_inode_directory_attributes(INODE_ROOT)
     }
 
     fn get_user_file_attributes(&self) -> fuse::FileAttr {
-        // let json: String = self.client.user().into();
         let json = format!("{}\n",
                            json::as_pretty_json(&self.client.user()).to_string());
 
@@ -113,45 +105,16 @@ impl GoodDataFS {
 
         let updated = time::Timespec::new(ts, 0);
 
-        FileAttr {
-            ino: INODE_USER,
-            size: json.len() as u64,
-            blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-            atime: updated,
-            mtime: updated,
-            ctime: updated,
-            crtime: updated,
-            kind: FileType::RegularFile,
-            perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-            nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-            uid: fs::helpers::default_uid(),
-            gid: fs::helpers::default_guid(),
-            rdev: fs::constants::DEFAULT_RDEV,
-            flags: fs::constants::DEFAULT_FLAGS,
-        }
+        create_inode_file_attributes(INODE_USER, json.len() as u64, updated)
     }
 
     fn get_projects_file_attributes(&self) -> fuse::FileAttr {
-        // let json: String = self.client.projects().into();
         let json = format!("{}\n",
                            json::as_pretty_json(&self.client.projects()).to_string());
 
-        FileAttr {
-            ino: INODE_PROJECTS_JSON,
-            size: json.len() as u64,
-            blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-            atime: fs::constants::DEFAULT_CREATE_TIME,
-            mtime: fs::constants::DEFAULT_CREATE_TIME,
-            ctime: fs::constants::DEFAULT_CREATE_TIME,
-            crtime: fs::constants::DEFAULT_CREATE_TIME,
-            kind: FileType::RegularFile,
-            perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-            nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-            uid: fs::helpers::default_uid(),
-            gid: fs::helpers::default_guid(),
-            rdev: fs::constants::DEFAULT_RDEV,
-            flags: fs::constants::DEFAULT_FLAGS,
-        }
+        create_inode_file_attributes(INODE_PROJECTS_JSON,
+                                     json.len() as u64,
+                                     fs::constants::DEFAULT_CREATE_TIME)
     }
 
     pub fn readdir_project(&self, projectid: u16, reply: &mut ReplyDirectory) {
@@ -268,22 +231,7 @@ impl Filesystem for GoodDataFS {
                      name,
                      inode,
                      fs::inode::Inode::deserialize(inode));
-            let attr = FileAttr {
-                ino: inode,
-                size: fs::constants::DEFAULT_SIZE,
-                blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                atime: fs::constants::DEFAULT_CREATE_TIME,
-                mtime: fs::constants::DEFAULT_CREATE_TIME,
-                ctime: fs::constants::DEFAULT_CREATE_TIME,
-                crtime: fs::constants::DEFAULT_CREATE_TIME,
-                kind: FileType::Directory,
-                perm: fs::constants::DEFAULT_DIRECTORY_PERMISSIONS,
-                nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                uid: fs::helpers::default_uid(),
-                gid: fs::helpers::default_guid(),
-                rdev: fs::constants::DEFAULT_RDEV,
-                flags: fs::constants::DEFAULT_FLAGS,
-            };
+            let attr = create_inode_directory_attributes(inode);
             reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
         } else {
             let inode_parent = fs::inode::Inode::deserialize(parent);
@@ -304,22 +252,9 @@ impl Filesystem for GoodDataFS {
                     if feature_flags.is_some() {
                         let json: String = feature_flags.unwrap().into();
 
-                        let attr = FileAttr {
-                            ino: inode,
-                            size: json.len() as u64,
-                            blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                            atime: fs::constants::DEFAULT_CREATE_TIME,
-                            mtime: fs::constants::DEFAULT_CREATE_TIME,
-                            ctime: fs::constants::DEFAULT_CREATE_TIME,
-                            crtime: fs::constants::DEFAULT_CREATE_TIME,
-                            kind: FileType::RegularFile,
-                            perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                            nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                            uid: fs::helpers::default_uid(),
-                            gid: fs::helpers::default_guid(),
-                            rdev: fs::constants::DEFAULT_RDEV,
-                            flags: fs::constants::DEFAULT_FLAGS,
-                        };
+                        let attr = create_inode_file_attributes(inode,
+                                                                json.len() as u64,
+                                                                fs::constants::DEFAULT_CREATE_TIME);
                         reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                     }
                 } else if name.to_str() == Some("project.json") {
@@ -335,22 +270,9 @@ impl Filesystem for GoodDataFS {
                     let json =
                         json::as_pretty_json(&projects.unwrap()[(inode_parent.project - 1) as usize])
                             .to_string();
-                    let attr = FileAttr {
-                        ino: inode,
-                        size: json.len() as u64,
-                        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                        atime: fs::constants::DEFAULT_CREATE_TIME,
-                        mtime: fs::constants::DEFAULT_CREATE_TIME,
-                        ctime: fs::constants::DEFAULT_CREATE_TIME,
-                        crtime: fs::constants::DEFAULT_CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                        uid: fs::helpers::default_uid(),
-                        gid: fs::helpers::default_guid(),
-                        rdev: fs::constants::DEFAULT_RDEV,
-                        flags: fs::constants::DEFAULT_FLAGS,
-                    };
+                    let attr = create_inode_file_attributes(inode,
+                                                            json.len() as u64,
+                                                            fs::constants::DEFAULT_CREATE_TIME);
                     reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                 } else if name.to_str() == Some("permissions.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
@@ -365,22 +287,9 @@ impl Filesystem for GoodDataFS {
                         &self.client().projects().as_ref().unwrap()[pid].clone();
                     let json: String = project.user_permissions(&mut self.client).into();
 
-                    let attr = FileAttr {
-                        ino: inode,
-                        size: json.len() as u64,
-                        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                        atime: fs::constants::DEFAULT_CREATE_TIME,
-                        mtime: fs::constants::DEFAULT_CREATE_TIME,
-                        ctime: fs::constants::DEFAULT_CREATE_TIME,
-                        crtime: fs::constants::DEFAULT_CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                        uid: fs::helpers::default_uid(),
-                        gid: fs::helpers::default_guid(),
-                        rdev: fs::constants::DEFAULT_RDEV,
-                        flags: fs::constants::DEFAULT_FLAGS,
-                    };
+                    let attr = create_inode_file_attributes(inode,
+                                                            json.len() as u64,
+                                                            fs::constants::DEFAULT_CREATE_TIME);
                     reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                 } else if name.to_str() == Some("roles.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
@@ -395,22 +304,9 @@ impl Filesystem for GoodDataFS {
                         &self.client().projects().as_ref().unwrap()[pid].clone();
                     let json: String = project.user_roles(&mut self.client).into();
 
-                    let attr = FileAttr {
-                        ino: inode,
-                        size: json.len() as u64,
-                        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                        atime: fs::constants::DEFAULT_CREATE_TIME,
-                        mtime: fs::constants::DEFAULT_CREATE_TIME,
-                        ctime: fs::constants::DEFAULT_CREATE_TIME,
-                        crtime: fs::constants::DEFAULT_CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                        uid: fs::helpers::default_uid(),
-                        gid: fs::helpers::default_guid(),
-                        rdev: fs::constants::DEFAULT_RDEV,
-                        flags: fs::constants::DEFAULT_FLAGS,
-                    };
+                    let attr = create_inode_file_attributes(inode,
+                                                            json.len() as u64,
+                                                            fs::constants::DEFAULT_CREATE_TIME);
                     reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                 } else {
                     reply.error(ENOENT);
@@ -452,22 +348,9 @@ impl Filesystem for GoodDataFS {
                     if feature_flags.is_some() {
                         let json: String = feature_flags.unwrap().into();
 
-                        let attr = FileAttr {
-                            ino: ino,
-                            size: json.len() as u64,
-                            blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                            atime: fs::constants::DEFAULT_CREATE_TIME,
-                            mtime: fs::constants::DEFAULT_CREATE_TIME,
-                            ctime: fs::constants::DEFAULT_CREATE_TIME,
-                            crtime: fs::constants::DEFAULT_CREATE_TIME,
-                            kind: FileType::RegularFile,
-                            perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                            nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                            uid: fs::helpers::default_uid(),
-                            gid: fs::helpers::default_guid(),
-                            rdev: fs::constants::DEFAULT_RDEV,
-                            flags: fs::constants::DEFAULT_FLAGS,
-                        };
+                        let attr = create_inode_file_attributes(ino,
+                                                                json.len() as u64,
+                                                                fs::constants::DEFAULT_CREATE_TIME);
                         reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                     }
                 } else if inode.reserved == fs::flags::ReservedFile::ProjectJson as u8 {
@@ -477,22 +360,9 @@ impl Filesystem for GoodDataFS {
                         json::as_pretty_json(&projects.unwrap()[(inode.project - 1) as usize])
                             .to_string();
 
-                    let attr = FileAttr {
-                        ino: ino,
-                        size: json.len() as u64,
-                        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                        atime: fs::constants::DEFAULT_CREATE_TIME,
-                        mtime: fs::constants::DEFAULT_CREATE_TIME,
-                        ctime: fs::constants::DEFAULT_CREATE_TIME,
-                        crtime: fs::constants::DEFAULT_CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                        uid: fs::helpers::default_uid(),
-                        gid: fs::helpers::default_guid(),
-                        rdev: fs::constants::DEFAULT_RDEV,
-                        flags: fs::constants::DEFAULT_FLAGS,
-                    };
+                    let attr = create_inode_file_attributes(ino,
+                                                            json.len() as u64,
+                                                            fs::constants::DEFAULT_CREATE_TIME);
                     reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                 } else if inode.reserved == fs::flags::ReservedFile::PermissionsJson as u8 {
                     let pid = (inode.project - 1) as usize;
@@ -500,22 +370,9 @@ impl Filesystem for GoodDataFS {
                         &self.client().projects().as_ref().unwrap()[pid].clone();
                     let json: String = project.user_permissions(&mut self.client).into();
 
-                    let attr = FileAttr {
-                        ino: ino,
-                        size: json.len() as u64,
-                        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                        atime: fs::constants::DEFAULT_CREATE_TIME,
-                        mtime: fs::constants::DEFAULT_CREATE_TIME,
-                        ctime: fs::constants::DEFAULT_CREATE_TIME,
-                        crtime: fs::constants::DEFAULT_CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                        uid: fs::helpers::default_uid(),
-                        gid: fs::helpers::default_guid(),
-                        rdev: fs::constants::DEFAULT_RDEV,
-                        flags: fs::constants::DEFAULT_FLAGS,
-                    };
+                    let attr = create_inode_file_attributes(ino,
+                                                            json.len() as u64,
+                                                            fs::constants::DEFAULT_CREATE_TIME);
                     reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                 } else if inode.reserved == fs::flags::ReservedFile::RolesJson as u8 {
                     let pid = (inode.project - 1) as usize;
@@ -523,22 +380,9 @@ impl Filesystem for GoodDataFS {
                         &self.client().projects().as_ref().unwrap()[pid].clone();
                     let json: String = project.user_roles(&mut self.client).into();
 
-                    let attr = FileAttr {
-                        ino: ino,
-                        size: json.len() as u64,
-                        blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
-                        atime: fs::constants::DEFAULT_CREATE_TIME,
-                        mtime: fs::constants::DEFAULT_CREATE_TIME,
-                        ctime: fs::constants::DEFAULT_CREATE_TIME,
-                        crtime: fs::constants::DEFAULT_CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: fs::constants::DEFAULT_FILE_PERMISSIONS,
-                        nlink: fs::constants::DEFAULT_NLINKE_COUNT,
-                        uid: fs::helpers::default_uid(),
-                        gid: fs::helpers::default_guid(),
-                        rdev: fs::constants::DEFAULT_RDEV,
-                        flags: fs::constants::DEFAULT_FLAGS,
-                    };
+                    let attr = create_inode_file_attributes(ino,
+                                                            json.len() as u64,
+                                                            fs::constants::DEFAULT_CREATE_TIME);
                     reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                 }
             } else {
