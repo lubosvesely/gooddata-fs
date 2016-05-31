@@ -1,6 +1,6 @@
 [package]
 name = "gooddata-fs"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   "Tomas Korcak <korczis@gmail.com>"
 ]

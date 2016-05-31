@@ -4,3 +4,9 @@ pub use object::project::*;
 pub struct Projects {
     pub projects: Vec<Project>,
 }
+
+// impl Projects {
+//     fn project(&self, idx: usize) -> &Project {
+//         &self.projects[idx]
+//     }
+// }

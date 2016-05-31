@@ -140,7 +140,7 @@ Items marked `✓` are already implemented.
 │   │   ├── uploads
 │   │   ├── users
 │   │   ├── featureflags.json
-│   │   ├── permissions.json
+│   │   ├── permissions.json ✓
 │   │   ├── project.json ✓
 │   │   └── roles.json
 │   └── projects.json ✓

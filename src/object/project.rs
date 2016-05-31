@@ -1,6 +1,12 @@
 use std::collections::HashMap;
+use rustc_serialize::json;
+
+use gd::client::GoodDataClient;
+
+pub use object::associated_permissions::*;
 
 #[allow(non_snake_case)]
+#[derive(Debug, Clone)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct ProjectContent {
     pub environment: Option<String>,
@@ -11,6 +17,7 @@ pub struct ProjectContent {
     pub state: Option<String>,
 }
 
+#[derive(Debug, Clone)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct ProjectMeta {
     pub created: Option<String>,
@@ -48,6 +55,7 @@ impl ProjectMeta {
     }
 }
 
+#[derive(Debug, Clone)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct ProjectBody {
     pub content: ProjectContent,
@@ -56,11 +64,16 @@ pub struct ProjectBody {
 }
 
 impl ProjectBody {
+    pub fn links(&self) -> &Option<HashMap<String, String>> {
+        &self.links
+    }
+
     pub fn meta(&self) -> &ProjectMeta {
         &self.meta
     }
 }
 
+#[derive(Debug, Clone)]
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct Project {
     pub project: ProjectBody,
@@ -69,5 +82,15 @@ pub struct Project {
 impl Project {
     pub fn project(&self) -> &ProjectBody {
         &self.project
+    }
+
+    pub fn permissions(&self, client: &mut GoodDataClient) -> AssociatedPermissions {
+        let mut res =
+            client.get(self.project().links().as_ref().unwrap()["userPermissions"].to_string());
+        let raw_permissions = client.get_content(&mut res);
+        let permissions: AssociatedPermissions = json::decode(&raw_permissions.to_string())
+            .unwrap();
+
+        return permissions;
     }
 }
