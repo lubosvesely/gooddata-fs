@@ -130,7 +130,11 @@ impl GoodDataClient {
         }
 
         let mut res = raw.unwrap();
-        assert_eq!(res.status, hyper::Ok);
+
+        // assert_eq!(res.status, hyper::Ok);
+        if res.status != hyper::Ok {
+            return res;
+        }
 
         self.print_response(&mut res);
         self.update_cookie_jar(&res);

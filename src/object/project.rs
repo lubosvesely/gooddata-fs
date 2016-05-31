@@ -1,3 +1,5 @@
+extern crate hyper;
+
 use std::collections::HashMap;
 use rustc_serialize::json;
 
@@ -86,13 +88,18 @@ impl Project {
         &self.project
     }
 
-    pub fn feature_flags(&self, client: &mut GoodDataClient) -> FeatureFlags {
+    pub fn feature_flags(&self, client: &mut GoodDataClient) -> Option<FeatureFlags> {
         let mut res =
             client.get(self.project().links().as_ref().unwrap()["projectFeatureFlags"].to_string());
+
+        if res.status != hyper::Ok {
+            return None;
+        }
+
         let raw = client.get_content(&mut res);
         let obj: FeatureFlags = json::decode(&raw.to_string()).unwrap();
 
-        return obj;
+        return Some(obj);
     }
 
     pub fn user_permissions(&self, client: &mut GoodDataClient) -> AssociatedPermissions {

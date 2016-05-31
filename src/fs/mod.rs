@@ -308,25 +308,29 @@ impl Filesystem for GoodDataFS {
                     let pid = (inode_parent.project - 1) as usize;
                     let project: &object::Project =
                         &self.client().projects().as_ref().unwrap()[pid].clone();
-                    let json: String = project.feature_flags(&mut self.client).into();
 
-                    let attr = FileAttr {
-                        ino: inode,
-                        size: json.len() as u64,
-                        blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: 0o444,
-                        nlink: 1,
-                        uid: users::get_current_uid(),
-                        gid: users::get_current_gid(),
-                        rdev: 0,
-                        flags: 0,
-                    };
-                    reply.entry(&TTL, &attr, 0);
+                    let feature_flags = project.feature_flags(&mut self.client);
+                    if feature_flags.is_some() {
+                        let json: String = feature_flags.unwrap().into();
+
+                        let attr = FileAttr {
+                            ino: inode,
+                            size: json.len() as u64,
+                            blocks: 1,
+                            atime: CREATE_TIME,
+                            mtime: CREATE_TIME,
+                            ctime: CREATE_TIME,
+                            crtime: CREATE_TIME,
+                            kind: FileType::RegularFile,
+                            perm: 0o444,
+                            nlink: 1,
+                            uid: users::get_current_uid(),
+                            gid: users::get_current_gid(),
+                            rdev: 0,
+                            flags: 0,
+                        };
+                        reply.entry(&TTL, &attr, 0);
+                    }
                 } else if name.to_str() == Some("project.json") {
                     let inode = Inode::serialize(&Inode {
                         project: inode_parent.project,
@@ -448,25 +452,29 @@ impl Filesystem for GoodDataFS {
                     let pid = (inode.project - 1) as usize;
                     let project: &object::Project =
                         &self.client().projects().as_ref().unwrap()[pid].clone();
-                    let json: String = project.feature_flags(&mut self.client).into();
 
-                    let attr = FileAttr {
-                        ino: ino,
-                        size: json.len() as u64,
-                        blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
-                        kind: FileType::RegularFile,
-                        perm: 0o444,
-                        nlink: 1,
-                        uid: users::get_current_uid(),
-                        gid: users::get_current_gid(),
-                        rdev: 0,
-                        flags: 0,
-                    };
-                    reply.attr(&TTL, &attr);
+                    let feature_flags = project.feature_flags(&mut self.client);
+                    if feature_flags.is_some() {
+                        let json: String = feature_flags.unwrap().into();
+
+                        let attr = FileAttr {
+                            ino: ino,
+                            size: json.len() as u64,
+                            blocks: 1,
+                            atime: CREATE_TIME,
+                            mtime: CREATE_TIME,
+                            ctime: CREATE_TIME,
+                            crtime: CREATE_TIME,
+                            kind: FileType::RegularFile,
+                            perm: 0o444,
+                            nlink: 1,
+                            uid: users::get_current_uid(),
+                            gid: users::get_current_gid(),
+                            rdev: 0,
+                            flags: 0,
+                        };
+                        reply.attr(&TTL, &attr);
+                    }
                 } else if inode.reserved == flags::ReservedFile::ProjectJson as u8 {
                     let client: &gd::GoodDataClient = self.client();
                     let projects = client.projects().as_ref();
@@ -575,8 +583,11 @@ impl Filesystem for GoodDataFS {
                 let pid = (inode.project - 1) as usize;
                 let project: &object::Project = &self.client().projects().as_ref().unwrap()[pid]
                     .clone();
-                let json: String = project.feature_flags(&mut self.client).into();
-                reply.data(&json.as_bytes()[offset as usize..]);
+                let feature_flags = project.feature_flags(&mut self.client);
+                if feature_flags.is_some() {
+                    let json: String = feature_flags.unwrap().into();
+                    reply.data(&json.as_bytes()[offset as usize..]);
+                }
             } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::ProjectJson as u8) {
                 println!("GoodDataFS::read() - Reading project.json");
 
