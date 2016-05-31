@@ -10,6 +10,6 @@ pub struct AssociatedPermissions {
 
 impl Into<String> for AssociatedPermissions {
     fn into(self) -> String {
-        json::as_pretty_json(&self).to_string()
+        format!("{}\n", json::as_pretty_json(&self).to_string())
     }
 }

@@ -15,6 +15,6 @@ pub struct AssociatedRoles {
 
 impl Into<String> for AssociatedRoles {
     fn into(self) -> String {
-        json::as_pretty_json(&self).to_string()
+        format!("{}\n", json::as_pretty_json(&self).to_string())
     }
 }
