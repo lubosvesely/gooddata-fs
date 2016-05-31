@@ -8,7 +8,6 @@ extern crate users;
 
 use chrono::*;
 use libc::ENOENT;
-use time::Timespec;
 use fuse::{FileType, FileAttr, Filesystem, Request, ReplyData, ReplyEntry, ReplyAttr,
            ReplyDirectory};
 use rustc_serialize::json;
@@ -17,13 +16,6 @@ use std::path::Path;
 use fs;
 use gd;
 use object;
-
-const TTL: Timespec = Timespec { sec: 1, nsec: 0 }; // 1 second
-
-const CREATE_TIME: Timespec = Timespec {
-    sec: 1381237736,
-    nsec: 0,
-};    // 2013-10-08 08:56
 
 const INODE_ROOT: u64 = 1;
 const INODE_USER: u64 = 2;
@@ -59,10 +51,10 @@ impl GoodDataFS {
             ino: inode,
             size: 0,
             blocks: 0,
-            atime: CREATE_TIME,
-            mtime: CREATE_TIME,
-            ctime: CREATE_TIME,
-            crtime: CREATE_TIME,
+            atime: fs::constants::DEFAULT_CREATE_TIME,
+            mtime: fs::constants::DEFAULT_CREATE_TIME,
+            ctime: fs::constants::DEFAULT_CREATE_TIME,
+            crtime: fs::constants::DEFAULT_CREATE_TIME,
             kind: FileType::Directory,
             perm: 0o755,
             nlink: 0,
@@ -78,10 +70,10 @@ impl GoodDataFS {
             ino: INODE_PROJECTS,
             size: 0,
             blocks: 0,
-            atime: CREATE_TIME,
-            mtime: CREATE_TIME,
-            ctime: CREATE_TIME,
-            crtime: CREATE_TIME,
+            atime: fs::constants::DEFAULT_CREATE_TIME,
+            mtime: fs::constants::DEFAULT_CREATE_TIME,
+            ctime: fs::constants::DEFAULT_CREATE_TIME,
+            crtime: fs::constants::DEFAULT_CREATE_TIME,
             kind: FileType::Directory,
             perm: 0o755,
             nlink: 2,
@@ -97,10 +89,10 @@ impl GoodDataFS {
             ino: INODE_ROOT,
             size: 0,
             blocks: 0,
-            atime: CREATE_TIME,
-            mtime: CREATE_TIME,
-            ctime: CREATE_TIME,
-            crtime: CREATE_TIME,
+            atime: fs::constants::DEFAULT_CREATE_TIME,
+            mtime: fs::constants::DEFAULT_CREATE_TIME,
+            ctime: fs::constants::DEFAULT_CREATE_TIME,
+            crtime: fs::constants::DEFAULT_CREATE_TIME,
             kind: FileType::Directory,
             perm: 0o755,
             nlink: 2,
@@ -152,10 +144,10 @@ impl GoodDataFS {
             ino: INODE_PROJECTS_JSON,
             size: json.len() as u64,
             blocks: 1,
-            atime: CREATE_TIME,
-            mtime: CREATE_TIME,
-            ctime: CREATE_TIME,
-            crtime: CREATE_TIME,
+            atime: fs::constants::DEFAULT_CREATE_TIME,
+            mtime: fs::constants::DEFAULT_CREATE_TIME,
+            ctime: fs::constants::DEFAULT_CREATE_TIME,
+            crtime: fs::constants::DEFAULT_CREATE_TIME,
             kind: FileType::RegularFile,
             perm: 0o444,
             nlink: 1,
@@ -247,11 +239,17 @@ impl Filesystem for GoodDataFS {
                  fs::inode::Inode::deserialize(parent),
                  name.to_str().unwrap());
         if parent == INODE_ROOT && name.to_str() == Some("user.json") {
-            reply.entry(&TTL, &self.get_user_file_attributes(), 0);
+            reply.entry(&fs::constants::DEFAULT_TTL,
+                        &self.get_user_file_attributes(),
+                        0);
         } else if parent == INODE_ROOT && name.to_str() == Some("projects") {
-            reply.entry(&TTL, &self.get_projects_dir_attributes(), 0);
+            reply.entry(&fs::constants::DEFAULT_TTL,
+                        &self.get_projects_dir_attributes(),
+                        0);
         } else if parent == INODE_PROJECTS && name.to_str() == Some("projects.json") {
-            reply.entry(&TTL, &self.get_projects_file_attributes(), 0);
+            reply.entry(&fs::constants::DEFAULT_TTL,
+                        &self.get_projects_file_attributes(),
+                        0);
         } else if parent == INODE_PROJECTS {
             let mut i: u64 = 0;
             let client: &gd::GoodDataClient = self.client();
@@ -278,10 +276,10 @@ impl Filesystem for GoodDataFS {
                 ino: inode,
                 size: 0,
                 blocks: 0,
-                atime: CREATE_TIME,
-                mtime: CREATE_TIME,
-                ctime: CREATE_TIME,
-                crtime: CREATE_TIME,
+                atime: fs::constants::DEFAULT_CREATE_TIME,
+                mtime: fs::constants::DEFAULT_CREATE_TIME,
+                ctime: fs::constants::DEFAULT_CREATE_TIME,
+                crtime: fs::constants::DEFAULT_CREATE_TIME,
                 kind: FileType::Directory,
                 perm: 0o755,
                 nlink: 2,
@@ -290,7 +288,7 @@ impl Filesystem for GoodDataFS {
                 rdev: 0,
                 flags: 0,
             };
-            reply.entry(&TTL, &attr, 0);
+            reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
         } else {
             let inode_parent = fs::inode::Inode::deserialize(parent);
             if inode_parent.project > 0 {
@@ -314,10 +312,10 @@ impl Filesystem for GoodDataFS {
                             ino: inode,
                             size: json.len() as u64,
                             blocks: 1,
-                            atime: CREATE_TIME,
-                            mtime: CREATE_TIME,
-                            ctime: CREATE_TIME,
-                            crtime: CREATE_TIME,
+                            atime: fs::constants::DEFAULT_CREATE_TIME,
+                            mtime: fs::constants::DEFAULT_CREATE_TIME,
+                            ctime: fs::constants::DEFAULT_CREATE_TIME,
+                            crtime: fs::constants::DEFAULT_CREATE_TIME,
                             kind: FileType::RegularFile,
                             perm: 0o444,
                             nlink: 1,
@@ -326,7 +324,7 @@ impl Filesystem for GoodDataFS {
                             rdev: 0,
                             flags: 0,
                         };
-                        reply.entry(&TTL, &attr, 0);
+                        reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                     }
                 } else if name.to_str() == Some("project.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
@@ -345,10 +343,10 @@ impl Filesystem for GoodDataFS {
                         ino: inode,
                         size: json.len() as u64,
                         blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
+                        atime: fs::constants::DEFAULT_CREATE_TIME,
+                        mtime: fs::constants::DEFAULT_CREATE_TIME,
+                        ctime: fs::constants::DEFAULT_CREATE_TIME,
+                        crtime: fs::constants::DEFAULT_CREATE_TIME,
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
@@ -357,7 +355,7 @@ impl Filesystem for GoodDataFS {
                         rdev: 0,
                         flags: 0,
                     };
-                    reply.entry(&TTL, &attr, 0);
+                    reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                 } else if name.to_str() == Some("permissions.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
@@ -375,10 +373,10 @@ impl Filesystem for GoodDataFS {
                         ino: inode,
                         size: json.len() as u64,
                         blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
+                        atime: fs::constants::DEFAULT_CREATE_TIME,
+                        mtime: fs::constants::DEFAULT_CREATE_TIME,
+                        ctime: fs::constants::DEFAULT_CREATE_TIME,
+                        crtime: fs::constants::DEFAULT_CREATE_TIME,
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
@@ -387,7 +385,7 @@ impl Filesystem for GoodDataFS {
                         rdev: 0,
                         flags: 0,
                     };
-                    reply.entry(&TTL, &attr, 0);
+                    reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                 } else if name.to_str() == Some("roles.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
@@ -405,10 +403,10 @@ impl Filesystem for GoodDataFS {
                         ino: inode,
                         size: json.len() as u64,
                         blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
+                        atime: fs::constants::DEFAULT_CREATE_TIME,
+                        mtime: fs::constants::DEFAULT_CREATE_TIME,
+                        ctime: fs::constants::DEFAULT_CREATE_TIME,
+                        crtime: fs::constants::DEFAULT_CREATE_TIME,
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
@@ -417,7 +415,7 @@ impl Filesystem for GoodDataFS {
                         rdev: 0,
                         flags: 0,
                     };
-                    reply.entry(&TTL, &attr, 0);
+                    reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                 } else {
                     reply.error(ENOENT);
                 }
@@ -434,17 +432,21 @@ impl Filesystem for GoodDataFS {
                  inode);
 
         if ino == INODE_ROOT {
-            reply.attr(&TTL, &self.get_root_dir_attributes());
+            reply.attr(&fs::constants::DEFAULT_TTL, &self.get_root_dir_attributes());
         } else if ino == INODE_PROJECTS {
-            reply.attr(&TTL, &self.get_projects_dir_attributes());
+            reply.attr(&fs::constants::DEFAULT_TTL,
+                       &self.get_projects_dir_attributes());
         } else if ino == INODE_PROJECTS_JSON {
-            reply.attr(&TTL, &self.get_projects_file_attributes());
+            reply.attr(&fs::constants::DEFAULT_TTL,
+                       &self.get_projects_file_attributes());
         } else if ino == INODE_USER {
-            reply.attr(&TTL, &self.get_user_file_attributes());
+            reply.attr(&fs::constants::DEFAULT_TTL,
+                       &self.get_user_file_attributes());
         } else {
             if inode.project > 0 {
                 if inode.reserved == 0 {
-                    reply.attr(&TTL, &self.get_project_dir_attributes(ino));
+                    reply.attr(&fs::constants::DEFAULT_TTL,
+                               &self.get_project_dir_attributes(ino));
                 } else if inode.reserved == fs::flags::ReservedFile::FeatureFlagsJson as u8 {
                     let pid = (inode.project - 1) as usize;
                     let project: &object::Project =
@@ -458,10 +460,10 @@ impl Filesystem for GoodDataFS {
                             ino: ino,
                             size: json.len() as u64,
                             blocks: 1,
-                            atime: CREATE_TIME,
-                            mtime: CREATE_TIME,
-                            ctime: CREATE_TIME,
-                            crtime: CREATE_TIME,
+                            atime: fs::constants::DEFAULT_CREATE_TIME,
+                            mtime: fs::constants::DEFAULT_CREATE_TIME,
+                            ctime: fs::constants::DEFAULT_CREATE_TIME,
+                            crtime: fs::constants::DEFAULT_CREATE_TIME,
                             kind: FileType::RegularFile,
                             perm: 0o444,
                             nlink: 1,
@@ -470,7 +472,7 @@ impl Filesystem for GoodDataFS {
                             rdev: 0,
                             flags: 0,
                         };
-                        reply.attr(&TTL, &attr);
+                        reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                     }
                 } else if inode.reserved == fs::flags::ReservedFile::ProjectJson as u8 {
                     let client: &gd::GoodDataClient = self.client();
@@ -483,10 +485,10 @@ impl Filesystem for GoodDataFS {
                         ino: ino,
                         size: json.len() as u64,
                         blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
+                        atime: fs::constants::DEFAULT_CREATE_TIME,
+                        mtime: fs::constants::DEFAULT_CREATE_TIME,
+                        ctime: fs::constants::DEFAULT_CREATE_TIME,
+                        crtime: fs::constants::DEFAULT_CREATE_TIME,
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
@@ -495,7 +497,7 @@ impl Filesystem for GoodDataFS {
                         rdev: 0,
                         flags: 0,
                     };
-                    reply.attr(&TTL, &attr);
+                    reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                 } else if inode.reserved == fs::flags::ReservedFile::PermissionsJson as u8 {
                     let pid = (inode.project - 1) as usize;
                     let project: &object::Project =
@@ -506,10 +508,10 @@ impl Filesystem for GoodDataFS {
                         ino: ino,
                         size: json.len() as u64,
                         blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
+                        atime: fs::constants::DEFAULT_CREATE_TIME,
+                        mtime: fs::constants::DEFAULT_CREATE_TIME,
+                        ctime: fs::constants::DEFAULT_CREATE_TIME,
+                        crtime: fs::constants::DEFAULT_CREATE_TIME,
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
@@ -518,7 +520,7 @@ impl Filesystem for GoodDataFS {
                         rdev: 0,
                         flags: 0,
                     };
-                    reply.attr(&TTL, &attr);
+                    reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                 } else if inode.reserved == fs::flags::ReservedFile::RolesJson as u8 {
                     let pid = (inode.project - 1) as usize;
                     let project: &object::Project =
@@ -529,10 +531,10 @@ impl Filesystem for GoodDataFS {
                         ino: ino,
                         size: json.len() as u64,
                         blocks: 1,
-                        atime: CREATE_TIME,
-                        mtime: CREATE_TIME,
-                        ctime: CREATE_TIME,
-                        crtime: CREATE_TIME,
+                        atime: fs::constants::DEFAULT_CREATE_TIME,
+                        mtime: fs::constants::DEFAULT_CREATE_TIME,
+                        ctime: fs::constants::DEFAULT_CREATE_TIME,
+                        crtime: fs::constants::DEFAULT_CREATE_TIME,
                         kind: FileType::RegularFile,
                         perm: 0o444,
                         nlink: 1,
@@ -541,7 +543,7 @@ impl Filesystem for GoodDataFS {
                         rdev: 0,
                         flags: 0,
                     };
-                    reply.attr(&TTL, &attr);
+                    reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                 }
             } else {
                 println!("GoodDataFS::getattr() - Not found inode {:?}", ino);
@@ -563,13 +565,13 @@ impl Filesystem for GoodDataFS {
                  offset,
                  size);
         if ino == INODE_USER {
-            let json = format!("{}\n",
-                               json::as_pretty_json(&self.client.user()).to_string());
+            let json: String = self.client.user().clone().unwrap().into();
             reply.data(&json.as_bytes()[offset as usize..]);
         } else if ino == INODE_PROJECTS_JSON {
             println!("GoodDataFS::read() - Reading projects.json");
             let json = format!("{}\n",
                                json::as_pretty_json(&self.client.projects()).to_string());
+            // let json: String = self.client.projects().clone().unwrap().into();
             reply.data(&json.as_bytes()[offset as usize..]);
         } else {
             let inode = fs::inode::Inode::deserialize(ino);
