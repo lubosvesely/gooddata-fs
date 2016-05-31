@@ -139,10 +139,10 @@ Items marked `✓` are already implemented.
 │   │   ├── templates
 │   │   ├── uploads
 │   │   ├── users
-│   │   ├── featureflags.json
+│   │   ├── featureflags.json ✓
 │   │   ├── permissions.json ✓
 │   │   ├── project.json ✓
-│   │   └── roles.json
+│   │   └── roles.json ✓
 │   └── projects.json ✓
 └── user.json ✓
 
