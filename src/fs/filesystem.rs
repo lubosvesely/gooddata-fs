@@ -209,11 +209,11 @@ impl Filesystem for GoodDataFS {
                  parent,
                  fs::inode::Inode::deserialize(parent),
                  name.to_str().unwrap());
-        if parent == INODE_ROOT && name.to_str() == Some("user.json") {
+        if parent == INODE_ROOT && name.to_str() == Some(fs::constants::USER_JSON_FILENAME) {
             reply.entry(&fs::constants::DEFAULT_TTL,
                         &self.get_user_file_attributes(),
                         0);
-        } else if parent == INODE_ROOT && name.to_str() == Some("projects") {
+        } else if parent == INODE_ROOT && name.to_str() == Some(fs::constants::PROJECTS_DIRNAME) {
             reply.entry(&fs::constants::DEFAULT_TTL,
                         &self.get_projects_dir_attributes(),
                         0);
@@ -487,8 +487,14 @@ impl Filesystem for GoodDataFS {
                  fs::inode::Inode::deserialize(ino));
         if ino == INODE_ROOT {
             if offset == 0 {
-                reply.add(INODE_ROOT, 2, FileType::RegularFile, "user.json");
-                reply.add(INODE_ROOT, 3, FileType::Directory, "projects");
+                reply.add(INODE_ROOT,
+                          2,
+                          FileType::RegularFile,
+                          fs::constants::USER_JSON_FILENAME);
+                reply.add(INODE_ROOT,
+                          3,
+                          FileType::Directory,
+                          fs::constants::PROJECTS_DIRNAME);
             }
             reply.ok();
         } else if ino == INODE_PROJECTS {
