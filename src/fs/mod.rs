@@ -117,6 +117,7 @@ impl GoodDataFS {
     }
 
     fn get_user_file_attributes(&self) -> fuse::FileAttr {
+        // let json: String = self.client.user().into();
         let json = format!("{}\n",
                            json::as_pretty_json(&self.client.user()).to_string());
 
@@ -148,6 +149,7 @@ impl GoodDataFS {
     }
 
     fn get_projects_file_attributes(&self) -> fuse::FileAttr {
+        // let json: String = self.client.projects().into();
         let json = format!("{}\n",
                            json::as_pretty_json(&self.client.projects()).to_string());
 

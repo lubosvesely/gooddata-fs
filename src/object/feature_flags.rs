@@ -4,8 +4,8 @@ use rustc_serialize::json;
 
 #[derive(RustcDecodable, RustcEncodable)]
 pub struct FeatureFlagBody {
-    pub key: String,
-    pub value: bool,
+    pub key: Option<String>,
+    pub value: Option<bool>,
     pub links: Option<HashMap<String, String>>,
 }
 

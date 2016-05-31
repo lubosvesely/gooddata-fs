@@ -103,7 +103,7 @@ impl GoodDataClient {
     }
 
     pub fn disconnect(&mut self) {
-        println!("Disconnecting from GoodData Platform");
+        println!("GoodDataClient::disconnect() - Disconnecting from GoodData Platform");
     }
 
     /// HTTP Method GET Wrapper
@@ -125,7 +125,7 @@ impl GoodDataClient {
             .header(Cookie::from_cookie_jar(&self.jar))
             .send();
 
-        println!("{:?}", raw);
+        println!("GoodDataClient::get() - Response: {:?}", raw);
         if !raw.is_ok() {
             return self.get(uriPath);
         }
@@ -165,7 +165,7 @@ impl GoodDataClient {
             .send();
 
 
-        println!("{:?}", raw);
+        println!("GoodDataClient::post() - Response: {:?}", raw);
         if !raw.is_ok() {
             return self.post(uriPath, payload);
         }
