@@ -635,9 +635,6 @@ impl Filesystem for GoodDataFS {
             reply.ok();
         } else if ino == INODE_PROJECTS {
             if offset == 0 {
-                reply.add(INODE_PROJECTS, 0, FileType::Directory, ".");
-                reply.add(INODE_PROJECTS, 1, FileType::Directory, "..");
-
                 self.client.projects_fetch();
 
                 let mut i: u64 = 0;
@@ -669,9 +666,6 @@ impl Filesystem for GoodDataFS {
             let inode = fs::inode::Inode::deserialize(ino);
             if inode.project > 0 {
                 if offset == 0 {
-                    reply.add(ino, 0, FileType::Directory, ".");
-                    reply.add(ino, 1, FileType::Directory, "..");
-
                     self.readdir_project(inode.project as u16, &mut reply);
                 }
                 reply.ok();
