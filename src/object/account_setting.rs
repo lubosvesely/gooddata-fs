@@ -9,7 +9,7 @@ pub struct AccountSettingBody {
     pub ssoProvider: Option<String>,
     pub timezone: Option<String>,
     pub position: Option<String>,
-    pub authenticationModes: Vec<String>,
+    pub authenticationModes: Option<Vec<String>>,
     pub companyName: Option<String>,
     pub login: Option<String>,
     pub email: Option<String>,
