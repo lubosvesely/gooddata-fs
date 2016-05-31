@@ -15,6 +15,7 @@ use rustc_serialize::json;
 use std::io::Read;
 use std::vec::Vec;
 
+use helpers;
 use object;
 
 pub struct GoodDataClient {
@@ -41,7 +42,7 @@ impl GoodDataClient {
         GoodDataClient {
             client: Client::new(),
             server: "https://secure.gooddata.com".to_string(),
-            jar: CookieJar::new(b"f8f9eaf1ecdedff5e5b749c58115441e"),
+            jar: CookieJar::new(helpers::random_string(32).as_bytes()),
             user: None,
             projects: None,
             token_updated: None,
