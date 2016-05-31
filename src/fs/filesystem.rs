@@ -49,7 +49,7 @@ impl GoodDataFS {
                  fs::inode::Inode::deserialize(inode));
         FileAttr {
             ino: inode,
-            size: 0,
+            size: fs::constants::DEFAULT_SIZE,
             blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
             atime: fs::constants::DEFAULT_CREATE_TIME,
             mtime: fs::constants::DEFAULT_CREATE_TIME,
@@ -68,7 +68,7 @@ impl GoodDataFS {
     fn get_projects_dir_attributes(&self) -> fuse::FileAttr {
         FileAttr {
             ino: INODE_PROJECTS,
-            size: 0,
+            size: fs::constants::DEFAULT_SIZE,
             blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
             atime: fs::constants::DEFAULT_CREATE_TIME,
             mtime: fs::constants::DEFAULT_CREATE_TIME,
@@ -87,7 +87,7 @@ impl GoodDataFS {
     fn get_root_dir_attributes(&self) -> fuse::FileAttr {
         FileAttr {
             ino: INODE_ROOT,
-            size: 0,
+            size: fs::constants::DEFAULT_SIZE,
             blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
             atime: fs::constants::DEFAULT_CREATE_TIME,
             mtime: fs::constants::DEFAULT_CREATE_TIME,
@@ -274,7 +274,7 @@ impl Filesystem for GoodDataFS {
                      fs::inode::Inode::deserialize(inode));
             let attr = FileAttr {
                 ino: inode,
-                size: 0,
+                size: fs::constants::DEFAULT_SIZE,
                 blocks: fs::constants::DEFAULT_BLOCKS_COUNT,
                 atime: fs::constants::DEFAULT_CREATE_TIME,
                 mtime: fs::constants::DEFAULT_CREATE_TIME,
@@ -518,7 +518,7 @@ impl Filesystem for GoodDataFS {
                         uid: fs::helpers::default_uid(),
                         gid: fs::helpers::default_guid(),
                         rdev: fs::constants::DEFAULT_RDEV,
-                        flags: 0,
+                        flags: fs::constants::DEFAULT_FLAGS,
                     };
                     reply.attr(&fs::constants::DEFAULT_TTL, &attr);
                 } else if inode.reserved == fs::flags::ReservedFile::RolesJson as u8 {
@@ -629,9 +629,6 @@ impl Filesystem for GoodDataFS {
                  fs::inode::Inode::deserialize(ino));
         if ino == INODE_ROOT {
             if offset == 0 {
-                // reply.add(INODE_ROOT, 0, FileType::Directory, ".");
-                // reply.add(INODE_ROOT, 1, FileType::Directory, "..");
-
                 reply.add(INODE_ROOT, 2, FileType::RegularFile, "user.json");
                 reply.add(INODE_ROOT, 3, FileType::Directory, "projects");
             }

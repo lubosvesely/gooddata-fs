@@ -17,4 +17,6 @@ pub const DEFAULT_NLINKE_COUNT: u32 = 0;
 
 pub const DEFAULT_RDEV: u32 = 0;
 
+pub const DEFAULT_SIZE: u64 = 0;
+
 pub const DEFAULT_TTL: Timespec = Timespec { sec: 1, nsec: 0 };
