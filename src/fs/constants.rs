@@ -13,7 +13,6 @@ pub const PROJECT_JSON_FILENAME: &'static str = "project.json";
 pub const PROJECTS_JSON_FILENAME: &'static str = "projects.json";
 pub const ROLES_JSON_FILENAME: &'static str = "roles.json";
 
-
 pub const DEFAULT_DIRECTORY_PERMISSIONS: u16 = 0o755;
 
 pub const DEFAULT_FILE_PERMISSIONS: u16 = 0o444;
