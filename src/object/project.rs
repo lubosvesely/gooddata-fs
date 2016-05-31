@@ -85,7 +85,7 @@ impl Project {
         &self.project
     }
 
-    pub fn permissions(&self, client: &mut GoodDataClient) -> AssociatedPermissions {
+    pub fn user_permissions(&self, client: &mut GoodDataClient) -> AssociatedPermissions {
         let mut res =
             client.get(self.project().links().as_ref().unwrap()["userPermissions"].to_string());
         let raw = client.get_content(&mut res);
@@ -94,7 +94,7 @@ impl Project {
         return obj;
     }
 
-    pub fn roles(&self, client: &mut GoodDataClient) -> AssociatedRoles {
+    pub fn user_roles(&self, client: &mut GoodDataClient) -> AssociatedRoles {
         let mut res = client.get(self.project().links().as_ref().unwrap()["userRoles"].to_string());
         let raw = client.get_content(&mut res);
         let obj: AssociatedRoles = json::decode(&raw.to_string()).unwrap();

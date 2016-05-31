@@ -338,7 +338,7 @@ impl Filesystem for GoodDataFS {
                     let pid = (inode_parent.project - 1) as usize;
                     let project: &object::Project =
                         &self.client().projects().as_ref().unwrap()[pid].clone();
-                    let json: String = project.permissions(&mut self.client).into();
+                    let json: String = project.user_permissions(&mut self.client).into();
 
                     let attr = FileAttr {
                         ino: inode,
@@ -368,7 +368,7 @@ impl Filesystem for GoodDataFS {
                     let pid = (inode_parent.project - 1) as usize;
                     let project: &object::Project =
                         &self.client().projects().as_ref().unwrap()[pid].clone();
-                    let json: String = project.roles(&mut self.client).into();
+                    let json: String = project.user_roles(&mut self.client).into();
 
                     let attr = FileAttr {
                         ino: inode,
@@ -442,7 +442,7 @@ impl Filesystem for GoodDataFS {
                     let pid = (inode.project - 1) as usize;
                     let project: &object::Project =
                         &self.client().projects().as_ref().unwrap()[pid].clone();
-                    let json: String = project.permissions(&mut self.client).into();
+                    let json: String = project.user_permissions(&mut self.client).into();
 
                     let attr = FileAttr {
                         ino: ino,
@@ -465,7 +465,7 @@ impl Filesystem for GoodDataFS {
                     let pid = (inode.project - 1) as usize;
                     let project: &object::Project =
                         &self.client().projects().as_ref().unwrap()[pid].clone();
-                    let json: String = project.roles(&mut self.client).into();
+                    let json: String = project.user_roles(&mut self.client).into();
 
                     let attr = FileAttr {
                         ino: ino,
@@ -529,7 +529,7 @@ impl Filesystem for GoodDataFS {
                 let pid = (inode.project - 1) as usize;
                 let project: &object::Project = &self.client().projects().as_ref().unwrap()[pid]
                     .clone();
-                let json: String = project.permissions(&mut self.client).into();
+                let json: String = project.user_permissions(&mut self.client).into();
                 reply.data(&json.as_bytes()[offset as usize..]);
             } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::RolesJson as u8) {
                 println!("GoodDataFS::read() - Reading roles.json");
@@ -537,7 +537,7 @@ impl Filesystem for GoodDataFS {
                 let pid = (inode.project - 1) as usize;
                 let project: &object::Project = &self.client().projects().as_ref().unwrap()[pid]
                     .clone();
-                let json: String = project.roles(&mut self.client).into();
+                let json: String = project.user_roles(&mut self.client).into();
                 reply.data(&json.as_bytes()[offset as usize..]);
             } else {
                 reply.error(ENOENT);
