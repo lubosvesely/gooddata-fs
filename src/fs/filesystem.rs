@@ -35,10 +35,6 @@ impl Drop for GoodDataFS {
 
 #[allow(dead_code)]
 impl GoodDataFS {
-    pub fn drop(&mut self) {
-        println!("NOTE: Logging out is not implemented yet!");
-    }
-
     fn client(&self) -> &gd::GoodDataClient {
         &self.client
     }
@@ -216,19 +212,19 @@ impl GoodDataFS {
         reply.add(fileinode, 5, FileType::RegularFile, "roles.json");
 
 
-        let inode = fs::inode::Inode {
-            project: projectid as u16,
-            category: fs::flags::Category::Metadata as u8,
-            item: 0,
-            reserved: 0,
-        };
-        let fileinode: u64 = inode.into();
-        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
-                  metadata",
-                 fileinode,
-                 &inode,
-                 projectid - 1);
-        reply.add(fileinode, 6, FileType::Directory, "metadata");
+        // let inode = fs::inode::Inode {
+        //     project: projectid as u16,
+        //     category: fs::flags::Category::Metadata as u8,
+        //     item: 0,
+        //     reserved: 0,
+        // };
+        // let fileinode: u64 = inode.into();
+        // println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
+        //           metadata",
+        //          fileinode,
+        //          &inode,
+        //          projectid - 1);
+        // reply.add(fileinode, 6, FileType::Directory, "metadata");
     }
 }
 
@@ -295,7 +291,7 @@ impl Filesystem for GoodDataFS {
                 if name.to_str() == Some("featureflags.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
-                        category: 0,
+                        category: fs::flags::Category::Internal as u8,
                         item: 0,
                         reserved: fs::flags::ReservedFile::FeatureFlagsJson as u8,
                     });
@@ -329,7 +325,7 @@ impl Filesystem for GoodDataFS {
                 } else if name.to_str() == Some("project.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
-                        category: 0,
+                        category: fs::flags::Category::Internal as u8,
                         item: 0,
                         reserved: fs::flags::ReservedFile::ProjectJson as u8,
                     });
@@ -359,7 +355,7 @@ impl Filesystem for GoodDataFS {
                 } else if name.to_str() == Some("permissions.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
-                        category: 0,
+                        category: fs::flags::Category::Internal as u8,
                         item: 0,
                         reserved: fs::flags::ReservedFile::PermissionsJson as u8,
                     });
@@ -389,7 +385,7 @@ impl Filesystem for GoodDataFS {
                 } else if name.to_str() == Some("roles.json") {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
-                        category: 0,
+                        category: fs::flags::Category::Internal as u8,
                         item: 0,
                         reserved: fs::flags::ReservedFile::RolesJson as u8,
                     });
