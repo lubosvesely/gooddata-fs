@@ -125,12 +125,15 @@ impl GoodDataFS {
             reserved: fs::flags::ReservedFile::FeatureFlagsJson as u8,
         };
         let fileinode: u64 = inode.into();
-        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
-                  featureflags.json",
+        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
                  fileinode,
                  &inode,
-                 projectid - 1);
-        reply.add(fileinode, 2, FileType::RegularFile, "featureflags.json");
+                 projectid - 1,
+                 fs::constants::FEATURE_FLAGS_JSON_FILENAME);
+        reply.add(fileinode,
+                  2,
+                  FileType::RegularFile,
+                  fs::constants::FEATURE_FLAGS_JSON_FILENAME);
 
         let inode = fs::inode::Inode {
             project: projectid as u16,
@@ -139,12 +142,15 @@ impl GoodDataFS {
             reserved: fs::flags::ReservedFile::PermissionsJson as u8,
         };
         let fileinode: u64 = inode.into();
-        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
-                  permissions.json",
+        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
                  fileinode,
                  &inode,
-                 projectid - 1);
-        reply.add(fileinode, 3, FileType::RegularFile, "permissions.json");
+                 projectid - 1,
+                 fs::constants::PERMISSIONS_JSON_FILENAME);
+        reply.add(fileinode,
+                  3,
+                  FileType::RegularFile,
+                  fs::constants::PERMISSIONS_JSON_FILENAME);
 
         let inode = fs::inode::Inode {
             project: projectid as u16,
@@ -153,12 +159,15 @@ impl GoodDataFS {
             reserved: fs::flags::ReservedFile::ProjectJson as u8,
         };
         let fileinode: u64 = inode.into();
-        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
-                  project.json",
+        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
                  fileinode,
                  &inode,
-                 projectid - 1);
-        reply.add(fileinode, 4, FileType::RegularFile, "project.json");
+                 projectid - 1,
+                 fs::constants::PROJECT_JSON_FILENAME);
+        reply.add(fileinode,
+                  4,
+                  FileType::RegularFile,
+                  fs::constants::PROJECT_JSON_FILENAME);
 
         let inode = fs::inode::Inode {
             project: projectid as u16,
@@ -167,12 +176,15 @@ impl GoodDataFS {
             reserved: fs::flags::ReservedFile::RolesJson as u8,
         };
         let fileinode: u64 = inode.into();
-        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
-                  roles.json",
+        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
                  fileinode,
                  &inode,
-                 projectid - 1);
-        reply.add(fileinode, 5, FileType::RegularFile, "roles.json");
+                 projectid - 1,
+                 fs::constants::ROLES_JSON_FILENAME);
+        reply.add(fileinode,
+                  5,
+                  FileType::RegularFile,
+                  fs::constants::ROLES_JSON_FILENAME);
 
 
         // let inode = fs::inode::Inode {
@@ -205,7 +217,8 @@ impl Filesystem for GoodDataFS {
             reply.entry(&fs::constants::DEFAULT_TTL,
                         &self.get_projects_dir_attributes(),
                         0);
-        } else if parent == INODE_PROJECTS && name.to_str() == Some("projects.json") {
+        } else if parent == INODE_PROJECTS &&
+           name.to_str() == Some(fs::constants::PROJECTS_JSON_FILENAME) {
             reply.entry(&fs::constants::DEFAULT_TTL,
                         &self.get_projects_file_attributes(),
                         0);
@@ -236,7 +249,7 @@ impl Filesystem for GoodDataFS {
         } else {
             let inode_parent = fs::inode::Inode::deserialize(parent);
             if inode_parent.project > 0 {
-                if name.to_str() == Some("featureflags.json") {
+                if name.to_str() == Some(fs::constants::FEATURE_FLAGS_JSON_FILENAME) {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
                         category: fs::flags::Category::Internal as u8,
@@ -257,7 +270,7 @@ impl Filesystem for GoodDataFS {
                                                                 fs::constants::DEFAULT_CREATE_TIME);
                         reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
                     }
-                } else if name.to_str() == Some("project.json") {
+                } else if name.to_str() == Some(fs::constants::PROJECT_JSON_FILENAME) {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
                         category: fs::flags::Category::Internal as u8,
@@ -274,7 +287,7 @@ impl Filesystem for GoodDataFS {
                                                             json.len() as u64,
                                                             fs::constants::DEFAULT_CREATE_TIME);
                     reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
-                } else if name.to_str() == Some("permissions.json") {
+                } else if name.to_str() == Some(fs::constants::PERMISSIONS_JSON_FILENAME) {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
                         category: fs::flags::Category::Internal as u8,
@@ -291,7 +304,7 @@ impl Filesystem for GoodDataFS {
                                                             json.len() as u64,
                                                             fs::constants::DEFAULT_CREATE_TIME);
                     reply.entry(&fs::constants::DEFAULT_TTL, &attr, 0);
-                } else if name.to_str() == Some("roles.json") {
+                } else if name.to_str() == Some(fs::constants::ROLES_JSON_FILENAME) {
                     let inode = fs::inode::Inode::serialize(&fs::inode::Inode {
                         project: inode_parent.project,
                         category: fs::flags::Category::Internal as u8,
@@ -408,7 +421,8 @@ impl Filesystem for GoodDataFS {
             let json: String = self.client.user().clone().unwrap().into();
             reply.data(&json.as_bytes()[offset as usize..]);
         } else if ino == INODE_PROJECTS_JSON {
-            println!("GoodDataFS::read() - Reading projects.json");
+            println!("GoodDataFS::read() - Reading {}",
+                     fs::constants::PROJECTS_JSON_FILENAME);
             let json = format!("{}\n",
                                json::as_pretty_json(&self.client.projects()).to_string());
             // let json: String = self.client.projects().clone().unwrap().into();
@@ -417,7 +431,8 @@ impl Filesystem for GoodDataFS {
             let inode = fs::inode::Inode::deserialize(ino);
             if inode.project > 0 &&
                (inode.reserved == fs::flags::ReservedFile::FeatureFlagsJson as u8) {
-                println!("GoodDataFS::read() - Reading featureflags.json");
+                println!("GoodDataFS::read() - Reading {}",
+                         fs::constants::FEATURE_FLAGS_JSON_FILENAME);
 
                 let pid = (inode.project - 1) as usize;
                 let project: &object::Project = &self.client().projects().as_ref().unwrap()[pid]
@@ -428,7 +443,8 @@ impl Filesystem for GoodDataFS {
                     reply.data(&json.as_bytes()[offset as usize..]);
                 }
             } else if inode.project > 0 && (inode.reserved == fs::flags::ReservedFile::ProjectJson as u8) {
-                println!("GoodDataFS::read() - Reading project.json");
+                println!("GoodDataFS::read() - Reading {}",
+                         fs::constants::PROJECT_JSON_FILENAME);
 
                 let client: &gd::GoodDataClient = self.client();
                 let projects = client.projects().as_ref();
@@ -437,7 +453,8 @@ impl Filesystem for GoodDataFS {
                 reply.data(&json.as_bytes()[offset as usize..]);
             } else if inode.project > 0 &&
                (inode.reserved == fs::flags::ReservedFile::PermissionsJson as u8) {
-                println!("GoodDataFS::read() - Reading permissions.json");
+                println!("GoodDataFS::read() - Reading {}",
+                         fs::constants::PERMISSIONS_JSON_FILENAME);
 
                 let pid = (inode.project - 1) as usize;
                 let project: &object::Project = &self.client().projects().as_ref().unwrap()[pid]
@@ -445,7 +462,8 @@ impl Filesystem for GoodDataFS {
                 let json: String = project.user_permissions(&mut self.client).into();
                 reply.data(&json.as_bytes()[offset as usize..]);
             } else if inode.project > 0 && (inode.reserved == fs::flags::ReservedFile::RolesJson as u8) {
-                println!("GoodDataFS::read() - Reading roles.json");
+                println!("GoodDataFS::read() - Reading {}",
+                         fs::constants::ROLES_JSON_FILENAME);
 
                 let pid = (inode.project - 1) as usize;
                 let project: &object::Project = &self.client().projects().as_ref().unwrap()[pid]
@@ -499,7 +517,7 @@ impl Filesystem for GoodDataFS {
                 reply.add(INODE_PROJECTS_JSON,
                           i + 3,
                           FileType::RegularFile,
-                          "projects.json");
+                          fs::constants::PROJECTS_JSON_FILENAME);
             }
             reply.ok();
         } else {
