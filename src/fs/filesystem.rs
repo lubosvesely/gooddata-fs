@@ -187,19 +187,19 @@ impl GoodDataFS {
                   fs::constants::ROLES_JSON_FILENAME);
 
 
-        // let inode = fs::inode::Inode {
-        //     project: projectid as u16,
-        //     category: fs::flags::Category::Metadata as u8,
-        //     item: 0,
-        //     reserved: 0,
-        // };
-        // let fileinode: u64 = inode.into();
-        // println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
-        //           metadata",
-        //          fileinode,
-        //          &inode,
-        //          projectid - 1);
-        // reply.add(fileinode, 6, FileType::Directory, "metadata");
+        let inode = fs::inode::Inode {
+            project: projectid as u16,
+            category: fs::flags::Category::Metadata as u8,
+            item: 0,
+            reserved: 1,
+        };
+        let fileinode: u64 = inode.into();
+        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
+                  metadata",
+                 fileinode,
+                 &inode,
+                 projectid - 1);
+        reply.add(fileinode, 6, FileType::Directory, "metadata");
     }
 }
 
