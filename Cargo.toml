@@ -19,3 +19,12 @@ regex = "0.1"
 rustc-serialize = "0.3"
 time = "0.1.35"
 users = "0.5.0"
+
+[lib]
+name = "gooddata_fs"
+path = "src/lib.rs"
+
+[[bin]]
+name = "gooddata-fs"
+path = "src/main.rs"
+doc = false
