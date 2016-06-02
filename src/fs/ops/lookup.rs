@@ -11,12 +11,7 @@ use fs::inode;
 use gd;
 use object;
 
-fn feature_flags_json(fs: &mut GoodDataFS,
-                      inode_parent: &inode::Inode,
-                      _req: &Request,
-                      _parent: u64,
-                      _name: &Path,
-                      reply: ReplyEntry) {
+fn feature_flags_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
         category: flags::Category::Internal as u8,
@@ -37,12 +32,7 @@ fn feature_flags_json(fs: &mut GoodDataFS,
     }
 }
 
-fn project_json(fs: &mut GoodDataFS,
-                inode_parent: &inode::Inode,
-                _req: &Request,
-                _parent: u64,
-                _name: &Path,
-                reply: ReplyEntry) {
+fn project_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
         category: flags::Category::Internal as u8,
@@ -59,12 +49,7 @@ fn project_json(fs: &mut GoodDataFS,
     reply.entry(&constants::DEFAULT_TTL, &attr, 0);
 }
 
-fn permissions_json(fs: &mut GoodDataFS,
-                    inode_parent: &inode::Inode,
-                    _req: &Request,
-                    _parent: u64,
-                    _name: &Path,
-                    reply: ReplyEntry) {
+fn permissions_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
         category: flags::Category::Internal as u8,
@@ -81,12 +66,7 @@ fn permissions_json(fs: &mut GoodDataFS,
     reply.entry(&constants::DEFAULT_TTL, &attr, 0);
 }
 
-fn roles_json(fs: &mut GoodDataFS,
-              inode_parent: &inode::Inode,
-              _req: &Request,
-              _parent: u64,
-              _name: &Path,
-              reply: ReplyEntry) {
+fn roles_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
         category: flags::Category::Internal as u8,
@@ -103,7 +83,7 @@ fn roles_json(fs: &mut GoodDataFS,
     reply.entry(&constants::DEFAULT_TTL, &attr, 0);
 }
 
-pub fn lookup(fs: &mut GoodDataFS, req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
+pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
     println!("GoodDataFS::lookup() - Reading parent {} - {:?}, path {:?}",
              parent,
              inode::Inode::deserialize(parent),
@@ -148,17 +128,13 @@ pub fn lookup(fs: &mut GoodDataFS, req: &Request, parent: u64, name: &Path, repl
         if inode_parent.project > 0 {
             match name.to_str() {
                 Some(constants::FEATURE_FLAGS_JSON_FILENAME) => {
-                    feature_flags_json(fs, &inode_parent, req, parent, name, reply)
+                    feature_flags_json(fs, &inode_parent, reply)
                 }
-                Some(constants::PROJECT_JSON_FILENAME) => {
-                    project_json(fs, &inode_parent, req, parent, name, reply)
-                }
+                Some(constants::PROJECT_JSON_FILENAME) => project_json(fs, &inode_parent, reply),
                 Some(constants::PERMISSIONS_JSON_FILENAME) => {
-                    permissions_json(fs, &inode_parent, req, parent, name, reply)
+                    permissions_json(fs, &inode_parent, reply)
                 }
-                Some(constants::ROLES_JSON_FILENAME) => {
-                    roles_json(fs, &inode_parent, req, parent, name, reply)
-                }
+                Some(constants::ROLES_JSON_FILENAME) => roles_json(fs, &inode_parent, reply),
                 _ => reply.error(ENOENT),
             }
         } else {
