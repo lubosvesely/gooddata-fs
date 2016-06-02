@@ -2,9 +2,95 @@ use fuse::{FileType, Request, ReplyDirectory};
 use libc::ENOENT;
 
 use fs::constants;
+use fs::flags;
 use fs::GoodDataFS;
 use fs::inode;
 use gd;
+
+fn readdir_project(projectid: u16, reply: &mut ReplyDirectory) {
+    let inode = inode::Inode {
+        project: projectid as u16,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::FeatureFlagsJson as u8,
+    };
+    let fileinode: u64 = inode.into();
+    println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
+             fileinode,
+             &inode,
+             projectid - 1,
+             constants::FEATURE_FLAGS_JSON_FILENAME);
+    reply.add(fileinode,
+              2,
+              FileType::RegularFile,
+              constants::FEATURE_FLAGS_JSON_FILENAME);
+
+    let inode = inode::Inode {
+        project: projectid as u16,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::PermissionsJson as u8,
+    };
+    let fileinode: u64 = inode.into();
+    println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
+             fileinode,
+             &inode,
+             projectid - 1,
+             constants::PERMISSIONS_JSON_FILENAME);
+    reply.add(fileinode,
+              3,
+              FileType::RegularFile,
+              constants::PERMISSIONS_JSON_FILENAME);
+
+    let inode = inode::Inode {
+        project: projectid as u16,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::ProjectJson as u8,
+    };
+    let fileinode: u64 = inode.into();
+    println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
+             fileinode,
+             &inode,
+             projectid - 1,
+             constants::PROJECT_JSON_FILENAME);
+    reply.add(fileinode,
+              4,
+              FileType::RegularFile,
+              constants::PROJECT_JSON_FILENAME);
+
+    let inode = inode::Inode {
+        project: projectid as u16,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::RolesJson as u8,
+    };
+    let fileinode: u64 = inode.into();
+    println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
+             fileinode,
+             &inode,
+             projectid - 1,
+             constants::ROLES_JSON_FILENAME);
+    reply.add(fileinode,
+              5,
+              FileType::RegularFile,
+              constants::ROLES_JSON_FILENAME);
+
+
+    let inode = inode::Inode {
+        project: projectid as u16,
+        category: flags::Category::Metadata as u8,
+        item: 0,
+        reserved: 1,
+    };
+    let fileinode: u64 = inode.into();
+    println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
+              metadata",
+             fileinode,
+             &inode,
+             projectid - 1);
+    reply.add(fileinode, 6, FileType::Directory, "metadata");
+}
 
 pub fn readdir(fs: &mut GoodDataFS,
                _req: &Request,
@@ -60,7 +146,7 @@ pub fn readdir(fs: &mut GoodDataFS,
         let inode = inode::Inode::deserialize(ino);
         if inode.project > 0 {
             if offset == 0 {
-                fs.readdir_project(inode.project as u16, &mut reply);
+                readdir_project(inode.project as u16, &mut reply);
             }
             reply.ok();
         } else {
