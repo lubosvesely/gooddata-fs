@@ -29,3 +29,8 @@ pub const DEFAULT_RDEV: u32 = 0;
 pub const DEFAULT_SIZE: u64 = 0;
 
 pub const DEFAULT_TTL: Timespec = Timespec { sec: 1, nsec: 0 };
+
+pub const INODE_ROOT: u64 = 1;
+pub const INODE_USER: u64 = 2;
+pub const INODE_PROJECTS: u64 = 3;
+pub const INODE_PROJECTS_JSON: u64 = 4;
