@@ -11,7 +11,99 @@ use fs::inode;
 use gd;
 use object;
 
-pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
+fn feature_flags_json(fs: &mut GoodDataFS,
+                      inode_parent: &inode::Inode,
+                      _req: &Request,
+                      _parent: u64,
+                      _name: &Path,
+                      reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::FeatureFlagsJson as u8,
+    });
+
+    let pid = (inode_parent.project - 1) as usize;
+    let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+
+    let feature_flags = project.feature_flags(&mut fs.client);
+    if feature_flags.is_some() {
+        let json: String = feature_flags.unwrap().into();
+
+        let attr =
+            create_inode_file_attributes(inode, json.len() as u64, constants::DEFAULT_CREATE_TIME);
+        reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+    }
+}
+
+fn project_json(fs: &mut GoodDataFS,
+                inode_parent: &inode::Inode,
+                _req: &Request,
+                _parent: u64,
+                _name: &Path,
+                reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::ProjectJson as u8,
+    });
+
+    let client: &gd::GoodDataClient = fs.client();
+    let projects = client.projects().as_ref();
+    let json = json::as_pretty_json(&projects.unwrap()[(inode_parent.project - 1) as usize])
+        .to_string();
+    let attr =
+        create_inode_file_attributes(inode, json.len() as u64, constants::DEFAULT_CREATE_TIME);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn permissions_json(fs: &mut GoodDataFS,
+                    inode_parent: &inode::Inode,
+                    _req: &Request,
+                    _parent: u64,
+                    _name: &Path,
+                    reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::PermissionsJson as u8,
+    });
+
+    let pid = (inode_parent.project - 1) as usize;
+    let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+    let json: String = project.user_permissions(&mut fs.client).into();
+
+    let attr =
+        create_inode_file_attributes(inode, json.len() as u64, constants::DEFAULT_CREATE_TIME);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn roles_json(fs: &mut GoodDataFS,
+              inode_parent: &inode::Inode,
+              _req: &Request,
+              _parent: u64,
+              _name: &Path,
+              reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: flags::Category::Internal as u8,
+        item: 0,
+        reserved: flags::ReservedFile::RolesJson as u8,
+    });
+
+    let pid = (inode_parent.project - 1) as usize;
+    let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+    let json: String = project.user_roles(&mut fs.client).into();
+
+    let attr =
+        create_inode_file_attributes(inode, json.len() as u64, constants::DEFAULT_CREATE_TIME);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+pub fn lookup(fs: &mut GoodDataFS, req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
     println!("GoodDataFS::lookup() - Reading parent {} - {:?}, path {:?}",
              parent,
              inode::Inode::deserialize(parent),
@@ -54,80 +146,20 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
     } else {
         let inode_parent = inode::Inode::deserialize(parent);
         if inode_parent.project > 0 {
-            if name.to_str() == Some(constants::FEATURE_FLAGS_JSON_FILENAME) {
-                let inode = inode::Inode::serialize(&inode::Inode {
-                    project: inode_parent.project,
-                    category: flags::Category::Internal as u8,
-                    item: 0,
-                    reserved: flags::ReservedFile::FeatureFlagsJson as u8,
-                });
-
-                let pid = (inode_parent.project - 1) as usize;
-                let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid]
-                    .clone();
-
-                let feature_flags = project.feature_flags(&mut fs.client);
-                if feature_flags.is_some() {
-                    let json: String = feature_flags.unwrap().into();
-
-                    let attr = create_inode_file_attributes(inode,
-                                                            json.len() as u64,
-                                                            constants::DEFAULT_CREATE_TIME);
-                    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+            match name.to_str() {
+                Some(constants::FEATURE_FLAGS_JSON_FILENAME) => {
+                    feature_flags_json(fs, &inode_parent, req, parent, name, reply)
                 }
-            } else if name.to_str() == Some(constants::PROJECT_JSON_FILENAME) {
-                let inode = inode::Inode::serialize(&inode::Inode {
-                    project: inode_parent.project,
-                    category: flags::Category::Internal as u8,
-                    item: 0,
-                    reserved: flags::ReservedFile::ProjectJson as u8,
-                });
-
-                let client: &gd::GoodDataClient = fs.client();
-                let projects = client.projects().as_ref();
-                let json =
-                    json::as_pretty_json(&projects.unwrap()[(inode_parent.project - 1) as usize])
-                        .to_string();
-                let attr = create_inode_file_attributes(inode,
-                                                        json.len() as u64,
-                                                        constants::DEFAULT_CREATE_TIME);
-                reply.entry(&constants::DEFAULT_TTL, &attr, 0);
-            } else if name.to_str() == Some(constants::PERMISSIONS_JSON_FILENAME) {
-                let inode = inode::Inode::serialize(&inode::Inode {
-                    project: inode_parent.project,
-                    category: flags::Category::Internal as u8,
-                    item: 0,
-                    reserved: flags::ReservedFile::PermissionsJson as u8,
-                });
-
-                let pid = (inode_parent.project - 1) as usize;
-                let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid]
-                    .clone();
-                let json: String = project.user_permissions(&mut fs.client).into();
-
-                let attr = create_inode_file_attributes(inode,
-                                                        json.len() as u64,
-                                                        constants::DEFAULT_CREATE_TIME);
-                reply.entry(&constants::DEFAULT_TTL, &attr, 0);
-            } else if name.to_str() == Some(constants::ROLES_JSON_FILENAME) {
-                let inode = inode::Inode::serialize(&inode::Inode {
-                    project: inode_parent.project,
-                    category: flags::Category::Internal as u8,
-                    item: 0,
-                    reserved: flags::ReservedFile::RolesJson as u8,
-                });
-
-                let pid = (inode_parent.project - 1) as usize;
-                let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid]
-                    .clone();
-                let json: String = project.user_roles(&mut fs.client).into();
-
-                let attr = create_inode_file_attributes(inode,
-                                                        json.len() as u64,
-                                                        constants::DEFAULT_CREATE_TIME);
-                reply.entry(&constants::DEFAULT_TTL, &attr, 0);
-            } else {
-                reply.error(ENOENT);
+                Some(constants::PROJECT_JSON_FILENAME) => {
+                    project_json(fs, &inode_parent, req, parent, name, reply)
+                }
+                Some(constants::PERMISSIONS_JSON_FILENAME) => {
+                    permissions_json(fs, &inode_parent, req, parent, name, reply)
+                }
+                Some(constants::ROLES_JSON_FILENAME) => {
+                    roles_json(fs, &inode_parent, req, parent, name, reply)
+                }
+                _ => reply.error(ENOENT),
             }
         } else {
             reply.error(ENOENT);

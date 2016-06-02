@@ -10,23 +10,23 @@ use fs::inode;
 use gd;
 use object;
 
-fn getattr_root(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
+fn root(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_root_dir_attributes())
 }
 
-fn getattr_projects(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
+fn projects(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_dir_attributes())
 }
 
-fn getattr_projects_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
+fn projects_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_file_attributes())
 }
 
-fn getattr_user_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
+fn user_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_user_file_attributes())
 }
 
-fn getattr_project_dir(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: ReplyAttr) {
+fn project_dir(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_project_dir_attributes(ino))
 }
 
@@ -85,7 +85,7 @@ fn getattr_other(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr)
     let inode = inode::Inode::deserialize(ino);
     if inode.project > 0 {
         if inode.reserved == 0 {
-            getattr_project_dir(fs, req, ino, reply)
+            project_dir(fs, req, ino, reply)
         } else if inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8 {
             getattr_project_feature_flags_json(fs, req, ino, reply)
         } else if inode.reserved == flags::ReservedFile::ProjectJson as u8 {
@@ -108,10 +108,10 @@ pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
              inode);
 
     match ino {
-        constants::INODE_ROOT => getattr_root(fs, req, ino, reply),
-        constants::INODE_PROJECTS => getattr_projects(fs, req, ino, reply),
-        constants::INODE_PROJECTS_JSON => getattr_projects_json(fs, req, ino, reply),
-        constants::INODE_USER => getattr_user_json(fs, req, ino, reply),
+        constants::INODE_ROOT => root(fs, req, ino, reply),
+        constants::INODE_PROJECTS => projects(fs, req, ino, reply),
+        constants::INODE_PROJECTS_JSON => projects_json(fs, req, ino, reply),
+        constants::INODE_USER => user_json(fs, req, ino, reply),
         _ => getattr_other(fs, req, ino, reply),
     }
 }

@@ -9,6 +9,49 @@ use fs::inode;
 use gd;
 use object;
 
+fn feature_flags_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
+    println!("GoodDataFS::read() - Reading {}",
+             constants::FEATURE_FLAGS_JSON_FILENAME);
+
+    let pid = (inode.project - 1) as usize;
+    let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+    let feature_flags = project.feature_flags(&mut fs.client);
+    if feature_flags.is_some() {
+        let json: String = feature_flags.unwrap().into();
+        reply.data(&json.as_bytes()[offset as usize..]);
+    }
+}
+
+fn project_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
+    println!("GoodDataFS::read() - Reading {}",
+             constants::PROJECT_JSON_FILENAME);
+
+    let client: &gd::GoodDataClient = fs.client();
+    let projects = client.projects().as_ref();
+    let json = json::as_pretty_json(&projects.unwrap()[(inode.project - 1) as usize]).to_string();
+    reply.data(&json.as_bytes()[offset as usize..]);
+}
+
+fn permissions_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
+    println!("GoodDataFS::read() - Reading {}",
+             constants::PERMISSIONS_JSON_FILENAME);
+
+    let pid = (inode.project - 1) as usize;
+    let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+    let json: String = project.user_permissions(&mut fs.client).into();
+    reply.data(&json.as_bytes()[offset as usize..]);
+}
+
+fn roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
+    println!("GoodDataFS::read() - Reading {}",
+             constants::ROLES_JSON_FILENAME);
+
+    let pid = (inode.project - 1) as usize;
+    let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+    let json: String = project.user_roles(&mut fs.client).into();
+    reply.data(&json.as_bytes()[offset as usize..]);
+}
+
 pub fn read(fs: &mut GoodDataFS,
             _req: &Request,
             ino: u64,
@@ -34,41 +77,13 @@ pub fn read(fs: &mut GoodDataFS,
     } else {
         let inode = inode::Inode::deserialize(ino);
         if inode.project > 0 && (inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8) {
-            println!("GoodDataFS::read() - Reading {}",
-                     constants::FEATURE_FLAGS_JSON_FILENAME);
-
-            let pid = (inode.project - 1) as usize;
-            let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-            let feature_flags = project.feature_flags(&mut fs.client);
-            if feature_flags.is_some() {
-                let json: String = feature_flags.unwrap().into();
-                reply.data(&json.as_bytes()[offset as usize..]);
-            }
+            feature_flags_json(fs, inode, reply, offset as usize)
         } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::ProjectJson as u8) {
-            println!("GoodDataFS::read() - Reading {}",
-                     constants::PROJECT_JSON_FILENAME);
-
-            let client: &gd::GoodDataClient = fs.client();
-            let projects = client.projects().as_ref();
-            let json = json::as_pretty_json(&projects.unwrap()[(inode.project - 1) as usize])
-                .to_string();
-            reply.data(&json.as_bytes()[offset as usize..]);
+            project_json(fs, inode, reply, offset as usize)
         } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::PermissionsJson as u8) {
-            println!("GoodDataFS::read() - Reading {}",
-                     constants::PERMISSIONS_JSON_FILENAME);
-
-            let pid = (inode.project - 1) as usize;
-            let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-            let json: String = project.user_permissions(&mut fs.client).into();
-            reply.data(&json.as_bytes()[offset as usize..]);
+            permissions_json(fs, inode, reply, offset as usize)
         } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::RolesJson as u8) {
-            println!("GoodDataFS::read() - Reading {}",
-                     constants::ROLES_JSON_FILENAME);
-
-            let pid = (inode.project - 1) as usize;
-            let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-            let json: String = project.user_roles(&mut fs.client).into();
-            reply.data(&json.as_bytes()[offset as usize..]);
+            roles_json(fs, inode, reply, offset as usize);
         } else {
             reply.error(ENOENT);
         }

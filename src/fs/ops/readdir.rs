@@ -8,6 +8,11 @@ use fs::inode;
 use gd;
 
 fn readdir_project(projectid: u16, reply: &mut ReplyDirectory) {
+    // let items = [(1, 2)];
+    //
+    // for item in items.into_iter() {
+    // }
+
     let inode = inode::Inode {
         project: projectid as u16,
         category: flags::Category::Internal as u8,
