@@ -93,7 +93,7 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
 fn other(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
     if inode.project > 0 {
-        if inode.reserved == 0 {
+        if inode.reserved == flags::ReservedFile::Root as u8 {
             project_dir(fs, req, ino, reply)
         } else if inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8 {
             project_feature_flags_json(fs, req, ino, reply)

@@ -51,4 +51,7 @@ pub enum ReservedFile {
     PermissionsJson,
     ProjectJson,
     RolesJson,
+
+    // Keep me - see https://github.com/osxfuse/osxfuse/issues/286
+    KeepMe = 255,
 }

@@ -21,18 +21,12 @@ pub fn read(fs: &mut GoodDataFS,
              fh,
              offset,
              size);
+    let inode = inode::Inode::deserialize(ino);
     if ino == constants::INODE_USER {
-        let json: String = fs.client.user().clone().unwrap().into();
-        reply.data(&json.as_bytes()[offset as usize..]);
+        user_json(fs, reply, offset as usize)
     } else if ino == constants::INODE_PROJECTS_JSON {
-        println!("GoodDataFS::read() - Reading {}",
-                 constants::PROJECTS_JSON_FILENAME);
-        let json = format!("{}\n",
-                           json::as_pretty_json(&fs.client.projects()).to_string());
-        // let json: String = fs.client.projects().clone().unwrap().into();
-        reply.data(&json.as_bytes()[offset as usize..]);
+        projects_json(fs, reply, offset as usize)
     } else {
-        let inode = inode::Inode::deserialize(ino);
         if inode.project > 0 && (inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8) {
             feature_flags_json(fs, inode, reply, offset as usize)
         } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::ProjectJson as u8) {
@@ -45,6 +39,15 @@ pub fn read(fs: &mut GoodDataFS,
             reply.error(ENOENT);
         }
     }
+}
+
+fn projects_json(fs: &mut GoodDataFS, reply: ReplyData, offset: usize) {
+    println!("GoodDataFS::read() - Reading {}",
+             constants::PROJECTS_JSON_FILENAME);
+    let json = format!("{}\n",
+                       json::as_pretty_json(&fs.client.projects()).to_string());
+    // let json: String = fs.client.projects().clone().unwrap().into();
+    reply.data(&json.as_bytes()[offset as usize..]);
 }
 
 fn feature_flags_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
@@ -87,5 +90,10 @@ fn roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
     let json: String = project.user_roles(&mut fs.client).into();
+    reply.data(&json.as_bytes()[offset as usize..]);
+}
+
+fn user_json(fs: &mut GoodDataFS, reply: ReplyData, offset: usize) {
+    let json: String = fs.client.user().clone().unwrap().into();
     reply.data(&json.as_bytes()[offset as usize..]);
 }

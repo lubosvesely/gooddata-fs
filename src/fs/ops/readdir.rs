@@ -150,7 +150,7 @@ fn readdir_project(projectid: u16, reply: &mut ReplyDirectory) {
         project: projectid as u16,
         category: flags::Category::Metadata as u8,
         item: 0,
-        reserved: 1,
+        reserved: flags::ReservedFile::KeepMe as u8,
     };
     let fileinode: u64 = inode.into();
     println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path \
