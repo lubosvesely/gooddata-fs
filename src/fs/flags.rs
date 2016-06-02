@@ -45,8 +45,8 @@ pub enum Category {
     Users,
 }
 
-#[allow(dead_code)]
 pub enum ReservedFile {
+    Root = 0,
     FeatureFlagsJson = 2,
     PermissionsJson,
     ProjectJson,

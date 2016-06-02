@@ -104,6 +104,10 @@ impl GoodDataClient {
 
     pub fn disconnect(&mut self) {
         println!("GoodDataClient::disconnect() - Disconnecting from GoodData Platform");
+
+        self.user = None;
+        self.token_updated = None;
+        self.projects = None;
     }
 
     /// HTTP Method GET Wrapper

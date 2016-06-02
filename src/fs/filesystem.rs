@@ -179,12 +179,7 @@ impl Filesystem for GoodDataFS {
         fs::ops::read(self, req, ino, fh, offset, size, reply)
     }
 
-    fn readdir(&mut self,
-               req: &Request,
-               ino: u64,
-               fh: u64,
-               offset: u64,
-               mut reply: ReplyDirectory) {
+    fn readdir(&mut self, req: &Request, ino: u64, fh: u64, offset: u64, reply: ReplyDirectory) {
         fs::ops::readdir(self, req, ino, fh, offset, reply)
     }
 }
