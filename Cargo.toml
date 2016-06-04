@@ -29,3 +29,7 @@ path = "src/lib.rs"
 name = "gooddata-fs"
 path = "src/main.rs"
 doc = false
+
+[profile.release]
+lto = true
+panic = "abort"
