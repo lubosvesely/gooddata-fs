@@ -47,7 +47,7 @@ impl GoodDataClient {
     pub fn new() -> GoodDataClient {
         GoodDataClient {
             client: Client::new(),
-            server: "https://secure.gooddata.com".to_string(),
+            server: url::SERVER.to_string(),
             jar: CookieJar::new(helpers::random_string(32).as_bytes()),
             user: None,
             projects: None,
