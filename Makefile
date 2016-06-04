@@ -9,7 +9,7 @@ else
 	LINKER_TOOL = ldd
 endif
 
-all: outdated build stats test
+all: outdated build stats test dot
 
 install_deps:
 		cargo install cargo-count
@@ -17,13 +17,15 @@ install_deps:
 		cargo install cargo-multi
 		cargo install cargo-outdated
 
+build: build-debug build-release
+
 build-debug:
 		cargo build
 
 build-release:
 		cargo build --release
 
-build: build-debug build-release
+clean: clean-debug clean-release
 
 clean-debug:
 		rm -rf ./target/debug
@@ -31,16 +33,24 @@ clean-debug:
 clean-release:
 		rm -rf ./target/release
 
-clean: clean-debug clean-release
+deps: deps-debug deps-release
 
-deps-debug:
+deps-debug: build-debug
 		${LINKER_TOOL} ./target/debug/gooddata-fs
 
-deps-release:
+deps-release: build-release
 		$LINKER_TOOL ./target/release/gooddata-fs
 
 dot:
-		cargo graph --optional-line-style dashed --optional-line-color red --optional-shape box --build-shape diamond --build-color green --build-line-color orange > doc/deps/cargo-count.dot
+		cargo graph \
+			--optional-line-style dashed \
+			--optional-line-color red \
+			--optional-shape box \
+			--build-shape diamond \
+			--build-color green \
+			--build-line-color orange \
+			> doc/deps/cargo-count.dot
+
 		dot -Tpng > doc/deps/rainbow-graph.png doc/deps/cargo-count.dot
 
 list:
@@ -49,11 +59,11 @@ list:
 outdated:
 		cargo outdated
 
+rebuild: rebuild-debug rebuild-release
+
 rebuild-debug: clean-debug build-debug
 
 rebuild-release: clean-release build-release
-
-rebuild: rebuild-debug rebuild-release
 
 stats:
 		cargo count --separator , --unsafe-statistics
