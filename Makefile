@@ -39,7 +39,7 @@ deps-debug: build-debug
 		${LINKER_TOOL} ./target/debug/gooddata-fs
 
 deps-release: build-release
-		$LINKER_TOOL ./target/release/gooddata-fs
+		${LINKER_TOOL} ./target/release/gooddata-fs
 
 dot:
 		cargo graph \
