@@ -115,3 +115,8 @@ brew link --force openssl
 cargo install racer
 cargo install rustfmt
 ```
+
+## Customization
+
+- [/src/rest/url.rs](https://github.com/korczis/gooddata-fs/blob/master/src/rest/url.rs)
+- [/src/fs/constants.rs](https://github.com/korczis/gooddata-fs/blob/master/src/fs/constants.rs)
