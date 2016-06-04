@@ -4,6 +4,7 @@
 
 extern crate time;
 extern crate hyper;
+extern crate lru_cache;
 
 use cookie::CookieJar;
 use hyper::client::Client;
@@ -12,11 +13,15 @@ use hyper::header::{Accept, Cookie, ContentType, SetCookie, UserAgent, qitem};
 use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use rustc_serialize::json;
 
+use lru_cache::LruCache;
 use std::io::Read;
 use std::vec::Vec;
 
 use helpers;
 use object;
+use rest::url;
+
+const CACHE_SIZE: usize = 32 * 1024;
 
 pub struct GoodDataClient {
     pub client: Client,
@@ -25,6 +30,7 @@ pub struct GoodDataClient {
     pub user: Option<object::AccountSetting>,
     pub projects: Option<Vec<object::Project>>,
     pub token_updated: Option<time::PreciseTime>,
+    pub cache: LruCache<String, Response>,
 }
 
 impl Drop for GoodDataClient {
@@ -46,6 +52,7 @@ impl GoodDataClient {
             user: None,
             projects: None,
             token_updated: None,
+            cache: LruCache::new(CACHE_SIZE),
         }
     }
 
@@ -85,8 +92,9 @@ impl GoodDataClient {
             },
         };
 
-        let mut raw = self.post("/gdc/account/login".to_string(),
-                                json::encode(&payload).unwrap());
+        self.cache = LruCache::new(CACHE_SIZE);
+
+        let mut raw = self.post(url::LOGIN.to_string(), json::encode(&payload).unwrap());
 
         self.refresh_token();
 
@@ -144,7 +152,22 @@ impl GoodDataClient {
         self.print_response(&mut res);
         self.update_cookie_jar(&res);
 
+        // self.cache.insert(uriPath, res);
+
         return res;
+    }
+
+    /// HTTP Method GET Wrapper
+    pub fn get_cached<S: Into<String>>(&mut self, path: S) -> &Response {
+        let key: String = format!("{}", path.into());
+        if self.cache.contains_key(&key) {
+            let res: &Response = self.cache.get_mut(&key).unwrap();
+            return res;
+        }
+
+        let res = self.get(key.clone());
+        self.cache.insert(key.clone(), res);
+        return self.cache.get_mut(&key.clone()).unwrap();
     }
 
     /// HTTP Method POST Wrapper
@@ -186,6 +209,7 @@ impl GoodDataClient {
     /// Get HTTP Response body
     pub fn get_content(&mut self, res: &mut hyper::client::Response) -> String {
         let mut buf = String::new();
+        println!("{:?}", res.read_to_string(&mut buf));
         match res.read_to_string(&mut buf) {
             Ok(_) => (),
             Err(_) => panic!("I give up."),
@@ -220,7 +244,7 @@ impl GoodDataClient {
         // Refresh token
         // self.get("/gdc/account/token");
 
-        let uri = format!("{}/gdc/account/token", self.server);
+        let uri = format!("{}{}", self.server, url::TOKEN);
         let raw = self.client
             .get(&uri[..])
             .header(ContentType(Mime(TopLevel::Application,
