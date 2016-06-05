@@ -18,7 +18,7 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 
 ### Resources Consumption
 
-- Binary size - 612KB
+- Binary size - 424 KB
 - Real Memory Size - 5.3 MB
 - Shared Memory Size - 228 KB
 - Private Memory Size - 3.6 MB
