@@ -31,7 +31,7 @@ tree gd
 15 directories, 49 files
 ```
 
-*Test account has access to 14 projects
+*Test account has access to 14 projects*
 
 ### Dependencies
 
