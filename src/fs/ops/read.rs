@@ -27,15 +27,26 @@ pub fn read(fs: &mut GoodDataFS,
         constants::INODE_USER => user_json(fs, reply, offset as usize),
         constants::INODE_PROJECTS_JSON => projects_json(fs, reply, offset as usize),
         _ => {
-            if inode.project > 0 &&
-               (inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8) {
-                feature_flags_json(fs, inode, reply, offset as usize)
-            } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::ProjectJson as u8) {
-                project_json(fs, inode, reply, offset as usize)
-            } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::PermissionsJson as u8) {
-                permissions_json(fs, inode, reply, offset as usize)
-            } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::RolesJson as u8) {
-                roles_json(fs, inode, reply, offset as usize);
+            if inode.project > 0 {
+                let reserved = flags::ReservedFile::from(inode.reserved);
+                match reserved {
+                    flags::ReservedFile::FeatureFlagsJson => {
+                        feature_flags_json(fs, inode, reply, offset as usize)
+                    }
+                    flags::ReservedFile::ProjectJson => {
+                        project_json(fs, inode, reply, offset as usize)
+                    }
+                    flags::ReservedFile::PermissionsJson => {
+                        permissions_json(fs, inode, reply, offset as usize)
+                    }
+                    flags::ReservedFile::RolesJson => {
+                        roles_json(fs, inode, reply, offset as usize);
+                    }
+                    _ => {
+                        reply.error(ENOENT);
+                    }
+
+                }
             } else {
                 reply.error(ENOENT);
             }
