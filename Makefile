@@ -86,7 +86,7 @@ update:
 		cargo multi update
 
 upx:
-		upx -fq -o ./bin/gooddata-fs ./target/release/gooddata-fs
+		upx -fq --ultra-brute --best -o ./bin/gooddata-fs ./target/release/gooddata-fs
 
 watch:
 		cargo watch
