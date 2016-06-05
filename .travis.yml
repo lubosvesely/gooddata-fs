@@ -4,7 +4,7 @@ cache: cargo
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y libfuse-dev upx-ucl
+  - sudo apt-get install -y libfuse-dev upx-ucl graphviz
 
 rust:
   - stable
