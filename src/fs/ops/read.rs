@@ -16,27 +16,29 @@ pub fn read(fs: &mut GoodDataFS,
             offset: u64,
             size: u32,
             reply: ReplyData) {
-    println!("GoodDataFS::read() - Reading inode {}, fh {}, offset {}, size {}",
-             ino,
+    let inode = inode::Inode::deserialize(ino);
+    println!("GoodDataFS::read() - Reading inode {:?}, fh {}, offset {}, size {}",
+             inode,
              fh,
              offset,
              size);
-    let inode = inode::Inode::deserialize(ino);
-    if ino == constants::INODE_USER {
-        user_json(fs, reply, offset as usize)
-    } else if ino == constants::INODE_PROJECTS_JSON {
-        projects_json(fs, reply, offset as usize)
-    } else {
-        if inode.project > 0 && (inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8) {
-            feature_flags_json(fs, inode, reply, offset as usize)
-        } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::ProjectJson as u8) {
-            project_json(fs, inode, reply, offset as usize)
-        } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::PermissionsJson as u8) {
-            permissions_json(fs, inode, reply, offset as usize)
-        } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::RolesJson as u8) {
-            roles_json(fs, inode, reply, offset as usize);
-        } else {
-            reply.error(ENOENT);
+
+    match ino {
+        constants::INODE_USER => user_json(fs, reply, offset as usize),
+        constants::INODE_PROJECTS_JSON => projects_json(fs, reply, offset as usize),
+        _ => {
+            if inode.project > 0 &&
+               (inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8) {
+                feature_flags_json(fs, inode, reply, offset as usize)
+            } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::ProjectJson as u8) {
+                project_json(fs, inode, reply, offset as usize)
+            } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::PermissionsJson as u8) {
+                permissions_json(fs, inode, reply, offset as usize)
+            } else if inode.project > 0 && (inode.reserved == flags::ReservedFile::RolesJson as u8) {
+                roles_json(fs, inode, reply, offset as usize);
+            } else {
+                reply.error(ENOENT);
+            }
         }
     }
 }
