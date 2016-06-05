@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub enum Category {
     Internal,
@@ -45,6 +46,7 @@ pub enum Category {
     Users,
 }
 
+#[derive(Debug, Clone)]
 pub enum ReservedFile {
     Root = 0,
     FeatureFlagsJson = 2,
