@@ -85,5 +85,8 @@ test:
 update:
 		cargo multi update
 
+upx:
+		upx -fq ./target/release/gooddata-fs
+
 watch:
 		cargo watch
