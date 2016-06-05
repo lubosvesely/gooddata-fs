@@ -18,6 +18,18 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 
 ### Resources Consumption
 
+**Command**
+
+```
+tree gd
+
+...
+
+15 directories, 49 files
+```
+
+*14 Projects*
+
 - Binary size - 612KB 
 - Peak RAM Usage - 4.1MB
 
