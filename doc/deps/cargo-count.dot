@@ -144,7 +144,7 @@ digraph dependencies {
 	N41 -> N40[label="",color=orange];
 	N43 -> N27[label="",color=orange];
 	N43 -> N28[label="",color=orange];
-	N45 -> N46[label=""];
+	N45 -> N46[label="",color=orange];
 	N46 -> N54[label=""];
 	N48 -> N50[label="",color=orange];
 	N49 -> N48[label="",color=orange];
