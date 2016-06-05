@@ -10,6 +10,7 @@ pub const DEFAULT_CREATE_TIME: Timespec = Timespec {
 pub const PROJECTS_DIRNAME: &'static str = "projects";
 pub const PROJECTS_JSON_FILENAME: &'static str = "projects.json";
 
+pub const PROJECT_LDM: &'static str = "ldm";
 pub const PROJECT_METADATA: &'static str = "metadata";
 
 pub const FEATURE_FLAGS_JSON_FILENAME: &'static str = "featureFlags.json";
