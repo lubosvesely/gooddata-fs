@@ -1,6 +1,6 @@
 language: rust
 
-# cache: cargo
+cache: cargo
 
 before_install:
   - sudo apt-get -qq update
@@ -15,4 +15,4 @@ matrix:
   allow_failures:
     - rust: nightly
 
-script: make install_deps && make all
+script: make install_deps; make all
