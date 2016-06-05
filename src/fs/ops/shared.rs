@@ -3,6 +3,11 @@ use fuse::FileType;
 use fs::constants;
 use fs::flags;
 
+// Category
+// ID ???
+// Type
+// Filename/Dirname
+
 pub const ITEMS: [(u8, u8, FileType, &'static str); 6] =
     [(flags::Category::Internal as u8,
       flags::ReservedFile::FeatureFlagsJson as u8,

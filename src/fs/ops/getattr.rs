@@ -4,7 +4,7 @@ use rustc_serialize::json;
 
 use fs::constants;
 use fs::GoodDataFS;
-use fs::helpers::create_inode_file_attributes;
+use fs::helpers::{create_inode_directory_attributes, create_inode_file_attributes};
 use fs::flags;
 use fs::inode;
 use gd;
@@ -41,8 +41,9 @@ fn user_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_user_file_attributes())
 }
 
-fn project_dir(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL, &fs.get_project_dir_attributes(ino))
+fn project_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
+    reply.attr(&constants::DEFAULT_TTL,
+               &create_inode_directory_attributes(ino))
 }
 
 fn project_feature_flags_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: ReplyAttr) {
@@ -93,16 +94,16 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
 fn other(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
     if inode.project > 0 {
-        if inode.reserved == flags::ReservedFile::Root as u8 {
-            project_dir(fs, req, ino, reply)
-        } else if inode.reserved == flags::ReservedFile::FeatureFlagsJson as u8 {
-            project_feature_flags_json(fs, req, ino, reply)
-        } else if inode.reserved == flags::ReservedFile::ProjectJson as u8 {
-            project_project_json(fs, req, ino, reply)
-        } else if inode.reserved == flags::ReservedFile::PermissionsJson as u8 {
-            project_permissions_json(fs, req, ino, reply)
-        } else if inode.reserved == flags::ReservedFile::RolesJson as u8 {
-            project_roles_json(fs, req, ino, reply)
+        let reserved = flags::ReservedFile::from(inode.reserved);
+        match reserved {
+            flags::ReservedFile::Root => project_dir(req, ino, reply),
+            flags::ReservedFile::FeatureFlagsJson => {
+                project_feature_flags_json(fs, req, ino, reply)
+            }
+            flags::ReservedFile::ProjectJson => project_project_json(fs, req, ino, reply),
+            flags::ReservedFile::PermissionsJson => project_permissions_json(fs, req, ino, reply),
+            flags::ReservedFile::RolesJson => project_roles_json(fs, req, ino, reply),
+            _ => reply.error(ENOENT),
         }
     } else {
         println!("GoodDataFS::getattr() - Not found inode {:?}", ino);

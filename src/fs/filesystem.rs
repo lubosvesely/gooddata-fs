@@ -34,13 +34,6 @@ impl GoodDataFS {
         &self.client
     }
 
-    pub fn get_project_dir_attributes(&self, inode: u64) -> fuse::FileAttr {
-        println!("GoodDataFS::get_project_dir_attributes() inode {} - {:?}",
-                 inode,
-                 fs::inode::Inode::deserialize(inode));
-        fs::helpers::create_inode_directory_attributes(inode)
-    }
-
     pub fn get_projects_dir_attributes(&self) -> fuse::FileAttr {
         create_inode_directory_attributes(fs::constants::INODE_PROJECTS)
     }
