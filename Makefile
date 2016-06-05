@@ -9,7 +9,7 @@ else
 	LINKER_TOOL = ldd
 endif
 
-all: outdated build test strip stats size deps dot
+all: outdated build test strip upx stats size deps dot
 
 install_deps:
 		cargo install cargo-count
@@ -86,7 +86,7 @@ update:
 		cargo multi update
 
 upx:
-		upx -fq ./target/release/gooddata-fs
+		upx -fq -o ./bin/gooddata-fs ./target/release/gooddata-fs
 
 watch:
 		cargo watch
