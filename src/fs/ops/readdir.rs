@@ -2,10 +2,10 @@ use fuse::{FileType, Request, ReplyDirectory};
 use libc::ENOENT;
 
 use fs::constants;
-use fs::flags;
 use fs::GoodDataFS;
 use fs::inode;
 use gd;
+use super::shared;
 
 pub fn readdir(fs: &mut GoodDataFS,
                _req: &Request,
@@ -72,39 +72,15 @@ pub fn readdir(fs: &mut GoodDataFS,
 }
 
 fn readdir_project(projectid: u16, reply: &mut ReplyDirectory) {
-    let items = [(flags::Category::Internal as u8,
-                  flags::ReservedFile::FeatureFlagsJson as u8,
-                  FileType::RegularFile,
-                  constants::FEATURE_FLAGS_JSON_FILENAME),
-                 (flags::Category::Internal as u8,
-                  flags::ReservedFile::PermissionsJson as u8,
-                  FileType::RegularFile,
-                  constants::PERMISSIONS_JSON_FILENAME),
-                 (flags::Category::Internal as u8,
-                  flags::ReservedFile::ProjectJson as u8,
-                  FileType::RegularFile,
-                  constants::PROJECT_JSON_FILENAME),
-                 (flags::Category::Internal as u8,
-                  flags::ReservedFile::RolesJson as u8,
-                  FileType::RegularFile,
-                  constants::ROLES_JSON_FILENAME),
-                 (flags::Category::Ldm as u8,
-                  flags::ReservedFile::KeepMe as u8,
-                  FileType::Directory,
-                  constants::PROJECT_LDM),
-                 (flags::Category::Metadata as u8,
-                  flags::ReservedFile::KeepMe as u8,
-                  FileType::Directory,
-                  constants::PROJECT_METADATA)];
-
     let mut offset = 2;
-    for &(category, reserved, obj_type, path) in items.into_iter() {
+    for &(category, reserved, obj_type, path) in shared::ITEMS.into_iter() {
         let inode = inode::Inode {
             project: projectid,
             category: category,
             item: 0,
             reserved: reserved,
         };
+
         let fileinode: u64 = inode.into();
         println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
                  fileinode,
