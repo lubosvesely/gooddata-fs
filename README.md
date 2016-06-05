@@ -20,7 +20,8 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 
 **Command**
 
-*Test account has access to 14 Projects*
+- Binary size - 612KB 
+- Peak RAM Usage - 4.1MB
 
 ```
 tree gd
@@ -30,8 +31,7 @@ tree gd
 15 directories, 49 files
 ```
 
-- Binary size - 612KB 
-- Peak RAM Usage - 4.1MB
+*Test account has access to 14 projects
 
 ### Dependencies
 
