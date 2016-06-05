@@ -34,11 +34,11 @@ fn projects(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
 }
 
 fn projects_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_file_attributes())
+    reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_json_attributes())
 }
 
 fn user_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL, &fs.get_user_file_attributes())
+    reply.attr(&constants::DEFAULT_TTL, &fs.get_user_json_attributes())
 }
 
 fn project_dir(_req: &Request, ino: u64, reply: ReplyAttr) {

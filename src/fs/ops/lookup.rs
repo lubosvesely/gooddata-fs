@@ -17,7 +17,7 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
              inode::Inode::deserialize(parent),
              name.to_str().unwrap());
     if parent == constants::INODE_ROOT && name.to_str() == Some(constants::USER_JSON_FILENAME) {
-        reply.entry(&constants::DEFAULT_TTL, &fs.get_user_file_attributes(), 0);
+        reply.entry(&constants::DEFAULT_TTL, &fs.get_user_json_attributes(), 0);
     } else if parent == constants::INODE_ROOT && name.to_str() == Some(constants::PROJECTS_DIRNAME) {
         reply.entry(&constants::DEFAULT_TTL,
                     &fs.get_projects_dir_attributes(),
@@ -25,7 +25,7 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
     } else if parent == constants::INODE_PROJECTS &&
        name.to_str() == Some(constants::PROJECTS_JSON_FILENAME) {
         reply.entry(&constants::DEFAULT_TTL,
-                    &fs.get_projects_file_attributes(),
+                    &fs.get_projects_json_attributes(),
                     0);
     } else if parent == constants::INODE_PROJECTS {
         let mut i: u64 = 0;

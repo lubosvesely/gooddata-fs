@@ -42,7 +42,7 @@ impl GoodDataFS {
         create_inode_directory_attributes(fs::constants::INODE_ROOT)
     }
 
-    pub fn get_user_file_attributes(&self) -> fuse::FileAttr {
+    pub fn get_user_json_attributes(&self) -> fuse::FileAttr {
         let json = format!("{}\n",
                            json::as_pretty_json(&self.client.user()).to_string());
 
@@ -58,7 +58,7 @@ impl GoodDataFS {
         create_inode_file_attributes(fs::constants::INODE_USER, json.len() as u64, updated)
     }
 
-    pub fn get_projects_file_attributes(&self) -> fuse::FileAttr {
+    pub fn get_projects_json_attributes(&self) -> fuse::FileAttr {
         let json = format!("{}\n",
                            json::as_pretty_json(&self.client.projects()).to_string());
 
