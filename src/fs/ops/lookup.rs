@@ -61,10 +61,10 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
                 Some(constants::PROJECT_JSON_FILENAME) => project_json(fs, &inode_parent, reply),
                 Some(constants::PROJECT_LDM_DIR) => project_ldm_dir(&inode_parent, reply),
                 Some(constants::PROJECT_METADATA_DIR) => project_metadata_dir(&inode_parent, reply),
-                Some(constants::PERMISSIONS_JSON_FILENAME) => {
+                Some(constants::USER_PERMISSIONS_JSON_FILENAME) => {
                     permissions_json(fs, &inode_parent, reply)
                 }
-                Some(constants::ROLES_JSON_FILENAME) => roles_json(fs, &inode_parent, reply),
+                Some(constants::USER_ROLES_JSON_FILENAME) => roles_json(fs, &inode_parent, reply),
                 _ => reply.error(ENOENT),
             }
         } else {

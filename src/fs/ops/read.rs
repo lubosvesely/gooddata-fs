@@ -88,7 +88,7 @@ fn project_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offs
 
 fn permissions_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
     println!("GoodDataFS::read() - Reading {}",
-             constants::PERMISSIONS_JSON_FILENAME);
+             constants::USER_PERMISSIONS_JSON_FILENAME);
 
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
@@ -98,7 +98,7 @@ fn permissions_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, 
 
 fn roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
     println!("GoodDataFS::read() - Reading {}",
-             constants::ROLES_JSON_FILENAME);
+             constants::USER_ROLES_JSON_FILENAME);
 
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();

@@ -14,9 +14,9 @@ pub const PROJECT_LDM_DIR: &'static str = "ldm";
 pub const PROJECT_METADATA_DIR: &'static str = "metadata";
 
 pub const FEATURE_FLAGS_JSON_FILENAME: &'static str = "featureFlags.json";
-pub const PERMISSIONS_JSON_FILENAME: &'static str = "userPermissions.json";
+pub const USER_PERMISSIONS_JSON_FILENAME: &'static str = "userPermissions.json";
 pub const PROJECT_JSON_FILENAME: &'static str = "project.json";
-pub const ROLES_JSON_FILENAME: &'static str = "userRoles.json";
+pub const USER_ROLES_JSON_FILENAME: &'static str = "userRoles.json";
 pub const USER_JSON_FILENAME: &'static str = "user.json";
 
 pub const DEFAULT_DIRECTORY_PERMISSIONS: u16 = 0o755;
