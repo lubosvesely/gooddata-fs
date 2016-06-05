@@ -14,6 +14,11 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/korczis/gooddata-rust/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/korczis/gooddata-rust.svg)](https://github.com/korczis/gooddata-rust/issues)
 
+## Resources version d086fe54dba29d842e0098ad6521fbb99e24079b
+
+- Binary size - 612KB 
+- Peak RAM Usage - 4.1MB
+
 ## Supported Operating Systems
 * [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
 
