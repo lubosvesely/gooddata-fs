@@ -46,6 +46,16 @@ fn project_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
                &create_inode_directory_attributes(ino))
 }
 
+fn project_ldm_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
+    reply.attr(&constants::DEFAULT_TTL,
+               &create_inode_directory_attributes(ino))
+}
+
+fn project_metadata_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
+    reply.attr(&constants::DEFAULT_TTL,
+               &create_inode_directory_attributes(ino))
+}
+
 fn project_feature_flags_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
     let pid = (inode.project - 1) as usize;
@@ -94,6 +104,18 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
 fn other(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
     if inode.project > 0 {
+        if inode.category == flags::Category::Ldm as u8 &&
+           inode.reserved == flags::ReservedFile::KeepMe as u8 {
+            project_ldm_dir(req, ino, reply);
+            return;
+        }
+
+        if inode.category == flags::Category::Metadata as u8 &&
+           inode.reserved == flags::ReservedFile::KeepMe as u8 {
+            project_metadata_dir(req, ino, reply);
+            return;
+        }
+
         let reserved = flags::ReservedFile::from(inode.reserved);
         match reserved {
             flags::ReservedFile::Root => project_dir(req, ino, reply),

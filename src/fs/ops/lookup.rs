@@ -59,6 +59,8 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
                     feature_flags_json(fs, &inode_parent, reply)
                 }
                 Some(constants::PROJECT_JSON_FILENAME) => project_json(fs, &inode_parent, reply),
+                Some(constants::PROJECT_LDM_DIR) => project_ldm_dir(&inode_parent, reply),
+                Some(constants::PROJECT_METADATA_DIR) => project_metadata_dir(&inode_parent, reply),
                 Some(constants::PERMISSIONS_JSON_FILENAME) => {
                     permissions_json(fs, &inode_parent, reply)
                 }
@@ -106,6 +108,30 @@ fn project_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEn
         .to_string();
     let attr =
         create_inode_file_attributes(inode, json.len() as u64, constants::DEFAULT_CREATE_TIME);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn project_ldm_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: flags::Category::Ldm as u8,
+        item: 0,
+        reserved: flags::ReservedFile::KeepMe as u8,
+    });
+
+    let attr = create_inode_directory_attributes(inode);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn project_metadata_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: flags::Category::Metadata as u8,
+        item: 0,
+        reserved: flags::ReservedFile::KeepMe as u8,
+    });
+
+    let attr = create_inode_directory_attributes(inode);
     reply.entry(&constants::DEFAULT_TTL, &attr, 0);
 }
 

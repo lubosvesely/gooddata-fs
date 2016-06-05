@@ -28,8 +28,8 @@ pub const ITEMS: [(u8, u8, FileType, &'static str); 6] =
      (flags::Category::Ldm as u8,
       flags::ReservedFile::KeepMe as u8,
       FileType::Directory,
-      constants::PROJECT_LDM),
+      constants::PROJECT_LDM_DIR),
      (flags::Category::Metadata as u8,
       flags::ReservedFile::KeepMe as u8,
       FileType::Directory,
-      constants::PROJECT_METADATA)];
+      constants::PROJECT_METADATA_DIR)];

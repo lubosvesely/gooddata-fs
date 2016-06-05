@@ -2,6 +2,7 @@ use fuse::{FileType, Request, ReplyDirectory};
 use libc::ENOENT;
 
 use fs::constants;
+use fs::flags;
 use fs::GoodDataFS;
 use fs::inode;
 use gd;
@@ -17,6 +18,19 @@ pub fn readdir(fs: &mut GoodDataFS,
     println!("GoodDataFS::readdir() - Reading inode {} - {:?}",
              ino,
              inode);
+
+    if inode.category == flags::Category::Ldm as u8 &&
+       inode.reserved == flags::ReservedFile::KeepMe as u8 {
+        reply.ok();
+        return;
+    }
+
+    if inode.category == flags::Category::Metadata as u8 &&
+       inode.reserved == flags::ReservedFile::KeepMe as u8 {
+        reply.ok();
+        return;
+    }
+
     match ino {
         constants::INODE_ROOT => {
             if offset == 0 {
