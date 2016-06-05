@@ -2,7 +2,7 @@ language: rust
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y libfuse-dev
+  - sudo apt-get install -y libfuse-dev upx-ucl
 
 rust:
   - stable
@@ -12,3 +12,5 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
+
+script: make all
