@@ -18,10 +18,12 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 
 ### Resources Consumption
 
-**Command**
+- Binary size - 612KB
+- Real Memory Size - 5.3 MB
+- Shared Memory Size - 228 KB
+- Private Memory Size - 3.6 MB
 
-- Binary size - 612KB 
-- Peak RAM Usage - 4.1MB
+**Command**
 
 ```
 tree gd
