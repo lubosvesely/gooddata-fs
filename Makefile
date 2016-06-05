@@ -9,7 +9,7 @@ else
 	LINKER_TOOL = ldd
 endif
 
-all: outdated build strip stats size test dot
+all: outdated build test strip stats size deps dot
 
 install_deps:
 		cargo install cargo-count
