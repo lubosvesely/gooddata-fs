@@ -14,10 +14,23 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/korczis/gooddata-rust/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/korczis/gooddata-rust.svg)](https://github.com/korczis/gooddata-rust/issues)
 
-## Resources consumption [this version](https://github.com/korczis/gooddata-fs/tree/d086fe54dba29d842e0098ad6521fbb99e24079b)
+## Binary Information [this version](https://github.com/korczis/gooddata-fs/tree/d086fe54dba29d842e0098ad6521fbb99e24079b)
+
+### Resources Consumption
 
 - Binary size - 612KB 
 - Peak RAM Usage - 4.1MB
+
+### Dependencies
+
+otool -L ./target/debug/gooddata-fs
+./target/debug/gooddata-fs:
+	/usr/local/lib/libosxfuse_i64.2.dylib (compatibility version 10.0.0, current version 10.3.0)
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1226.10.1)
+	/usr/lib/libssl.0.9.8.dylib (compatibility version 0.9.8, current version 0.9.8)
+	/usr/lib/libcrypto.0.9.8.dylib (compatibility version 0.9.8, current version 0.9.8)
+	/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.5)
 
 ## Supported Operating Systems
 * [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
