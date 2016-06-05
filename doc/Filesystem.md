@@ -104,9 +104,9 @@ Items marked `✓` are already implemented.
 │   │   │       └── d8a081ff-074c-4891-9f1a-565ada7e4ab8.json
 │   │   ├── eventstores
 │   │   ├── invitations
-│   │   ├── ldm
+│   │   ├── ldm ✓
 │   │   │   └── thumbnail.svg
-│   │   ├── metadata
+│   │   ├── metadata ✓
 │   │   │   ├── analyticdashboard
 │   │   │   ├── attributes
 │   │   │   ├── columns
