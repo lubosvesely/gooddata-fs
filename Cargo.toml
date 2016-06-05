@@ -12,7 +12,7 @@ cookie = "0.2.4"
 env_logger = "0.3"
 fuse = "0.2"
 hyper = "0.9"
-libc = "0.2.11"
+libc = { version = "0.2", default-features = false }
 log = "0.3"
 lru-cache = "0.0.7"
 rand = "0.3.0"
