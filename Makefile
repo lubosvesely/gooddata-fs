@@ -9,7 +9,7 @@ else
 	LINKER_TOOL = ldd
 endif
 
-all: outdated build stats test dot
+all: outdated build strip stats test dot
 
 install_deps:
 		cargo install cargo-count
@@ -67,6 +67,9 @@ rebuild-release: clean-release build-release
 
 stats:
 		cargo count --separator , --unsafe-statistics
+
+strip:
+		strip ./target/release/gooddata-fs
 
 test:
 		cargo test
