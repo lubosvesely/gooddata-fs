@@ -44,10 +44,10 @@ impl Drop for GoodDataClient {
 #[allow(unreachable_code)]
 impl GoodDataClient {
     /// Create Instance of GoodData Client
-    pub fn new() -> GoodDataClient {
+    pub fn new(server: String) -> GoodDataClient {
         GoodDataClient {
             client: Client::new(),
-            server: url::SERVER.to_string(),
+            server: server,
             jar: CookieJar::new(helpers::random_string(32).as_bytes()),
             user: None,
             projects: None,
