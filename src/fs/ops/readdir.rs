@@ -59,10 +59,10 @@ pub fn readdir(fs: &mut GoodDataFS,
 }
 
 fn project(projectid: u16, reply: &mut ReplyDirectory) {
-    let mut offset = 2;
+    let mut offset = 0;
 
     // Iterate over all project::ITEMS
-    for item in items::project::ITEMS.into_iter() {
+    for item in items::project::PROJECT_ITEMS.into_iter() {
         let inode = inode::Inode {
             project: projectid,
             category: item.category,

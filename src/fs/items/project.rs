@@ -46,5 +46,5 @@ pub const METADATA_DIR: item::ProjectItem = item::ProjectItem {
     path: constants::PROJECT_METADATA_DIR,
 };
 
-pub const ITEMS: [item::ProjectItem; 6] =
+pub const PROJECT_ITEMS: [item::ProjectItem; 6] =
     [FEATURE_FLAGS_JSON, PERMISSIONS_JSON, PROJECT_JSON, USER_ROLES_JSON, LDM_DIR, METADATA_DIR];
