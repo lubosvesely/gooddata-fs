@@ -11,6 +11,8 @@ use fuse::{Filesystem, Request, ReplyData, ReplyEntry, ReplyAttr, ReplyDirectory
 use rustc_serialize::json;
 use std::path::Path;
 
+use std::ffi::OsStr;
+
 use fs;
 use gd;
 use object;
@@ -99,6 +101,6 @@ impl GoodDataFS {
                  VERSION,
                  mountpoint);
 
-        fuse::mount(self, &mountpoint, &[]);
+        fuse::mount(self, &mountpoint, &[&OsStr::new("debug")]);
     }
 }
