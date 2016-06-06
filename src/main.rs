@@ -13,6 +13,12 @@ const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 fn main() {
     let matches = App::new(DESCRIPTION)
         .version(VERSION)
+        .arg(Arg::with_name("server")
+            .help("Server to use")
+            .takes_value(true)
+            .short("s")
+            .long("server")
+            .default_value(rest::url::SERVER))
         .arg(Arg::with_name("username")
             .help("GoodData Username")
             .use_delimiter(false)
@@ -27,12 +33,6 @@ fn main() {
             .help("Mount Point")
             .required(true)
             .index(3))
-        .arg(Arg::with_name("server")
-            .help("Server to use")
-            .takes_value(true)
-            .short("s")
-            .long("server")
-            .default_value(rest::url::SERVER))
         .get_matches();
 
     let username = matches.value_of("username").unwrap().to_string();

@@ -60,12 +60,12 @@ pub fn readdir(fs: &mut GoodDataFS,
 
 fn project(projectid: u16, reply: &mut ReplyDirectory) {
     let mut offset = 2;
-    for &(category, reserved, obj_type, path) in shared::ITEMS.into_iter() {
+    for item in shared::ITEMS.into_iter() {
         let inode = inode::Inode {
             project: projectid,
-            category: category,
+            category: item.category,
             item: 0,
-            reserved: reserved,
+            reserved: item.reserved,
         };
 
         let fileinode: u64 = inode.into();
@@ -73,8 +73,8 @@ fn project(projectid: u16, reply: &mut ReplyDirectory) {
                  fileinode,
                  &inode,
                  projectid - 1,
-                 path);
-        reply.add(fileinode, offset, obj_type, path);
+                 item.path);
+        reply.add(fileinode, offset, item.item_type, item.path);
 
         offset += 1;
     }
