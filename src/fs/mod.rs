@@ -11,6 +11,7 @@ mod filesystem;
 mod flags;
 mod helpers;
 mod inode;
+mod items;
 mod ops;
 
 pub use self::constants::*;
@@ -18,4 +19,5 @@ pub use self::filesystem::*;
 pub use self::flags::*;
 pub use self::helpers::*;
 pub use self::inode::*;
+pub use self::items::*;
 pub use self::ops::*;
