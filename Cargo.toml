@@ -4,10 +4,14 @@ version = "0.0.5"
 authors = [
   "Tomas Korcak <korczis@gmail.com>"
 ]
+description = "GoodData as Filesystem (using FUSE)"
+license = "MIT"
+repository = "https://github.com/korczis/gooddata-fs"
 
 [dependencies]
 chomp = "0.2.5"
 chrono = "0.2"
+clap = "*"
 cookie = "0.2.4"
 env_logger = "0.3"
 fuse = "0.2"
