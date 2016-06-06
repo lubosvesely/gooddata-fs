@@ -28,10 +28,10 @@ build-release:
 clean: clean-debug clean-release
 
 clean-debug:
-		rm -rf ./target/debug
+		cargo clean
 
 clean-release:
-		rm -rf ./target/release
+		cargo clean --release
 
 deps: deps-debug deps-release
 
