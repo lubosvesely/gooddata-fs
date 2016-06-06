@@ -3,14 +3,14 @@ extern crate gooddata_fs;
 use gooddata_fs::*;
 
 fn connect() -> gd::GoodDataClient {
-    let mut gd = gd::GoodDataClient::new();
+    let mut gd = gd::GoodDataClient::new(gooddata_fs::rest::url::SERVER.to_string());
     gd.connect("tomas.korcak+gem_tester@gooddata.com", "jindrisska");
     gd
 }
 
 #[test]
 fn it_creates_client() {
-    let gd = gd::GoodDataClient::new();
+    let gd = gd::GoodDataClient::new(gooddata_fs::rest::url::SERVER.to_string());
     assert_eq!(gd.projects.is_some(), false);
     assert_eq!(gd.user.is_some(), false);
     assert_eq!(gd.token_updated.is_some(), false);
