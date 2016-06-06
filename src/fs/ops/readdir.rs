@@ -119,4 +119,10 @@ fn root(reply: &mut ReplyDirectory) {
               3,
               FileType::Directory,
               constants::PROJECTS_DIRNAME);
+
+    let mut offset = 0;
+
+    // Iterate over all project::ITEMS
+    for item in items::root::ROOT_ITEMS.into_iter() {
+    }
 }
