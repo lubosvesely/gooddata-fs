@@ -5,7 +5,6 @@ use rustc_serialize::json;
 use fs::constants;
 use fs::GoodDataFS;
 use fs::helpers::{create_inode_directory_attributes, create_inode_file_attributes};
-use fs::flags;
 use fs::inode;
 use gd;
 use object;
@@ -104,27 +103,29 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
 fn other(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
     if inode.project > 0 {
-        if inode.category == flags::Category::Ldm as u8 &&
-           inode.reserved == flags::ReservedFile::KeepMe as u8 {
+        if inode.category == constants::Category::Ldm as u8 &&
+           inode.reserved == constants::ReservedFile::KeepMe as u8 {
             project_ldm_dir(req, ino, reply);
             return;
         }
 
-        if inode.category == flags::Category::Metadata as u8 &&
-           inode.reserved == flags::ReservedFile::KeepMe as u8 {
+        if inode.category == constants::Category::Metadata as u8 &&
+           inode.reserved == constants::ReservedFile::KeepMe as u8 {
             project_metadata_dir(req, ino, reply);
             return;
         }
 
-        let reserved = flags::ReservedFile::from(inode.reserved);
+        let reserved = constants::ReservedFile::from(inode.reserved);
         match reserved {
-            flags::ReservedFile::Root => project_dir(req, ino, reply),
-            flags::ReservedFile::FeatureFlagsJson => {
+            constants::ReservedFile::Root => project_dir(req, ino, reply),
+            constants::ReservedFile::FeatureFlagsJson => {
                 project_feature_flags_json(fs, req, ino, reply)
             }
-            flags::ReservedFile::ProjectJson => project_project_json(fs, req, ino, reply),
-            flags::ReservedFile::PermissionsJson => project_permissions_json(fs, req, ino, reply),
-            flags::ReservedFile::RolesJson => project_roles_json(fs, req, ino, reply),
+            constants::ReservedFile::ProjectJson => project_project_json(fs, req, ino, reply),
+            constants::ReservedFile::PermissionsJson => {
+                project_permissions_json(fs, req, ino, reply)
+            }
+            constants::ReservedFile::RolesJson => project_roles_json(fs, req, ino, reply),
             _ => reply.error(ENOENT),
         }
     } else {

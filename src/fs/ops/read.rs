@@ -3,7 +3,6 @@ use libc::ENOENT;
 use rustc_serialize::json;
 
 use fs::constants;
-use fs::flags;
 use fs::GoodDataFS;
 use fs::inode;
 use gd;
@@ -28,18 +27,18 @@ pub fn read(fs: &mut GoodDataFS,
         constants::INODE_PROJECTS_JSON => projects_json(fs, reply, offset as usize),
         _ => {
             if inode.project > 0 {
-                let reserved = flags::ReservedFile::from(inode.reserved);
+                let reserved = constants::ReservedFile::from(inode.reserved);
                 match reserved {
-                    flags::ReservedFile::FeatureFlagsJson => {
+                    constants::ReservedFile::FeatureFlagsJson => {
                         feature_flags_json(fs, inode, reply, offset as usize)
                     }
-                    flags::ReservedFile::ProjectJson => {
+                    constants::ReservedFile::ProjectJson => {
                         project_json(fs, inode, reply, offset as usize)
                     }
-                    flags::ReservedFile::PermissionsJson => {
+                    constants::ReservedFile::PermissionsJson => {
                         permissions_json(fs, inode, reply, offset as usize)
                     }
-                    flags::ReservedFile::RolesJson => {
+                    constants::ReservedFile::RolesJson => {
                         roles_json(fs, inode, reply, offset as usize);
                     }
                     _ => {

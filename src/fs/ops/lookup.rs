@@ -4,7 +4,6 @@ use rustc_serialize::json;
 use std::path::Path;
 
 use fs::constants;
-use fs::flags;
 use fs::GoodDataFS;
 use fs::helpers::{create_inode_directory_attributes, create_inode_file_attributes};
 use fs::inode;
@@ -76,9 +75,9 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
 fn feature_flags_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
-        category: flags::Category::Internal as u8,
+        category: constants::Category::Internal as u8,
         item: 0,
-        reserved: flags::ReservedFile::FeatureFlagsJson as u8,
+        reserved: constants::ReservedFile::FeatureFlagsJson as u8,
     });
 
     let pid = (inode_parent.project - 1) as usize;
@@ -97,9 +96,9 @@ fn feature_flags_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: R
 fn project_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
-        category: flags::Category::Internal as u8,
+        category: constants::Category::Internal as u8,
         item: 0,
-        reserved: flags::ReservedFile::ProjectJson as u8,
+        reserved: constants::ReservedFile::ProjectJson as u8,
     });
 
     let client: &gd::GoodDataClient = fs.client();
@@ -114,9 +113,9 @@ fn project_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEn
 fn project_ldm_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
-        category: flags::Category::Ldm as u8,
+        category: constants::Category::Ldm as u8,
         item: 0,
-        reserved: flags::ReservedFile::KeepMe as u8,
+        reserved: constants::ReservedFile::KeepMe as u8,
     });
 
     let attr = create_inode_directory_attributes(inode);
@@ -126,9 +125,9 @@ fn project_ldm_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
 fn project_metadata_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
-        category: flags::Category::Metadata as u8,
+        category: constants::Category::Metadata as u8,
         item: 0,
-        reserved: flags::ReservedFile::KeepMe as u8,
+        reserved: constants::ReservedFile::KeepMe as u8,
     });
 
     let attr = create_inode_directory_attributes(inode);
@@ -138,9 +137,9 @@ fn project_metadata_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
 fn permissions_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
-        category: flags::Category::Internal as u8,
+        category: constants::Category::Internal as u8,
         item: 0,
-        reserved: flags::ReservedFile::PermissionsJson as u8,
+        reserved: constants::ReservedFile::PermissionsJson as u8,
     });
 
     let pid = (inode_parent.project - 1) as usize;
@@ -155,9 +154,9 @@ fn permissions_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: Rep
 fn roles_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
-        category: flags::Category::Internal as u8,
+        category: constants::Category::Internal as u8,
         item: 0,
-        reserved: flags::ReservedFile::RolesJson as u8,
+        reserved: constants::ReservedFile::RolesJson as u8,
     });
 
     let pid = (inode_parent.project - 1) as usize;

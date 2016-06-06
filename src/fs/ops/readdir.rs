@@ -1,12 +1,12 @@
 use fuse::{FileType, Request, ReplyDirectory};
 use libc::ENOENT;
 
+use super::super::items;
+
 use fs::constants;
-use fs::flags;
 use fs::GoodDataFS;
 use fs::inode;
 use gd;
-use super::shared;
 
 pub fn readdir(fs: &mut GoodDataFS,
                _req: &Request,
@@ -19,14 +19,14 @@ pub fn readdir(fs: &mut GoodDataFS,
              ino,
              inode);
 
-    if inode.category == flags::Category::Ldm as u8 &&
-       inode.reserved == flags::ReservedFile::KeepMe as u8 {
+    if inode.category == constants::Category::Ldm as u8 &&
+       inode.reserved == constants::ReservedFile::KeepMe as u8 {
         reply.ok();
         return;
     }
 
-    if inode.category == flags::Category::Metadata as u8 &&
-       inode.reserved == flags::ReservedFile::KeepMe as u8 {
+    if inode.category == constants::Category::Metadata as u8 &&
+       inode.reserved == constants::ReservedFile::KeepMe as u8 {
         reply.ok();
         return;
     }
@@ -60,7 +60,9 @@ pub fn readdir(fs: &mut GoodDataFS,
 
 fn project(projectid: u16, reply: &mut ReplyDirectory) {
     let mut offset = 2;
-    for item in shared::ITEMS.into_iter() {
+
+    // Iterate over all project::ITEMS
+    for item in items::project::ITEMS.into_iter() {
         let inode = inode::Inode {
             project: projectid,
             category: item.category,
