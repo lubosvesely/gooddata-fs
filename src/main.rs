@@ -1,18 +1,46 @@
+extern crate clap;
 extern crate gooddata_fs;
 extern crate users;
 
+use clap::{Arg, App};
 use std::env;
 
 use gooddata_fs::*;
 
-fn main() {
-    let mut gd = gooddata_fs::gd::GoodDataClient::new();
-    let username = env::args_os().nth(1).unwrap();
-    let password = env::args_os().nth(2).unwrap();
-    gd.connect(username.to_str().unwrap().to_string(),
-               password.to_str().unwrap().to_string());
+const DESCRIPTION: &'static str = "GoodData as Filesystem"; // env!("CARGO_PKG_DESCRIPTION");
+const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-    // println!("{}", gd.projects().as_ref()[0].meta.title.unwrap());
+fn main() {
+    let matches = App::new(DESCRIPTION)
+        .version(VERSION)
+        .arg(Arg::with_name("username")
+            .help("GoodData Username")
+            .use_delimiter(false)
+            .required(true)
+            .index(1))
+        .arg(Arg::with_name("password")
+            .help("GoodData Password")
+            .use_delimiter(false)
+            .required(true)
+            .index(2))
+        .arg(Arg::with_name("mountpoint")
+            .help("Mount Point")
+            .required(true)
+            .index(3))
+        .arg(Arg::with_name("server")
+            .help("Server to use")
+            .takes_value(true)
+            .short("s")
+            .long("server")
+            .default_value(rest::url::SERVER))
+        .get_matches();
+
+    let username = matches.value_of("username").unwrap().to_string();
+    let password = matches.value_of("password").unwrap().to_string();
+    let server = matches.value_of("server").unwrap().to_string();
+
+    let mut gd = gooddata_fs::gd::GoodDataClient::new(server);
+    gd.connect(username, password);
 
     // Mount GoodData
     let mountpoint = env::args_os().nth(3).unwrap();
