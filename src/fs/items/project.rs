@@ -11,18 +11,18 @@ pub const FEATURE_FLAGS_JSON: item::ProjectItem = item::ProjectItem {
     path: constants::FEATURE_FLAGS_JSON_FILENAME,
 };
 
-pub const PERMISSIONS_JSON: item::ProjectItem = item::ProjectItem {
-    category: constants::Category::Internal as u8,
-    reserved: constants::ReservedFile::PermissionsJson as u8,
-    item_type: FileType::RegularFile,
-    path: constants::USER_PERMISSIONS_JSON_FILENAME,
-};
-
 pub const PROJECT_JSON: item::ProjectItem = item::ProjectItem {
     category: constants::Category::Internal as u8,
     reserved: constants::ReservedFile::ProjectJson as u8,
     item_type: FileType::RegularFile,
     path: constants::PROJECT_JSON_FILENAME,
+};
+
+pub const PERMISSIONS_JSON: item::ProjectItem = item::ProjectItem {
+    category: constants::Category::Internal as u8,
+    reserved: constants::ReservedFile::PermissionsJson as u8,
+    item_type: FileType::RegularFile,
+    path: constants::USER_PERMISSIONS_JSON_FILENAME,
 };
 
 pub const USER_ROLES_JSON: item::ProjectItem = item::ProjectItem {
@@ -47,4 +47,4 @@ pub const METADATA_DIR: item::ProjectItem = item::ProjectItem {
 };
 
 pub const PROJECT_ITEMS: [item::ProjectItem; 6] =
-    [FEATURE_FLAGS_JSON, PERMISSIONS_JSON, PROJECT_JSON, USER_ROLES_JSON, LDM_DIR, METADATA_DIR];
+    [FEATURE_FLAGS_JSON, PROJECT_JSON, PERMISSIONS_JSON, USER_ROLES_JSON, LDM_DIR, METADATA_DIR];

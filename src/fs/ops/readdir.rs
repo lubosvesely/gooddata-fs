@@ -76,6 +76,7 @@ fn project(projectid: u16, reply: &mut ReplyDirectory) {
                  &inode,
                  projectid - 1,
                  item.path);
+
         reply.add(fileinode, offset, item.item_type, item.path);
 
         offset += 1;
