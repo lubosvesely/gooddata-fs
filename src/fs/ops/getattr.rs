@@ -16,28 +16,8 @@ pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
              inode);
 
     match ino {
-        constants::INODE_PROJECTS => projects(fs, req, ino, reply),
         _ => other(fs, req, ino, reply),
     }
-}
-
-fn projects(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_dir_attributes())
-}
-
-fn project_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL,
-               &create_inode_directory_attributes(ino))
-}
-
-fn project_ldm_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL,
-               &create_inode_directory_attributes(ino))
-}
-
-fn project_metadata_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL,
-               &create_inode_directory_attributes(ino))
 }
 
 fn project_feature_flags_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: ReplyAttr) {
@@ -88,21 +68,8 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
 fn other(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
     if inode.project > 0 {
-        if inode.category == constants::Category::Ldm as u8 &&
-           inode.reserved == constants::ReservedFile::KeepMe as u8 {
-            project_ldm_dir(req, ino, reply);
-            return;
-        }
-
-        if inode.category == constants::Category::Metadata as u8 &&
-           inode.reserved == constants::ReservedFile::KeepMe as u8 {
-            project_metadata_dir(req, ino, reply);
-            return;
-        }
-
         let reserved = constants::ReservedFile::from(inode.reserved);
         match reserved {
-            constants::ReservedFile::Root => project_dir(req, ino, reply),
             constants::ReservedFile::FeatureFlagsJson => {
                 project_feature_flags_json(fs, req, ino, reply)
             }

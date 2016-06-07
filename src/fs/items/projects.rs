@@ -14,8 +14,18 @@ use std::path::Path;
 pub const PROJECTS_ITEMS: [item::ProjectItem; 0] = [];
 
 pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
-    if ino == constants::INODE_PROJECTS {
-        reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_dir_attributes())
+    match ino {
+        constants::INODE_PROJECTS => {
+            reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_dir_attributes())
+        }
+        _ => {
+            let inode = inode::Inode::deserialize(ino);
+            if inode.project > 0 && inode.category == constants::Category::Internal as u8 &&
+               inode.item == 0 && inode.reserved == 0 {
+                reply.attr(&constants::DEFAULT_TTL,
+                           &create_inode_directory_attributes(ino))
+            }
+        }
     }
 }
 
@@ -28,9 +38,7 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
         }
         _ => {
             let mut i: u64 = 0;
-            let client: &gd::GoodDataClient = fs.client();
-            let projects = client.projects().as_ref();
-            for project in projects.unwrap().into_iter() {
+            for project in fs.client().projects().as_ref().unwrap().into_iter() {
                 let title: &String = project.project()
                     .meta()
                     .title()
@@ -60,9 +68,7 @@ pub fn readdir(fs: &mut GoodDataFS,
     fs.client.projects_fetch();
 
     let mut offset: u64 = in_offset;
-    let client: &gd::GoodDataClient = fs.client();
-    let projects = client.projects().as_ref();
-    for project in projects.unwrap().into_iter() {
+    for project in fs.client().projects().as_ref().unwrap().into_iter() {
         let title: &String = project.project()
             .meta()
             .title()
@@ -89,6 +95,7 @@ pub fn readdir(fs: &mut GoodDataFS,
               constants::PROJECTS_JSON_FILENAME);
 
     reply.ok();
+
     // TODO: Refactor items above in this
     // let mut offset = 0;
     //
