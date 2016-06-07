@@ -15,60 +15,24 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
              parent,
              inode::Inode::deserialize(parent),
              name.to_str().unwrap());
-    if parent == constants::INODE_ROOT && name.to_str() == Some(constants::USER_JSON_FILENAME) {
-        reply.entry(&constants::DEFAULT_TTL, &fs.get_user_json_attributes(), 0);
-    } else if parent == constants::INODE_ROOT && name.to_str() == Some(constants::PROJECTS_DIRNAME) {
-        reply.entry(&constants::DEFAULT_TTL,
-                    &fs.get_projects_dir_attributes(),
-                    0);
-    } else if parent == constants::INODE_PROJECTS &&
-       name.to_str() == Some(constants::PROJECTS_JSON_FILENAME) {
-        reply.entry(&constants::DEFAULT_TTL,
-                    &fs.get_projects_json_attributes(),
-                    0);
-    } else if parent == constants::INODE_PROJECTS {
-        let mut i: u64 = 0;
-        let client: &gd::GoodDataClient = fs.client();
-        let projects = client.projects().as_ref();
-        for project in projects.unwrap().into_iter() {
-            let title: &String = project.project()
-                .meta()
-                .title()
-                .as_ref()
-                .unwrap();
 
-            if title == name.to_str().unwrap() {
-                break;
+    let inode_parent = inode::Inode::deserialize(parent);
+    if inode_parent.project > 0 {
+        match name.to_str() {
+            Some(constants::FEATURE_FLAGS_JSON_FILENAME) => {
+                feature_flags_json(fs, &inode_parent, reply)
             }
-            i += 1;
+            Some(constants::PROJECT_JSON_FILENAME) => project_json(fs, &inode_parent, reply),
+            Some(constants::PROJECT_LDM_DIR) => project_ldm_dir(&inode_parent, reply),
+            Some(constants::PROJECT_METADATA_DIR) => project_metadata_dir(&inode_parent, reply),
+            Some(constants::USER_PERMISSIONS_JSON_FILENAME) => {
+                permissions_json(fs, &inode_parent, reply)
+            }
+            Some(constants::USER_ROLES_JSON_FILENAME) => roles_json(fs, &inode_parent, reply),
+            _ => reply.error(ENOENT),
         }
-
-        let inode = (i + 1) << 48;
-        println!("GoodDataFS::lookup() - Adding path {:?}, inode {} - {:?}",
-                 name,
-                 inode,
-                 inode::Inode::deserialize(inode));
-        let attr = create_inode_directory_attributes(inode);
-        reply.entry(&constants::DEFAULT_TTL, &attr, 0);
     } else {
-        let inode_parent = inode::Inode::deserialize(parent);
-        if inode_parent.project > 0 {
-            match name.to_str() {
-                Some(constants::FEATURE_FLAGS_JSON_FILENAME) => {
-                    feature_flags_json(fs, &inode_parent, reply)
-                }
-                Some(constants::PROJECT_JSON_FILENAME) => project_json(fs, &inode_parent, reply),
-                Some(constants::PROJECT_LDM_DIR) => project_ldm_dir(&inode_parent, reply),
-                Some(constants::PROJECT_METADATA_DIR) => project_metadata_dir(&inode_parent, reply),
-                Some(constants::USER_PERMISSIONS_JSON_FILENAME) => {
-                    permissions_json(fs, &inode_parent, reply)
-                }
-                Some(constants::USER_ROLES_JSON_FILENAME) => roles_json(fs, &inode_parent, reply),
-                _ => reply.error(ENOENT),
-            }
-        } else {
-            reply.error(ENOENT);
-        }
+        reply.error(ENOENT);
     }
 }
 

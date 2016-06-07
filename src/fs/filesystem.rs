@@ -14,6 +14,7 @@ use std::path::Path;
 use std::ffi::OsStr;
 
 use fs;
+use fs::inode;
 use gd;
 use object;
 
@@ -72,11 +73,45 @@ impl GoodDataFS {
 
 impl Filesystem for GoodDataFS {
     fn getattr(&mut self, req: &Request, ino: u64, reply: ReplyAttr) {
-        fs::ops::getattr(self, req, ino, reply)
+        let inode = inode::Inode::deserialize(ino);
+        println!("GoodDataFS::getattr() - Getting attributes {} - {:?}",
+                 ino,
+                 inode);
+
+        match ino {
+            fs::constants::INODE_ROOT => fs::root::getattr(self, req, ino, reply),
+            fs::constants::INODE_PROJECTS => fs::projects::getattr(self, req, ino, reply),
+            fs::constants::INODE_PROJECTS_JSON => {
+                reply.attr(&fs::constants::DEFAULT_TTL,
+                           &self.get_projects_json_attributes())
+            }
+            fs::constants::INODE_USER => {
+                reply.attr(&fs::constants::DEFAULT_TTL,
+                           &self.get_user_json_attributes())
+            }
+            _ => {
+                if inode.project > 0 && inode.category == fs::constants::Category::Internal as u8 &&
+                   inode.reserved == 0 {
+                    fs::projects::getattr(self, req, ino, reply)
+                } else {
+                    println!("getattr() - HAPR")
+                }
+            }
+        }
     }
 
     fn lookup(&mut self, req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
-        fs::ops::lookup(self, req, parent, &name, reply)
+        let parent_inode = inode::Inode::deserialize(parent);
+        println!("GoodDataFS::lookup() - Looking up parent {} - {:?}, path: {}",
+                 parent,
+                 parent_inode,
+                 name.to_str().unwrap());
+
+        match parent {
+            fs::constants::INODE_ROOT => fs::root::lookup(self, req, parent, name, reply),
+            fs::constants::INODE_PROJECTS => fs::projects::lookup(self, req, parent, name, reply),
+            _ => println!("getattr() - HAPR"),
+        }
     }
 
     fn read(&mut self,
@@ -86,11 +121,48 @@ impl Filesystem for GoodDataFS {
             offset: u64,
             size: u32,
             reply: ReplyData) {
-        fs::ops::read(self, req, ino, fh, offset, size, reply)
+
+        match ino {
+            fs::constants::INODE_PROJECTS_JSON => {
+                let json = format!("{}\n",
+                                   json::as_pretty_json(&self.client.projects()).to_string());
+                // let json: String = fs.client.projects().clone().unwrap().into();
+                reply.data(&json.as_bytes()[offset as usize..]);
+            }
+            fs::constants::INODE_USER => {
+                let json: String = self.client.user().clone().unwrap().into();
+                reply.data(&json.as_bytes()[offset as usize..]);
+            }
+            _ => println!("read() - HAPR"),
+        }
     }
 
     fn readdir(&mut self, req: &Request, ino: u64, fh: u64, offset: u64, reply: ReplyDirectory) {
-        fs::ops::readdir(self, req, ino, fh, offset, reply)
+        let inode = inode::Inode::deserialize(ino);
+        println!("GoodDataFS::readdir() - Reading inode {} - {:?}, fh: {}, offset: {}",
+                 ino,
+                 inode,
+                 fh,
+                 offset);
+
+        match ino {
+            fs::constants::INODE_ROOT => {
+                if offset == 0 {
+                    fs::root::readdir(self, req, ino, fh, offset, reply)
+                }
+            }
+            fs::constants::INODE_PROJECTS => {
+                if offset == 0 {
+                    fs::projects::readdir(self, req, ino, fh, offset, reply)
+                }
+            }
+            _ => {
+                let inode: fs::inode::Inode = fs::inode::Inode::deserialize(ino);
+                if inode.project > 0 {
+                    fs::project::readdir(self, req, ino, fh, offset, reply)
+                }
+            }
+        }
     }
 }
 

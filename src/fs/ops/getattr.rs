@@ -16,28 +16,13 @@ pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
              inode);
 
     match ino {
-        constants::INODE_ROOT => root(fs, req, ino, reply),
         constants::INODE_PROJECTS => projects(fs, req, ino, reply),
-        constants::INODE_PROJECTS_JSON => projects_json(fs, req, ino, reply),
-        constants::INODE_USER => user_json(fs, req, ino, reply),
         _ => other(fs, req, ino, reply),
     }
 }
 
-fn root(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL, &fs.get_root_dir_attributes())
-}
-
 fn projects(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_dir_attributes())
-}
-
-fn projects_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_json_attributes())
-}
-
-fn user_json(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
-    reply.attr(&constants::DEFAULT_TTL, &fs.get_user_json_attributes())
 }
 
 fn project_dir(_req: &Request, ino: u64, reply: ReplyAttr) {
