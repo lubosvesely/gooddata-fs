@@ -14,7 +14,9 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/korczis/gooddata-rust/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/korczis/gooddata-rust.svg)](https://github.com/korczis/gooddata-rust/issues)
 
-## Binary Information [this version](https://github.com/korczis/gooddata-fs/tree/d086fe54dba29d842e0098ad6521fbb99e24079b)
+## Binary Information 
+
+[Version used](https://github.com/korczis/gooddata-fs/tree/d086fe54dba29d842e0098ad6521fbb99e24079b)
 
 ### Resources Consumption
 
