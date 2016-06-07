@@ -108,6 +108,13 @@ fn projects(fs: &mut GoodDataFS, reply: &mut ReplyDirectory) {
               i + 3,
               FileType::RegularFile,
               constants::PROJECTS_JSON_FILENAME);
+
+    // TODO: Refactor items above in this
+    // let mut offset = 0;
+    //
+    // // Iterate over all projects::ITEMS
+    // for item in items::projects::PROJECTS_ITEMS.into_iter() {
+    // }
 }
 
 fn root(reply: &mut ReplyDirectory) {
@@ -120,9 +127,10 @@ fn root(reply: &mut ReplyDirectory) {
               FileType::Directory,
               constants::PROJECTS_DIRNAME);
 
-    let mut offset = 0;
-
-    // Iterate over all project::ITEMS
-    for item in items::root::ROOT_ITEMS.into_iter() {
-    }
+    // TODO: Refactor items above in this
+    // let mut offset = 0;
+    //
+    // // Iterate over all project::ITEMS
+    // for item in items::root::ROOT_ITEMS.into_iter() {
+    // }
 }
