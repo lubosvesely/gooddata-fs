@@ -50,6 +50,15 @@ otool -L ./target/debug/gooddata-fs
 	/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.5)
 ```
 
+## Security
+
+Thanks to [Rust](https://www.rust-lang.org/) gooddata-fs is immune to:
+
+- [Stack Overflow](https://en.wikipedia.org/wiki/Stack_buffer_overflow)
+- [Heap Overflow](https://en.wikipedia.org/wiki/Heap_overflow)
+- [Integer Overflow)(https://en.wikipedia.org/wiki/Integer_overflow)
+- [Dangling Pointers](https://en.wikipedia.org/wiki/Dangling_pointer)
+
 ## Supported Operating Systems
 * [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
 
