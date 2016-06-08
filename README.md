@@ -59,6 +59,17 @@ Thanks to [Rust language](https://www.rust-lang.org/) features [gooddata-fs](htt
 - [Integer Overflow](https://en.wikipedia.org/wiki/Integer_overflow) -  occurs when an arithmetic operation attempts to create a numeric value that is too large to be represented within the available storage space.
 - [Dangling Pointers](https://en.wikipedia.org/wiki/Dangling_pointer) -  special cases of memory safety violations.
 
+## Why Rust?
+
+- Zero-cost abstractions
+- Move semantics
+- Guaranteed memory safety
+- Threads without data races
+- Trait-based generics
+- Pattern matching
+- Type inference
+- Minimal runtime
+
 ## Supported Operating Systems
 * [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
 
