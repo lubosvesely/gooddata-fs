@@ -52,7 +52,7 @@ otool -L ./target/debug/gooddata-fs
 
 ## Security
 
-Thanks to [Rust language](https://www.rust-lang.org/) features gooddata-fs is immune to:
+Thanks to [Rust language](https://www.rust-lang.org/) features [gooddata-fs](https://github.com/korczis/gooddata-fs) is immune to:
 
 - [Stack Overflow](https://en.wikipedia.org/wiki/Stack_buffer_overflow) -  occurs when a program writes to a memory address on the program's call stack outside of the intended data structure, which is usually a fixed-length buffer.
 - [Heap Overflow](https://en.wikipedia.org/wiki/Heap_overflow) - type of buffer overflow that occurs in the heap data area.
