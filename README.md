@@ -52,7 +52,7 @@ otool -L ./target/debug/gooddata-fs
 
 ## Security
 
-Thanks to [Rust] features, (https://www.rust-lang.org/) gooddata-fs is immune to:
+Thanks to [Rust language](https://www.rust-lang.org/) features, (https://www.rust-lang.org/) gooddata-fs is immune to:
 
 - [Stack Overflow](https://en.wikipedia.org/wiki/Stack_buffer_overflow)
 - [Heap Overflow](https://en.wikipedia.org/wiki/Heap_overflow)
