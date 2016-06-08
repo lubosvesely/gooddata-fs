@@ -54,10 +54,10 @@ otool -L ./target/debug/gooddata-fs
 
 Thanks to [Rust language](https://www.rust-lang.org/) features gooddata-fs is immune to:
 
-- [Stack Overflow](https://en.wikipedia.org/wiki/Stack_buffer_overflow)
-- [Heap Overflow](https://en.wikipedia.org/wiki/Heap_overflow)
-- [Integer Overflow](https://en.wikipedia.org/wiki/Integer_overflow)
-- [Dangling Pointers](https://en.wikipedia.org/wiki/Dangling_pointer)
+- [Stack Overflow](https://en.wikipedia.org/wiki/Stack_buffer_overflow) -  occurs when a program writes to a memory address on the program's call stack outside of the intended data structure, which is usually a fixed-length buffer.
+- [Heap Overflow](https://en.wikipedia.org/wiki/Heap_overflow) - type of buffer overflow that occurs in the heap data area.
+- [Integer Overflow](https://en.wikipedia.org/wiki/Integer_overflow) -  occurs when an arithmetic operation attempts to create a numeric value that is too large to be represented within the available storage space.
+- [Dangling Pointers](https://en.wikipedia.org/wiki/Dangling_pointer) -  special cases of memory safety violations.
 
 ## Supported Operating Systems
 * [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
