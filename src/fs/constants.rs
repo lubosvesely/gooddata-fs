@@ -86,6 +86,12 @@ pub enum Category {
     Users,
 }
 
+impl Into<u8> for Category {
+    fn into(self) -> u8 {
+        self as u8
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum ReservedFile {
     Root = 0,

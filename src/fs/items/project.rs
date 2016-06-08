@@ -56,44 +56,46 @@ pub fn readdir(fs: &mut GoodDataFS,
                _req: &Request,
                ino: u64,
                _fh: u64,
-               offset: u64,
+               in_offset: u64,
                mut reply: ReplyDirectory) {
-    let mut offset = 0;
+    let mut offset = in_offset;
 
     let inode = inode::Inode::deserialize(ino);
+    match inode.category {
+        x if x == constants::Category::Ldm as u8 => {
+            reply.ok();
+        }
+        x if x == constants::Category::Metadata as u8 => {
+            reply.ok();
+        }
+        _ => {
+            let projectid = inode.project;
 
-    if inode.category == constants::Category::Ldm as u8 &&
-       inode.reserved == constants::ReservedFile::KeepMe as u8 {
-        reply.ok();
-        return;
-    }
+            // Iterate over all project::ITEMS
+            if offset == 0 {
+                for item in PROJECT_ITEMS.into_iter().skip(offset as usize) {
+                    println!(".");
+                    let inode = inode::Inode {
+                        project: projectid,
+                        category: item.category,
+                        item: 0,
+                        reserved: item.reserved,
+                    };
 
-    if inode.category == constants::Category::Metadata as u8 &&
-       inode.reserved == constants::ReservedFile::KeepMe as u8 {
-        reply.ok();
-        return;
-    }
+                    let fileinode: u64 = inode.into();
+                    println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
+                             fileinode,
+                             &inode,
+                             projectid - 1,
+                             item.path);
 
-    let projectid = inode.project;
+                    reply.add(fileinode, offset, item.item_type, item.path);
 
-    // Iterate over all project::ITEMS
-    for item in PROJECT_ITEMS.into_iter() {
-        let inode = inode::Inode {
-            project: projectid,
-            category: item.category,
-            item: 0,
-            reserved: item.reserved,
-        };
+                    offset += 1;
+                }
+            }
 
-        let fileinode: u64 = inode.into();
-        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
-                 fileinode,
-                 &inode,
-                 projectid - 1,
-                 item.path);
-
-        reply.add(fileinode, offset, item.item_type, item.path);
-
-        offset += 1;
+            reply.ok();
+        }
     }
 }
