@@ -14,7 +14,9 @@ For more information about GoodData Filesystem Structure see [detailed documenta
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/korczis/gooddata-rust/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/korczis/gooddata-rust.svg)](https://github.com/korczis/gooddata-rust/issues)
 
-## Binary Information [this version](https://github.com/korczis/gooddata-fs/tree/d086fe54dba29d842e0098ad6521fbb99e24079b)
+## Binary Information 
+
+[Version used](https://github.com/korczis/gooddata-fs/tree/d086fe54dba29d842e0098ad6521fbb99e24079b)
 
 ### Resources Consumption
 
@@ -47,6 +49,26 @@ otool -L ./target/debug/gooddata-fs
 	/usr/lib/libcrypto.0.9.8.dylib (compatibility version 0.9.8, current version 0.9.8)
 	/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.5)
 ```
+
+## Security
+
+Thanks to [Rust language](https://www.rust-lang.org/) features [gooddata-fs](https://github.com/korczis/gooddata-fs) is immune to:
+
+- [Stack Overflow](https://en.wikipedia.org/wiki/Stack_buffer_overflow) -  occurs when a program writes to a memory address on the program's call stack outside of the intended data structure, which is usually a fixed-length buffer.
+- [Heap Overflow](https://en.wikipedia.org/wiki/Heap_overflow) - type of buffer overflow that occurs in the heap data area.
+- [Integer Overflow](https://en.wikipedia.org/wiki/Integer_overflow) -  occurs when an arithmetic operation attempts to create a numeric value that is too large to be represented within the available storage space.
+- [Dangling Pointers](https://en.wikipedia.org/wiki/Dangling_pointer) -  special cases of memory safety violations.
+
+## Why Rust?
+
+- Zero-cost abstractions
+- Move semantics
+- Guaranteed memory safety
+- Threads without data races
+- Trait-based generics
+- Pattern matching
+- Type inference
+- Minimal runtime
 
 ## Supported Operating Systems
 * [Unix-like](https://en.wikipedia.org/wiki/Unix-like)
