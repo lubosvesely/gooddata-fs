@@ -90,9 +90,10 @@ impl Filesystem for GoodDataFS {
                            &self.get_user_json_attributes())
             }
             _ => {
-                if inode.project > 0 && inode.category == fs::constants::Category::Internal as u8 &&
-                   inode.reserved == 0 {
+                if inode.project > 0 && inode.reserved == 0 {
                     fs::projects::getattr(self, req, ino, reply)
+                } else if inode.project > 0 {
+                    fs::project::getattr(self, req, ino, reply)
                 } else {
                     println!("getattr() - HAPR")
                 }
@@ -110,7 +111,11 @@ impl Filesystem for GoodDataFS {
         match parent {
             fs::constants::INODE_ROOT => fs::root::lookup(self, req, parent, name, reply),
             fs::constants::INODE_PROJECTS => fs::projects::lookup(self, req, parent, name, reply),
-            _ => println!("getattr() - HAPR"),
+            _ => {
+                if parent_inode.project > 0 {
+                    fs::project::lookup(self, req, parent, name, reply)
+                }
+            }
         }
     }
 
@@ -133,7 +138,14 @@ impl Filesystem for GoodDataFS {
                 let json: String = self.client.user().clone().unwrap().into();
                 reply.data(&json.as_bytes()[offset as usize..]);
             }
-            _ => println!("read() - HAPR"),
+            _ => {
+                let inode = inode::Inode::deserialize(ino);
+                if inode.project > 0 {
+                    fs::project::read(self, req, ino, fh, offset, size, reply);
+                } else {
+                    println!("read() - HAPR")
+                }
+            }
         }
     }
 
