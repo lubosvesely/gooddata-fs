@@ -66,6 +66,16 @@ impl GoodDataClient {
         &self.projects
     }
 
+    pub fn projects_fetch_if_none(&mut self) -> &Vec<object::Project> {
+        match self.projects {
+            Some(ref projects) => projects,
+            None => {
+                self.projects_fetch();
+                self.projects().as_ref().unwrap()
+            }
+        }
+    }
+
     pub fn projects_fetch(&mut self) -> &Option<Vec<object::Project>> {
         let uri = format!("{}",
                           self.user
