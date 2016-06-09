@@ -24,12 +24,12 @@ pub const USER_JSON: item::ProjectItem = item::ProjectItem {
 
 pub const ROOT_ITEMS: [item::ProjectItem; 2] = [PROJECTS_DIR, USER_JSON];
 
-pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
+pub fn getattr(fs: &mut GoodDataFS, _req: &Request, _ino: u64, reply: ReplyAttr) {
     reply.attr(&constants::DEFAULT_TTL, &fs.get_root_dir_attributes());
 }
 
 
-pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
+pub fn lookup(fs: &mut GoodDataFS, _req: &Request, _parent: u64, name: &Path, reply: ReplyEntry) {
     match name.to_str() {
         Some(constants::USER_JSON_FILENAME) => {
             reply.entry(&constants::DEFAULT_TTL, &fs.get_user_json_attributes(), 0);
@@ -43,9 +43,9 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
     }
 }
 
-pub fn readdir(fs: &mut GoodDataFS,
+pub fn readdir(_fs: &mut GoodDataFS,
                _req: &Request,
-               ino: u64,
+               _ino: u64,
                _fh: u64,
                in_offset: u64,
                mut reply: ReplyDirectory) {
