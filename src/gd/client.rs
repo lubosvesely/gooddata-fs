@@ -14,6 +14,8 @@ use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use rustc_serialize::json;
 use rustc_serialize::json::DecoderError;
 use rustc_serialize::Decodable;
+use std::time::Duration;
+use std::thread;
 
 use lru_cache::LruCache;
 use std::io::Read;
@@ -103,6 +105,18 @@ impl GoodDataClient {
         let mut raw = self.post(url::PROJECTS.to_string(), payload);
         let content = self.get_content(&mut raw);
         println!("Project created: {}", content);
+        let uri: object::Uri = json::decode(&content).unwrap();
+        println!("Uri: {}", uri.uri);
+        for _ in 1..10 {
+            let mut res = self.get(uri.uri.clone());
+            let project_json = self.get_content(&mut res);
+            let project: object::Project = json::decode(&project_json).unwrap();
+            if project.project.content.state.as_ref().unwrap() != &"PREPARING".to_string() {
+                self.projects.as_mut().unwrap().push(project);
+                break;
+            }
+            thread::sleep(Duration::from_millis(1000));
+        }
     }
 
     pub fn delete_project(&mut self, project: object::Project) {

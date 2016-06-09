@@ -128,9 +128,7 @@ pub fn create(fs: &mut GoodDataFS, name: &Path, reply: ReplyEntry) {
                 },
             };
             fs.client.create_project(project);
-            fs.client.projects_fetch();
-
-            let inode = (1000 + 1) << 48;
+            let inode = ((fs.client.projects.as_ref().unwrap().len()) as u64) << 48;
             let attr = create_inode_directory_attributes(inode);
             reply.entry(&constants::DEFAULT_TTL, &attr, 0);
         }
