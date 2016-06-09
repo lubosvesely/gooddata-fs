@@ -1,9 +1,8 @@
 use rustc_serialize::json;
+use object::project::Project;
 
-pub use object::project::*;
-
-#[derive(Debug, Clone)]
-#[derive(RustcDecodable, RustcEncodable)]
+#[allow(non_snake_case)]
+#[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
 pub struct Projects {
     pub projects: Vec<Project>,
 }

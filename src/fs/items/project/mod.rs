@@ -63,7 +63,7 @@ fn project_feature_flags_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, rep
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
 
-    let feature_flags = project.feature_flags(&mut fs.client);
+    let feature_flags = project.feature_flags(&mut fs.client.connector);
     if feature_flags.is_some() {
         let json: String = feature_flags.unwrap().into();
 
@@ -87,7 +87,7 @@ fn project_permissions_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply
     let inode = inode::Inode::deserialize(ino);
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-    let user_permissions = project.user_permissions(&mut fs.client);
+    let user_permissions = project.user_permissions(&mut fs.client.connector);
     if user_permissions.is_some() {
         let json: String = user_permissions.unwrap().into();
 
@@ -101,7 +101,7 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
     let inode = inode::Inode::deserialize(ino);
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-    let user_roles = project.user_roles(&mut fs.client);
+    let user_roles = project.user_roles(&mut fs.client.connector);
 
     if user_roles.is_some() {
         let json: String = user_roles.unwrap().into();
@@ -169,7 +169,7 @@ fn feature_flags_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: R
     let pid = (inode_parent.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
 
-    let feature_flags = project.feature_flags(&mut fs.client);
+    let feature_flags = project.feature_flags(&mut fs.client.connector);
     if feature_flags.is_some() {
         let json: String = feature_flags.unwrap().into();
         let attr =
@@ -290,7 +290,7 @@ fn permissions_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: Rep
 
     let pid = (inode_parent.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-    let user_permissions = project.user_permissions(&mut fs.client);
+    let user_permissions = project.user_permissions(&mut fs.client.connector);
 
     if user_permissions.is_some() {
         let json: String = user_permissions.unwrap().into();
@@ -310,7 +310,7 @@ fn roles_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntr
 
     let pid = (inode_parent.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-    let user_roles = project.user_roles(&mut fs.client);
+    let user_roles = project.user_roles(&mut fs.client.connector);
 
     if user_roles.is_some() {
         let json: String = user_roles.unwrap().into();
@@ -356,7 +356,7 @@ fn read_feature_flags_json(fs: &mut GoodDataFS,
 
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-    let feature_flags = project.feature_flags(&mut fs.client);
+    let feature_flags = project.feature_flags(&mut fs.client.connector);
     if feature_flags.is_some() {
         let json: String = feature_flags.unwrap().into();
         reply.data(&json.as_bytes()[offset as usize..]);
@@ -382,7 +382,7 @@ fn read_permissions_json(fs: &mut GoodDataFS,
 
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-    let user_permissions = project.user_permissions(&mut fs.client);
+    let user_permissions = project.user_permissions(&mut fs.client.connector);
     if user_permissions.is_some() {
         let json: String = user_permissions.unwrap().into();
         reply.data(&json.as_bytes()[offset as usize..]);
@@ -395,7 +395,7 @@ fn read_roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, o
 
     let pid = (inode.project - 1) as usize;
     let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-    let user_roles = project.user_roles(&mut fs.client);
+    let user_roles = project.user_roles(&mut fs.client.connector);
     if user_roles.is_some() {
         let json: String = user_roles.unwrap().into();
         reply.data(&json.as_bytes()[offset as usize..]);

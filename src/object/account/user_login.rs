@@ -1,7 +1,7 @@
 use rustc_serialize::json;
 
-#[derive(Debug, Clone)]
-#[derive(RustcDecodable, RustcEncodable)]
+#[allow(non_snake_case)]
+#[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
 pub struct UserLoginBody {
     pub profile: String,
     pub state: String,
@@ -14,8 +14,7 @@ impl Into<String> for UserLoginBody {
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, Clone)]
-#[derive(RustcDecodable, RustcEncodable)]
+#[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
 pub struct UserLogin {
     pub userLogin: UserLoginBody,
 }
