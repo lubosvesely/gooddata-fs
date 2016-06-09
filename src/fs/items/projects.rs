@@ -39,7 +39,7 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, _parent: u64, name: &Path, re
         }
         _ => {
             let mut i: u64 = 0;
-            for project in fs.client().projects().as_ref().unwrap().into_iter() {
+            for project in fs.client.projects_fetch_if_none().into_iter() {
                 let title: &String = project.project()
                     .meta()
                     .title()
