@@ -1,3 +1,6 @@
+use rustc_serialize;
+use rustc_serialize::json;
+
 mod associated_permissions;
 mod associated_roles;
 mod feature_flags;
@@ -16,6 +19,7 @@ pub use self::project_content::*;
 pub use self::project_meta::*;
 pub use self::create::*;
 
+pub use super::metadata::*;
 
 #[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
 pub struct ProjectBody {
@@ -40,6 +44,10 @@ pub struct Project {
 }
 
 impl Project {
+    pub fn pid(&self) -> String {
+        self.get_link("self").split("/").last().unwrap().to_string()
+    }
+
     pub fn project(&self) -> &ProjectBody {
         &self.project
     }
@@ -58,5 +66,20 @@ impl Project {
 
     pub fn user_roles(&self, client: &mut GoodDataClient) -> Option<AssociatedRoles> {
         client.get_link_obj::<AssociatedRoles>(self.get_link("userRoles"))
+    }
+
+    pub fn get_metadata<T: rustc_serialize::Decodable>(&self,
+                                                       client: &mut GoodDataClient,
+                                                       md_type: String)
+                                                       -> T {
+        let uri = format!("/gdc/md/{}/objects/query?category={}&limit=50",
+                          self.pid(),
+                          md_type);
+        println!("{:?}", uri);
+        let mut res = client.get(uri);
+        let raw = client.get_content(&mut res);
+        println!("Project::get_metadata() - {} {:?}", md_type, raw);
+
+        json::decode::<T>(&raw).unwrap()
     }
 }

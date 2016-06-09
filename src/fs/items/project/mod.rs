@@ -113,7 +113,6 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
 
 pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
-    println!("fs::project::getattr() - {} - {:?}", ino, inode);
     if inode.project > 0 {
         if inode.category == constants::Category::Internal as u8 {
             let reserved = constants::ReservedFile::from(inode.reserved);
@@ -431,7 +430,7 @@ pub fn read(fs: &mut GoodDataFS,
     }
 }
 
-pub fn readdir(_fs: &mut GoodDataFS,
+pub fn readdir(fs: &mut GoodDataFS,
                _req: &Request,
                ino: u64,
                _fh: u64,
@@ -520,9 +519,16 @@ pub fn readdir(_fs: &mut GoodDataFS,
                 reply.ok();
             }
         }
+        x if x == constants::Category::MetadataReports as u8 => {
+            let pid = (inode.project - 1) as usize;
+            let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+            println!("Listing reports for project {}",
+                     project.project().meta().title().as_ref().unwrap());
+
+            project.get_metadata::<object::ObjectsReport>(&mut fs.client, "report".to_string());
+        }
         _ => {
             let projectid = inode.project;
-
 
             // Iterate over all project::ITEMS
             if offset == 0 {

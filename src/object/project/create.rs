@@ -5,7 +5,7 @@ pub struct ProjectCreateContent {
     pub environment: String,
     pub guidedNavigation: String,
     pub authorizationToken: String,
-    pub driver: String
+    pub driver: String,
 }
 
 #[derive(Debug, Clone)]

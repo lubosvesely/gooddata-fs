@@ -1,4 +1,5 @@
 mod account_setting;
+mod metadata;
 mod post_user_login;
 mod project;
 mod projects;
