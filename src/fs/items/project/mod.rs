@@ -91,7 +91,8 @@ fn project_permissions_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply
     if user_permissions.is_some() {
         let json: String = user_permissions.unwrap().into();
 
-        let attr = create_inode_file_attributes(ino, json.len() as u64, constants::DEFAULT_CREATE_TIME);
+        let attr =
+            create_inode_file_attributes(ino, json.len() as u64, constants::DEFAULT_CREATE_TIME);
         reply.attr(&constants::DEFAULT_TTL, &attr);
     }
 }
@@ -133,6 +134,23 @@ pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
         } else if inode.category == constants::Category::Metadata as u8 {
             let attr = create_inode_directory_attributes(ino);
             reply.attr(&constants::DEFAULT_TTL, &attr);
+        } else if inode.category == constants::Category::MetadataAttributes as u8 {
+            let attr = create_inode_directory_attributes(ino);
+            reply.attr(&constants::DEFAULT_TTL, &attr);
+        } else if inode.category == constants::Category::MetadataFacts as u8 {
+            let attr = create_inode_directory_attributes(ino);
+            reply.attr(&constants::DEFAULT_TTL, &attr);
+        } else if inode.category == constants::Category::MetadataMetrics as u8 {
+            let attr = create_inode_directory_attributes(ino);
+            reply.attr(&constants::DEFAULT_TTL, &attr);
+        } else if inode.category == constants::Category::MetadataReports as u8 {
+            let attr = create_inode_directory_attributes(ino);
+            reply.attr(&constants::DEFAULT_TTL, &attr);
+        } else if inode.category == constants::Category::MetadataReportDefinition as u8 {
+            let attr = create_inode_directory_attributes(ino);
+            reply.attr(&constants::DEFAULT_TTL, &attr);
+        } else {
+            println!("fs::project::getattr() - not found!");
         }
     } else {
         println!("GoodDataFS::getattr() - Not found inode {:?}", ino);
@@ -201,6 +219,67 @@ fn project_metadata_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
     reply.entry(&constants::DEFAULT_TTL, &attr, 0);
 }
 
+
+fn project_metadata_attributes_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: constants::Category::MetadataAttributes as u8,
+        item: 0,
+        reserved: constants::ReservedFile::KeepMe as u8,
+    });
+
+    let attr = create_inode_directory_attributes(inode);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn project_metadata_facts_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: constants::Category::MetadataFacts as u8,
+        item: 0,
+        reserved: constants::ReservedFile::KeepMe as u8,
+    });
+
+    let attr = create_inode_directory_attributes(inode);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn project_metadata_metrics_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: constants::Category::MetadataMetrics as u8,
+        item: 0,
+        reserved: constants::ReservedFile::KeepMe as u8,
+    });
+
+    let attr = create_inode_directory_attributes(inode);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn project_metadata_reports_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: constants::Category::MetadataReports as u8,
+        item: 0,
+        reserved: constants::ReservedFile::KeepMe as u8,
+    });
+
+    let attr = create_inode_directory_attributes(inode);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
+fn project_metadata_report_definitions_dir(inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: constants::Category::MetadataReportDefinition as u8,
+        item: 0,
+        reserved: constants::ReservedFile::KeepMe as u8,
+    });
+
+    let attr = create_inode_directory_attributes(inode);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+}
+
 fn permissions_json(fs: &mut GoodDataFS, inode_parent: &inode::Inode, reply: ReplyEntry) {
     let inode = inode::Inode::serialize(&inode::Inode {
         project: inode_parent.project,
@@ -249,6 +328,19 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
         Some(constants::PROJECT_JSON_FILENAME) => project_json(fs, &inode, reply),
         Some(constants::PROJECT_LDM_DIR) => project_ldm_dir(&inode, reply),
         Some(constants::PROJECT_METADATA_DIR) => project_metadata_dir(&inode, reply),
+        Some(constants::PROJECT_METADATA_ATTRIBUTES_DIR) => {
+            project_metadata_attributes_dir(&inode, reply)
+        }
+        Some(constants::PROJECT_METADATA_FACTS_DIR) => project_metadata_facts_dir(&inode, reply),
+        Some(constants::PROJECT_METADATA_METRICS_DIR) => {
+            project_metadata_metrics_dir(&inode, reply)
+        }
+        Some(constants::PROJECT_METADATA_REPORTS_DIR) => {
+            project_metadata_reports_dir(&inode, reply)
+        }
+        Some(constants::PROJECT_METADATA_REPORT_DEFINITIONS_DIR) => {
+            project_metadata_report_definitions_dir(&inode, reply)
+        }
         Some(constants::USER_PERMISSIONS_JSON_FILENAME) => permissions_json(fs, &inode, reply),
         Some(constants::USER_ROLES_JSON_FILENAME) => roles_json(fs, &inode, reply),
         _ => reply.error(ENOENT),
@@ -353,31 +445,107 @@ pub fn readdir(fs: &mut GoodDataFS,
             reply.ok();
         }
         x if x == constants::Category::Metadata as u8 => {
-            reply.ok();
+            if offset == 0 {
+                // Attributes
+                let inode = inode::Inode {
+                    project: inode.project,
+                    category: constants::Category::MetadataAttributes as u8,
+                    item: 0,
+                    reserved: constants::ReservedFile::KeepMe as u8,
+                };
+                let fileinode: u64 = inode.into();
+                reply.add(fileinode,
+                          offset,
+                          FileType::Directory,
+                          constants::PROJECT_METADATA_ATTRIBUTES_DIR);
+                offset += 1;
+
+                // Facts
+                let inode = inode::Inode {
+                    project: inode.project,
+                    category: constants::Category::MetadataFacts as u8,
+                    item: 0,
+                    reserved: constants::ReservedFile::KeepMe as u8,
+                };
+                let fileinode: u64 = inode.into();
+                reply.add(fileinode,
+                          offset,
+                          FileType::Directory,
+                          constants::PROJECT_METADATA_FACTS_DIR);
+                offset += 1;
+
+                // Metrics
+                let inode = inode::Inode {
+                    project: inode.project,
+                    category: constants::Category::MetadataMetrics as u8,
+                    item: 0,
+                    reserved: constants::ReservedFile::KeepMe as u8,
+                };
+                let fileinode: u64 = inode.into();
+                reply.add(fileinode,
+                          offset,
+                          FileType::Directory,
+                          constants::PROJECT_METADATA_METRICS_DIR);
+                offset += 1;
+
+                // Reports
+                let inode = inode::Inode {
+                    project: inode.project,
+                    category: constants::Category::MetadataReports as u8,
+                    item: 0,
+                    reserved: constants::ReservedFile::KeepMe as u8,
+                };
+                let fileinode: u64 = inode.into();
+                reply.add(fileinode,
+                          offset,
+                          FileType::Directory,
+                          constants::PROJECT_METADATA_REPORTS_DIR);
+                offset += 1;
+
+                // Report Definitions
+                let inode = inode::Inode {
+                    project: inode.project,
+                    category: constants::Category::MetadataReportDefinition as u8,
+                    item: 0,
+                    reserved: constants::ReservedFile::KeepMe as u8,
+                };
+                let fileinode: u64 = inode.into();
+                reply.add(fileinode,
+                          offset,
+                          FileType::Directory,
+                          constants::PROJECT_METADATA_REPORT_DEFINITIONS_DIR);
+                offset += 1;
+
+                reply.ok();
+            }
         }
         _ => {
             let projectid = inode.project;
 
+
             // Iterate over all project::ITEMS
             if offset == 0 {
-                for item in PROJECT_ITEMS.into_iter().skip(offset as usize) {
-                    let inode = inode::Inode {
-                        project: projectid,
-                        category: item.category,
-                        item: 0,
-                        reserved: item.reserved,
-                    };
+                if inode.category == constants::Category::Internal as u8 {
+                    for item in PROJECT_ITEMS.into_iter().skip(offset as usize) {
+                        let inode = inode::Inode {
+                            project: projectid,
+                            category: item.category,
+                            item: 0,
+                            reserved: item.reserved,
+                        };
 
-                    let fileinode: u64 = inode.into();
-                    println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, path {}",
-                             fileinode,
-                             &inode,
-                             projectid - 1,
-                             item.path);
+                        let fileinode: u64 = inode.into();
+                        println!("GoodDataFS::readdir() - Adding inode {} - {:?}, project {}, \
+                                  path {}",
+                                 fileinode,
+                                 &inode,
+                                 projectid - 1,
+                                 item.path);
 
-                    reply.add(fileinode, offset, item.item_type, item.path);
+                        reply.add(fileinode, offset, item.item_type, item.path);
 
-                    offset += 1;
+                        offset += 1;
+                    }
                 }
             }
 

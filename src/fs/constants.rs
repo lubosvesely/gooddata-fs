@@ -19,6 +19,12 @@ pub const PROJECT_JSON_FILENAME: &'static str = "project.json";
 pub const USER_ROLES_JSON_FILENAME: &'static str = "userRoles.json";
 pub const USER_JSON_FILENAME: &'static str = "user.json";
 
+pub const PROJECT_METADATA_ATTRIBUTES_DIR: &'static str = "attributes";
+pub const PROJECT_METADATA_FACTS_DIR: &'static str = "facts";
+pub const PROJECT_METADATA_METRICS_DIR: &'static str = "metrics";
+pub const PROJECT_METADATA_REPORTS_DIR: &'static str = "reports";
+pub const PROJECT_METADATA_REPORT_DEFINITIONS_DIR: &'static str = "definitions";
+
 pub const DEFAULT_DIRECTORY_PERMISSIONS: u16 = 0o755;
 
 pub const DEFAULT_FILE_PERMISSIONS: u16 = 0o444;
