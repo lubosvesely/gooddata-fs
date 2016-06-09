@@ -1,3 +1,4 @@
+use libc::{ENOSYS, ENOENT, EACCES};
 use fuse::{FileType, ReplyAttr, ReplyEntry, ReplyDirectory, Request};
 
 use fs::constants;
@@ -5,6 +6,7 @@ use fs::GoodDataFS;
 use fs::helpers::{create_inode_directory_attributes, create_inode_file_attributes};
 use fs::inode;
 use gd;
+use object::{ProjectCreate, ProjectCreateBody, ProjectCreateMeta, ProjectCreateContent};
 
 use super::item;
 
@@ -51,9 +53,13 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
                 i += 1;
             }
 
-            let inode = (i + 1) << 48;
-            let attr = create_inode_directory_attributes(inode);
-            reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+            if i < fs.client().projects().as_ref().unwrap().len() as u64 {
+                let inode = (i + 1) << 48;
+                let attr = create_inode_directory_attributes(inode);
+                reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+            } else {
+                reply.error(ENOENT);
+            }
         }
     }
 }
@@ -102,4 +108,29 @@ pub fn readdir(fs: &mut GoodDataFS,
     // // Iterate over all projects::PROJECTS_ITEMS
     // for item in items::projects::PROJECTS_ITEMS.into_iter() {
     // }
+}
+
+
+pub fn create(fs: &mut GoodDataFS, name: &Path, reply: ReplyEntry) {
+    match fs.client().token.clone() {
+        Some(token) => {
+            let project = ProjectCreate {
+                project: ProjectCreateBody {
+                    content: ProjectCreateContent {
+                        guidedNavigation: "1".to_string(),
+                        environment: "TESTING".to_string(),
+                        driver: "Pg".to_string(),
+                        authorizationToken: token
+                    },
+                    meta: ProjectCreateMeta {
+                        title: name.to_str().unwrap().to_string(),
+                        summary: name.to_str().unwrap().to_string()
+                    }
+                }
+            };
+            fs.client.create_project(project);
+            reply.error(ENOSYS);
+        },
+        None => reply.error(EACCES)
+    }
 }

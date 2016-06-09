@@ -19,6 +19,11 @@ fn main() {
             .short("s")
             .long("server")
             .default_value(rest::url::SERVER))
+        .arg(Arg::with_name("token")
+            .help("Token for creating of projects")
+            .takes_value(true)
+            .short("t")
+            .long("token"))
         .arg(Arg::with_name("username")
             .help("GoodData Username")
             .use_delimiter(false)
@@ -40,9 +45,10 @@ fn main() {
     let password = matches.value_of("password").unwrap().to_string();
     let mountpoint = matches.value_of("mountpoint").unwrap().to_string();
     let server = matches.value_of("server").unwrap().to_string();
+    let token = matches.value_of("token").map(|token| token.to_string());
 
     // Create instance of GoodData REST API Client
-    let mut gd = gooddata_fs::gd::GoodDataClient::new(server);
+    let mut gd = gooddata_fs::gd::GoodDataClient::new(server, token);
     gd.connect(username, password);
 
     // Create GoodData Filesystem instance
