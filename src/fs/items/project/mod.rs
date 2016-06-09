@@ -403,11 +403,11 @@ fn read_roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, o
 }
 
 pub fn read(fs: &mut GoodDataFS,
-            req: &Request,
+            _req: &Request,
             ino: u64,
-            fh: u64,
+            _fh: u64,
             offset: u64,
-            size: u32,
+            _size: u32,
             reply: ReplyData) {
     let inode = inode::Inode::deserialize(ino);
     let reserved = constants::ReservedFile::from(inode.reserved);
@@ -431,7 +431,7 @@ pub fn read(fs: &mut GoodDataFS,
     }
 }
 
-pub fn readdir(fs: &mut GoodDataFS,
+pub fn readdir(_fs: &mut GoodDataFS,
                _req: &Request,
                ino: u64,
                _fh: u64,

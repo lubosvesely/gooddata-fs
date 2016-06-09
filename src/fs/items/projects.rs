@@ -1,12 +1,17 @@
 use libc::{ENOSYS, ENOENT, EACCES};
-use fuse::{FileType, ReplyAttr, ReplyEntry, ReplyDirectory, Request};
+use fuse::{FileType, ReplyAttr, ReplyEntry, ReplyDirectory, Request, ReplyEmpty};
 
 use fs::constants;
 use fs::GoodDataFS;
-use fs::helpers::{create_inode_directory_attributes, create_inode_file_attributes};
+use fs::helpers::{create_inode_directory_attributes};
 use fs::inode;
-use gd;
-use object::{ProjectCreate, ProjectCreateBody, ProjectCreateMeta, ProjectCreateContent};
+use object::{
+    Project,
+    ProjectCreate,
+    ProjectCreateBody,
+    ProjectCreateMeta,
+    ProjectCreateContent
+};
 
 use super::item;
 
@@ -15,7 +20,7 @@ use std::path::Path;
 // TODO: This probably needs to be generated dynamically
 pub const PROJECTS_ITEMS: [item::ProjectItem; 0] = [];
 
-pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
+pub fn getattr(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: ReplyAttr) {
     match ino {
         constants::INODE_PROJECTS => {
             reply.attr(&constants::DEFAULT_TTL, &fs.get_projects_dir_attributes())
@@ -31,7 +36,7 @@ pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     }
 }
 
-pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, reply: ReplyEntry) {
+pub fn lookup(fs: &mut GoodDataFS, _req: &Request, _parent: u64, name: &Path, reply: ReplyEntry) {
     match name.to_str() {
         Some(constants::PROJECTS_JSON_FILENAME) => {
             reply.entry(&constants::DEFAULT_TTL,
@@ -40,7 +45,7 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
         }
         _ => {
             let mut i: u64 = 0;
-            for project in fs.client().projects().as_ref().unwrap().into_iter() {
+            for project in fs.client.projects_fetch_if_none() {
                 let title: &String = project.project()
                     .meta()
                     .title()
@@ -137,4 +142,27 @@ pub fn create(fs: &mut GoodDataFS, name: &Path, reply: ReplyEntry) {
         }
         None => reply.error(EACCES),
     }
+}
+
+pub fn delete(fs: &mut GoodDataFS, name: &Path, reply: ReplyEmpty) {
+    let title = &name.to_str().unwrap().to_string();
+    match find_project_by_title(fs.client().projects().as_ref().unwrap(), title) {
+        Some(project) => {
+            fs.client.delete_project(project);
+            reply.error(ENOSYS);
+        },
+        None => {
+            println!("WTF? Project not found: {}", title);
+            reply.error(ENOENT);
+        }
+    }
+}
+
+fn find_project_by_title(projects: &Vec<Project>, title: &String) -> Option<Project> {
+    for project in projects {
+        if project.project().meta().title().as_ref().unwrap() == title {
+            return Some(project.clone());
+        }
+    }
+    None
 }
