@@ -178,7 +178,7 @@ impl Filesystem for GoodDataFS {
         }
     }
 
-    fn mkdir (&mut self, _req: &Request, parent: u64, name: &Path, _mode: u32, reply: ReplyEntry) {
+    fn mkdir(&mut self, _req: &Request, parent: u64, name: &Path, _mode: u32, reply: ReplyEntry) {
         let parent_inode = inode::Inode::deserialize(parent);
         println!("GoodDataFS::mkdir() - Making dir in parent {} - {:?}, path: {}",
                  parent,
@@ -186,11 +186,11 @@ impl Filesystem for GoodDataFS {
                  name.to_str().unwrap());
         match parent {
             fs::constants::INODE_PROJECTS => fs::projects::create(self, name, reply),
-            _ => reply.error(ENOSYS)
+            _ => reply.error(ENOSYS),
         }
     }
 
-    fn rmdir (&mut self, _req: &Request, parent: u64, name: &Path, reply: ReplyEmpty) {
+    fn rmdir(&mut self, _req: &Request, parent: u64, name: &Path, reply: ReplyEmpty) {
         let parent_inode = inode::Inode::deserialize(parent);
         println!("GoodDataFS::rmdir() - Removing dir in parent {} - {:?}, path: {}",
                  parent,
@@ -198,7 +198,7 @@ impl Filesystem for GoodDataFS {
                  name.to_str().unwrap());
         match parent {
             fs::constants::INODE_PROJECTS => fs::projects::delete(self, name, reply),
-            _ => reply.error(ENOSYS)
+            _ => reply.ok(),
         }
     }
 }
