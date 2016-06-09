@@ -1,4 +1,5 @@
-#[derive(RustcDecodable, RustcEncodable)]
+#[allow(non_snake_case)]
+#[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
 pub struct PostUserLoginBody {
     pub login: Option<String>,
     pub password: Option<String>,
@@ -6,7 +7,7 @@ pub struct PostUserLoginBody {
 }
 
 #[allow(non_snake_case)]
-#[derive(RustcDecodable, RustcEncodable)]
+#[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
 pub struct PostUserLogin {
     pub postUserLogin: PostUserLoginBody,
 }
