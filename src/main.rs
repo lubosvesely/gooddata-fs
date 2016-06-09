@@ -47,8 +47,10 @@ fn main() {
     let server = matches.value_of("server").unwrap().to_string();
     let token = matches.value_of("token").map(|token| token.to_string());
 
+    // Create instance of GoodData HTTP Connector
+    let connector = gooddata_fs::gd::Connector::new(server);
     // Create instance of GoodData REST API Client
-    let mut gd = gooddata_fs::gd::GoodDataClient::new(server, token);
+    let mut gd = gooddata_fs::gd::GoodDataClient::new(connector, token);
     gd.connect(username, password);
 
     // Create GoodData Filesystem instance
@@ -59,4 +61,5 @@ fn main() {
 
     // Mount GoodData Filesystem
     fs.mount(mountpoint);
+
 }

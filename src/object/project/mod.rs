@@ -4,13 +4,12 @@ use rustc_serialize::json;
 mod associated_permissions;
 mod associated_roles;
 mod feature_flags;
-mod permissions;
 mod project_content;
 mod project_meta;
 mod create;
 
 use std::collections::HashMap;
-use gd::client::GoodDataClient;
+use gd::connector::Connector;
 
 pub use self::associated_permissions::*;
 pub use self::associated_roles::*;
@@ -56,20 +55,20 @@ impl Project {
         self.project().links().as_ref().unwrap()[link_name].to_string()
     }
 
-    pub fn feature_flags(&self, client: &mut GoodDataClient) -> Option<FeatureFlags> {
-        client.get_link_obj::<FeatureFlags>(self.get_link("projectFeatureFlags"))
+    pub fn feature_flags(&self, client: &mut Connector) -> Option<FeatureFlags> {
+        client.object_by_get::<FeatureFlags>(self.get_link("projectFeatureFlags"))
     }
 
-    pub fn user_permissions(&self, client: &mut GoodDataClient) -> Option<AssociatedPermissions> {
-        client.get_link_obj::<AssociatedPermissions>(self.get_link("userPermissions"))
+    pub fn user_permissions(&self, client: &mut Connector) -> Option<AssociatedPermissions> {
+        client.object_by_get::<AssociatedPermissions>(self.get_link("userPermissions"))
     }
 
-    pub fn user_roles(&self, client: &mut GoodDataClient) -> Option<AssociatedRoles> {
-        client.get_link_obj::<AssociatedRoles>(self.get_link("userRoles"))
+    pub fn user_roles(&self, client: &mut Connector) -> Option<AssociatedRoles> {
+        client.object_by_get::<AssociatedRoles>(self.get_link("userRoles"))
     }
 
     pub fn get_metadata<T: rustc_serialize::Decodable>(&self,
-                                                       client: &mut GoodDataClient,
+                                                       client: &mut Connector,
                                                        md_type: String)
                                                        -> T {
         let uri = format!("/gdc/md/{}/objects/query?category={}&limit=50",
