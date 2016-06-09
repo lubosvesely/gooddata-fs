@@ -99,10 +99,17 @@ impl GoodDataClient {
     pub fn create_project(&mut self, project: object::ProjectCreate) {
         let payload = json::encode(&project).unwrap();
 
-        println!("Creating project: {}" , payload);
+        println!("Creating project: {}", payload);
         let mut raw = self.post(url::PROJECTS.to_string(), payload);
         let content = self.get_content(&mut raw);
         println!("Project created: {}", content);
+    }
+
+    pub fn delete_project(&mut self, project: object::Project) {
+        let title = project.project().meta().title().as_ref().unwrap();
+        let uri = project.get_link("self");
+        println!("Deleting project: {} ({})", title, uri);
+        self.delete(uri);
     }
 
     /// Login to GoodData platform
@@ -236,6 +243,34 @@ impl GoodDataClient {
         if !raw.is_ok() {
             return self.post(uriPath, payload);
         }
+
+        let mut res = raw.unwrap();
+        assert_eq!(res.status, hyper::Ok);
+
+        self.print_response(&mut res);
+        self.update_cookie_jar(&res);
+
+        return res;
+    }
+
+    fn delete<S: Into<String>>(&mut self, path: S) -> hyper::client::response::Response {
+        self.refresh_token_check();
+
+        let uriPath = format!("{}", path.into());
+        let uri = format!("{}{}", self.server, uriPath);
+
+        let raw = self.client
+            .delete(&uri[..])
+            .header(UserAgent(GoodDataClient::user_agent().to_owned()))
+            .header(Accept(vec![qitem(Mime(
+                TopLevel::Application,
+                SubLevel::Json,
+                vec![(Attr::Charset, Value::Utf8)]
+            ))]))
+            .header(Cookie::from_cookie_jar(&self.jar))
+            .send();
+
+        println!("GoodDataClient::delete() - Response: {:?}", raw);
 
         let mut res = raw.unwrap();
         assert_eq!(res.status, hyper::Ok);
