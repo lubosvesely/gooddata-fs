@@ -26,6 +26,7 @@ const CACHE_SIZE: usize = 32 * 1024;
 pub struct GoodDataClient {
     pub client: Client,
     pub server: String,
+    pub token: Option<String>,
     pub jar: CookieJar<'static>,
     pub user: Option<object::AccountSetting>,
     pub projects: Option<Vec<object::Project>>,
@@ -44,10 +45,11 @@ impl Drop for GoodDataClient {
 #[allow(unreachable_code)]
 impl GoodDataClient {
     /// Create Instance of GoodData Client
-    pub fn new(server: String) -> GoodDataClient {
+    pub fn new(server: String, token: Option<String>) -> GoodDataClient {
         GoodDataClient {
             client: Client::new(),
             server: server,
+            token: token,
             jar: CookieJar::new(helpers::random_string(32).as_bytes()),
             user: None,
             projects: None,

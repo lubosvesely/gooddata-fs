@@ -1,3 +1,4 @@
+use libc::{ENOSYS, ENOENT, EACCES};
 use fuse::{FileType, ReplyAttr, ReplyEntry, ReplyDirectory, Request};
 
 use fs::constants;
@@ -51,9 +52,13 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
                 i += 1;
             }
 
-            let inode = (i + 1) << 48;
-            let attr = create_inode_directory_attributes(inode);
-            reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+            if i < fs.client().projects().as_ref().unwrap().len() as u64 {
+                let inode = (i + 1) << 48;
+                let attr = create_inode_directory_attributes(inode);
+                reply.entry(&constants::DEFAULT_TTL, &attr, 0);
+            } else {
+                reply.error(ENOENT);
+            }
         }
     }
 }
@@ -102,4 +107,12 @@ pub fn readdir(fs: &mut GoodDataFS,
     // // Iterate over all projects::PROJECTS_ITEMS
     // for item in items::projects::PROJECTS_ITEMS.into_iter() {
     // }
+}
+
+
+pub fn create(fs: &mut GoodDataFS, _name: &Path, reply: ReplyEntry) {
+    match fs.client().token.clone() {
+        Some(_token) => reply.error(ENOSYS),
+        None => reply.error(EACCES)
+    }
 }
