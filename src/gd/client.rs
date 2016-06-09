@@ -211,7 +211,7 @@ impl GoodDataClient {
         let obj: Result<Type, DecoderError> = json::decode(&raw.to_string());
         match obj {
             Ok(obj) => Some(obj),
-            Err(e) => None
+            Err(e) => None,
         }
     }
 
@@ -262,15 +262,16 @@ impl GoodDataClient {
         let raw = self.client
             .delete(&uri[..])
             .header(UserAgent(GoodDataClient::user_agent().to_owned()))
-            .header(Accept(vec![qitem(Mime(
-                TopLevel::Application,
-                SubLevel::Json,
-                vec![(Attr::Charset, Value::Utf8)]
-            ))]))
+            .header(Accept(vec![qitem(Mime(TopLevel::Application,
+                                           SubLevel::Json,
+                                           vec![(Attr::Charset, Value::Utf8)]))]))
             .header(Cookie::from_cookie_jar(&self.jar))
             .send();
 
         println!("GoodDataClient::delete() - Response: {:?}", raw);
+        if !raw.is_ok() {
+            return self.delete(uriPath);
+        }
 
         let mut res = raw.unwrap();
         assert_eq!(res.status, hyper::Ok);
