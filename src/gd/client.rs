@@ -28,6 +28,7 @@ const CACHE_SIZE: usize = 32 * 1024;
 pub struct GoodDataClient {
     pub client: Client,
     pub server: String,
+    pub token: Option<String>,
     pub jar: CookieJar<'static>,
     pub user: Option<object::AccountSetting>,
     pub projects: Option<Vec<object::Project>>,
@@ -46,10 +47,11 @@ impl Drop for GoodDataClient {
 #[allow(unreachable_code)]
 impl GoodDataClient {
     /// Create Instance of GoodData Client
-    pub fn new(server: String) -> GoodDataClient {
+    pub fn new(server: String, token: Option<String>) -> GoodDataClient {
         GoodDataClient {
             client: Client::new(),
             server: server,
+            token: token,
             jar: CookieJar::new(helpers::random_string(32).as_bytes()),
             user: None,
             projects: None,
@@ -82,6 +84,15 @@ impl GoodDataClient {
 
         self.projects = Some(projects.projects);
         &self.projects
+    }
+
+    pub fn create_project(&mut self, project: object::ProjectCreate) {
+        let payload = json::encode(&project).unwrap();
+
+        println!("Creating project: {}" , payload);
+        let mut raw = self.post(url::PROJECTS.to_string(), payload);
+        let content = self.get_content(&mut raw);
+        println!("Project created: {}", content);
     }
 
     /// Login to GoodData platform
@@ -206,6 +217,7 @@ impl GoodDataClient {
                             qitem(Mime(TopLevel::Application, SubLevel::Json,
                             vec![(Attr::Charset, Value::Utf8)])),
             ]))
+            .header(Cookie::from_cookie_jar(&self.jar))
             .body(&payload[..])
             .send();
 

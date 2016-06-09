@@ -6,6 +6,7 @@ extern crate rustc_serialize;
 extern crate time;
 extern crate users;
 
+use libc::ENOSYS;
 use chrono::*;
 use fuse::{Filesystem, Request, ReplyData, ReplyEntry, ReplyAttr, ReplyDirectory};
 use rustc_serialize::json;
@@ -174,6 +175,18 @@ impl Filesystem for GoodDataFS {
                     fs::project::readdir(self, req, ino, fh, offset, reply)
                 }
             }
+        }
+    }
+
+    fn mkdir (&mut self, _req: &Request, parent: u64, name: &Path, _mode: u32, reply: ReplyEntry) {
+        let parent_inode = inode::Inode::deserialize(parent);
+        println!("GoodDataFS::mkdir() - Making in parent {} - {:?}, path: {}",
+                 parent,
+                 parent_inode,
+                 name.to_str().unwrap());
+        match parent {
+            fs::constants::INODE_PROJECTS => fs::projects::create(self, name, reply),
+            _ => reply.error(ENOSYS)
         }
     }
 }

@@ -4,6 +4,7 @@ mod feature_flags;
 mod permissions;
 mod project_content;
 mod project_meta;
+mod create;
 
 use std::collections::HashMap;
 use gd::client::GoodDataClient;
@@ -13,6 +14,7 @@ pub use self::associated_roles::*;
 pub use self::feature_flags::*;
 pub use self::project_content::*;
 pub use self::project_meta::*;
+pub use self::create::*;
 
 
 #[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
