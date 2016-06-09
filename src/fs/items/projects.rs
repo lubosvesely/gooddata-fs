@@ -143,6 +143,7 @@ pub fn rmdir(fs: &mut GoodDataFS, name: &Path, reply: ReplyEmpty) {
     match find_project_by_title(fs.client().projects().as_ref().unwrap(), title) {
         Some(project) => {
             fs.client.delete_project(project);
+            fs.client.projects_fetch();
             reply.ok();
         }
         None => {

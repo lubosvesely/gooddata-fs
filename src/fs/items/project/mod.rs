@@ -514,7 +514,8 @@ pub fn readdir(_fs: &mut GoodDataFS,
                           offset,
                           FileType::Directory,
                           constants::PROJECT_METADATA_REPORT_DEFINITIONS_DIR);
-                offset += 1;
+
+                // offset += 1;
 
                 reply.ok();
             }
