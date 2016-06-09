@@ -107,17 +107,25 @@ pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
     println!("fs::project::getattr() - {} - {:?}", ino, inode);
     if inode.project > 0 {
-        let reserved = constants::ReservedFile::from(inode.reserved);
-        match reserved {
-            constants::ReservedFile::FeatureFlagsJson => {
-                project_feature_flags_json(fs, req, ino, reply)
+        if inode.category == constants::Category::Internal as u8 {
+            let reserved = constants::ReservedFile::from(inode.reserved);
+            match reserved {
+                constants::ReservedFile::FeatureFlagsJson => {
+                    project_feature_flags_json(fs, req, ino, reply)
+                }
+                constants::ReservedFile::ProjectJson => project_project_json(fs, req, ino, reply),
+                constants::ReservedFile::PermissionsJson => {
+                    project_permissions_json(fs, req, ino, reply)
+                }
+                constants::ReservedFile::RolesJson => project_roles_json(fs, req, ino, reply),
+                _ => reply.error(ENOENT),
             }
-            constants::ReservedFile::ProjectJson => project_project_json(fs, req, ino, reply),
-            constants::ReservedFile::PermissionsJson => {
-                project_permissions_json(fs, req, ino, reply)
-            }
-            constants::ReservedFile::RolesJson => project_roles_json(fs, req, ino, reply),
-            _ => reply.error(ENOENT),
+        } else if inode.category == constants::Category::Ldm as u8 {
+            let attr = create_inode_directory_attributes(ino);
+            reply.attr(&constants::DEFAULT_TTL, &attr);
+        } else if inode.category == constants::Category::Metadata as u8 {
+            let attr = create_inode_directory_attributes(ino);
+            reply.attr(&constants::DEFAULT_TTL, &attr);
         }
     } else {
         println!("GoodDataFS::getattr() - Not found inode {:?}", ino);
@@ -335,7 +343,6 @@ pub fn readdir(fs: &mut GoodDataFS,
             // Iterate over all project::ITEMS
             if offset == 0 {
                 for item in PROJECT_ITEMS.into_iter().skip(offset as usize) {
-                    println!(".");
                     let inode = inode::Inode {
                         project: projectid,
                         category: item.category,
