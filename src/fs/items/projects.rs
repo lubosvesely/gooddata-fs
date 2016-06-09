@@ -1,17 +1,11 @@
-use libc::{ENOSYS, ENOENT, EACCES};
+use libc::{ENOENT, EACCES};
 use fuse::{FileType, ReplyAttr, ReplyEntry, ReplyDirectory, Request, ReplyEmpty};
 
 use fs::constants;
 use fs::GoodDataFS;
-use fs::helpers::{create_inode_directory_attributes};
+use fs::helpers::create_inode_directory_attributes;
 use fs::inode;
-use object::{
-    Project,
-    ProjectCreate,
-    ProjectCreateBody,
-    ProjectCreateMeta,
-    ProjectCreateContent
-};
+use object::{Project, ProjectCreate, ProjectCreateBody, ProjectCreateMeta, ProjectCreateContent};
 
 use super::item;
 
@@ -144,13 +138,13 @@ pub fn create(fs: &mut GoodDataFS, name: &Path, reply: ReplyEntry) {
     }
 }
 
-pub fn delete(fs: &mut GoodDataFS, name: &Path, reply: ReplyEmpty) {
+pub fn rmdir(fs: &mut GoodDataFS, name: &Path, reply: ReplyEmpty) {
     let title = &name.to_str().unwrap().to_string();
     match find_project_by_title(fs.client().projects().as_ref().unwrap(), title) {
         Some(project) => {
             fs.client.delete_project(project);
-            reply.error(ENOSYS);
-        },
+            reply.ok();
+        }
         None => {
             println!("WTF? Project not found: {}", title);
             reply.error(ENOENT);

@@ -197,8 +197,8 @@ impl Filesystem for GoodDataFS {
                  parent_inode,
                  name.to_str().unwrap());
         match parent {
-            fs::constants::INODE_PROJECTS => fs::projects::delete(self, name, reply),
-            _ => reply.ok(),
+            fs::constants::INODE_PROJECTS => fs::projects::rmdir(self, name, reply),
+            _ => reply.error(ENOSYS),
         }
     }
 }
