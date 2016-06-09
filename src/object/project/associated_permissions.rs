@@ -1,7 +1,20 @@
 use rustc_serialize::json;
 
 #[allow(non_snake_case)]
-#[derive(RustcDecodable, RustcEncodable)]
+#[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
+pub struct AssociatedPermissions {
+    pub associatedPermissions: Permissions,
+}
+
+#[allow(dead_code)]
+impl Into<String> for AssociatedPermissions {
+    fn into(self) -> String {
+        format!("{}\n", json::as_pretty_json(&self).to_string())
+    }
+}
+
+#[allow(non_snake_case)]
+#[derive(RustcDecodable, RustcEncodable,Debug, Clone)]
 pub struct PermissionsBody {
     pub canAccessIntegration: Option<String>,
     pub canCreateProjectDashboard: Option<String>,
@@ -77,11 +90,12 @@ pub struct PermissionsBody {
     pub canAssignUserWithRole: Option<String>,
 }
 
-#[derive(RustcDecodable, RustcEncodable)]
+#[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
 pub struct Permissions {
     permissions: PermissionsBody,
 }
 
+#[allow(dead_code)]
 impl Into<String> for Permissions {
     fn into(self) -> String {
         json::as_pretty_json(&self).to_string()

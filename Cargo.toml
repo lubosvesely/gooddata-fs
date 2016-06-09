@@ -41,7 +41,6 @@ rpath = false
 lto = false
 debug-assertions = true
 codegen-units = 4
-debuginfo = 2
 
 [profile.release]
 opt-level = 3

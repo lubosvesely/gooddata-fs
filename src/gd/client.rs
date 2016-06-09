@@ -12,6 +12,8 @@ use hyper::client::response::Response;
 use hyper::header::{Accept, Cookie, ContentType, SetCookie, UserAgent, qitem};
 use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use rustc_serialize::json;
+use rustc_serialize::json::DecoderError;
+use rustc_serialize::Decodable;
 
 use lru_cache::LruCache;
 use std::io::Read;
@@ -169,6 +171,22 @@ impl GoodDataClient {
         self.cache.insert(key.clone(), res);
         return self.cache.get_mut(&key.clone()).unwrap();
     }
+
+    pub fn get_link_obj<Type: Decodable>(&mut self, link: String) -> Option<Type> {
+        let mut res = self.get(link);
+
+        if res.status != hyper::Ok {
+            return None;
+        }
+
+        let raw = self.get_content(&mut res);
+        let obj: Result<Type, DecoderError> = json::decode(&raw.to_string());
+        match obj {
+            Ok(obj) => Some(obj),
+            Err(e) => None
+        }
+    }
+
 
     /// HTTP Method POST Wrapper
     fn post<S: Into<String>>(&mut self, path: S, body: S) -> hyper::client::response::Response {
