@@ -20,6 +20,7 @@ use gd;
 use object;
 
 use fs::helpers::{create_inode_directory_attributes, create_inode_file_attributes};
+use helpers;
 
 pub struct GoodDataFS {
     pub client: gd::GoodDataClient,
@@ -130,14 +131,15 @@ impl Filesystem for GoodDataFS {
 
         match ino {
             fs::constants::INODE_PROJECTS_JSON => {
+                // println!("off: {}, size {}", offset, size);
                 let json = format!("{}\n",
-                                   json::as_pretty_json(&self.client.projects()).to_string());
+                                   json::as_pretty_json(&self.client.projects_fetch_if_none()).to_string());
                 // let json: String = fs.client.projects().clone().unwrap().into();
-                reply.data(&json.as_bytes()[offset as usize..]);
+                reply.data(helpers::read_bytes(&json, offset, size));
             }
             fs::constants::INODE_USER => {
                 let json: String = self.client.user().clone().unwrap().into();
-                reply.data(&json.as_bytes()[offset as usize..]);
+                reply.data(helpers::read_bytes(&json, offset, size));
             }
             _ => {
                 let inode = inode::Inode::deserialize(ino);
