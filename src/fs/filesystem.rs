@@ -202,8 +202,23 @@ impl Filesystem for GoodDataFS {
                  name.to_str().unwrap());
         match parent {
             fs::constants::INODE_PROJECTS => fs::projects::rmdir(self, name, reply),
-            _ => reply.error(ENOSYS),
+            _ => {
+                println!("WARN: rmdir() not implemented!");
+                reply.ok()
+                // reply.error(ENOSYS)
+            }
         }
+    }
+
+    fn unlink (&mut self, _req: &Request, parent: u64, name: &Path, reply: ReplyEmpty) {
+        let parent_inode = inode::Inode::deserialize(parent);
+        println!("GoodDataFS::unlinl() - Removing file in parent {} - {:?}, path: {}",
+                 parent,
+                 parent_inode,
+                 name.to_str().unwrap());
+        println!("WARN: unlink() not implemented!");
+        reply.ok()
+        // reply.error(ENOSYS);
     }
 }
 
