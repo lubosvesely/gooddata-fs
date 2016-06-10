@@ -8,6 +8,7 @@ use fs::GoodDataFS;
 use fs::helpers::{create_inode_directory_attributes, create_inode_file_attributes};
 use gd;
 use object;
+use helpers;
 
 use super::item;
 
@@ -359,7 +360,8 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
 fn read_feature_flags_json(fs: &mut GoodDataFS,
                            inode: inode::Inode,
                            reply: ReplyData,
-                           offset: usize) {
+                           offset: u64,
+                           size: u32) {
     println!("GoodDataFS::read() - Reading {}",
              constants::FEATURE_FLAGS_JSON_FILENAME);
 
@@ -368,24 +370,27 @@ fn read_feature_flags_json(fs: &mut GoodDataFS,
     let feature_flags = project.feature_flags(&mut fs.client.connector);
     if feature_flags.is_some() {
         let json: String = feature_flags.unwrap().into();
-        reply.data(&json.as_bytes()[offset as usize..]);
+        // reply.data(&json.as_bytes()[offset as usize..]);
+        reply.data(helpers::read_bytes(&json, offset, size));
     }
 }
 
-fn read_project_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
+fn read_project_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: u64, size: u32) {
     println!("GoodDataFS::read() - Reading {}",
              constants::PROJECT_JSON_FILENAME);
 
     let client: &gd::GoodDataClient = fs.client();
     let projects = client.projects().as_ref();
     let json = json::as_pretty_json(&projects.unwrap()[(inode.project - 1) as usize]).to_string();
-    reply.data(&json.as_bytes()[offset as usize..]);
+    // reply.data(&json.as_bytes()[offset as usize..]);
+    reply.data(helpers::read_bytes(&json, offset, size));
 }
 
 fn read_permissions_json(fs: &mut GoodDataFS,
                          inode: inode::Inode,
                          reply: ReplyData,
-                         offset: usize) {
+                         offset: u64,
+                         size: u32) {
     println!("GoodDataFS::read() - Reading {}",
              constants::USER_PERMISSIONS_JSON_FILENAME);
 
@@ -394,11 +399,12 @@ fn read_permissions_json(fs: &mut GoodDataFS,
     let user_permissions = project.user_permissions(&mut fs.client.connector);
     if user_permissions.is_some() {
         let json: String = user_permissions.unwrap().into();
-        reply.data(&json.as_bytes()[offset as usize..]);
+        // reply.data(&json.as_bytes()[offset as usize..]);
+        reply.data(helpers::read_bytes(&json, offset, size));
     }
 }
 
-fn read_roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: usize) {
+fn read_roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, offset: u64, size: u32) {
     println!("GoodDataFS::read() - Reading {}",
              constants::USER_ROLES_JSON_FILENAME);
 
@@ -407,7 +413,8 @@ fn read_roles_json(fs: &mut GoodDataFS, inode: inode::Inode, reply: ReplyData, o
     let user_roles = project.user_roles(&mut fs.client.connector);
     if user_roles.is_some() {
         let json: String = user_roles.unwrap().into();
-        reply.data(&json.as_bytes()[offset as usize..]);
+        // reply.data(&json.as_bytes()[offset as usize..]);
+        reply.data(helpers::read_bytes(&json, offset, size));
     }
 }
 
@@ -416,22 +423,22 @@ pub fn read(fs: &mut GoodDataFS,
             ino: u64,
             _fh: u64,
             offset: u64,
-            _size: u32,
+            size: u32,
             reply: ReplyData) {
     let inode = inode::Inode::deserialize(ino);
     let reserved = constants::ReservedFile::from(inode.reserved);
     match reserved {
         constants::ReservedFile::FeatureFlagsJson => {
-            read_feature_flags_json(fs, inode, reply, offset as usize)
+            read_feature_flags_json(fs, inode, reply, offset, size)
         }
         constants::ReservedFile::ProjectJson => {
-            read_project_json(fs, inode, reply, offset as usize)
+            read_project_json(fs, inode, reply, offset, size)
         }
         constants::ReservedFile::PermissionsJson => {
-            read_permissions_json(fs, inode, reply, offset as usize)
+            read_permissions_json(fs, inode, reply, offset, size)
         }
         constants::ReservedFile::RolesJson => {
-            read_roles_json(fs, inode, reply, offset as usize);
+            read_roles_json(fs, inode, reply, offset, size);
         }
         _ => {
             reply.error(ENOENT);
