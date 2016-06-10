@@ -114,12 +114,13 @@ impl Connector {
 
     pub fn object_by_post<TypeFrom: Encodable, TypeTo:Decodable>(&mut self, link: String, payload: TypeFrom) -> Option<TypeTo> {
         let mut res = self.post(link, json::encode(&payload).unwrap());
+        let raw = self.get_content(&mut res);
 
-        if res.status != hyper::Ok {
+        if ! [hyper::Ok, hyper::status::StatusCode::Created].contains(&res.status) {
+            println!("failed post content: {}", &raw);
             return None;
         }
 
-        let raw = self.get_content(&mut res);
         let obj: Result<TypeTo, DecoderError> = json::decode(&raw.to_string());
         match obj {
             Ok(obj) => Some(obj),
@@ -157,7 +158,7 @@ impl Connector {
         }
 
         let mut res = raw.unwrap();
-        assert_eq!(res.status, hyper::Ok);
+        assert!([hyper::Ok, hyper::status::StatusCode::Created].contains(&res.status));
 
         self.print_response(&mut res);
         self.update_cookie_jar(&res);

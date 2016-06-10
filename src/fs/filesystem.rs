@@ -162,11 +162,15 @@ impl Filesystem for GoodDataFS {
             fs::constants::INODE_ROOT => {
                 if offset == 0 {
                     fs::root::readdir(self, req, ino, fh, offset, reply)
+                } else {
+                    reply.ok();
                 }
             }
             fs::constants::INODE_PROJECTS => {
                 if offset == 0 {
                     fs::projects::readdir(self, req, ino, fh, offset, reply)
+                } else {
+                    reply.ok();
                 }
             }
             _ => {

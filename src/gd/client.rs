@@ -82,6 +82,17 @@ impl GoodDataClient {
         }
     }
 
+    pub fn report_csv(&mut self, report_definition: String) -> String {
+        let payload = object::ReportReq {
+            report_req: object::ReportReqBody {
+                reportDefinition: report_definition
+            }
+        };
+        let uri = self.connector.object_by_post::<object::ReportReq, object::Uri>(url::PROJECT_EXECUTE_RAW.to_string(), payload);
+        let mut result = self.connector.get(uri.unwrap().uri);
+        self.connector.get_content(&mut result)
+    }
+
     /// Login to GoodData platform
     pub fn connect<S: Into<String>>(&mut self, username: S, password: S) {
         let payload = object::PostUserLogin {
@@ -97,6 +108,8 @@ impl GoodDataClient {
         self.connector.refresh_token();
         let user = self.connector.object_by_get::<object::AccountSetting>(profile_link).unwrap();
         self.user = Some(user);
+        // let csv = self.report_csv("/gdc/md/GoodSalesDemo/obj/30834".to_string());
+        // println!("CSV: {}", csv);
     }
 
     pub fn disconnect(&mut self) {
