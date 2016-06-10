@@ -353,8 +353,25 @@ pub fn lookup(fs: &mut GoodDataFS, _req: &Request, parent: u64, name: &Path, rep
         }
         Some(constants::USER_PERMISSIONS_JSON_FILENAME) => permissions_json(fs, &inode, reply),
         Some(constants::USER_ROLES_JSON_FILENAME) => roles_json(fs, &inode, reply),
-        _ => reply.error(ENOENT),
+        x => {
+            println!("FUCKED: {}", x.unwrap());
+            fake(&x.unwrap().to_string().clone(), &inode, reply)
+            // reply.error(ENOENT)
+        }
     }
+}
+
+fn fake(name: &String, inode_parent: &inode::Inode, reply: ReplyEntry) {
+    let x: Vec<&str> = name.split('.').collect();
+    println!("FFFF: {}", x[1]);
+    let inode = inode::Inode::serialize(&inode::Inode {
+        project: inode_parent.project,
+        category: constants::Category::MetadataReports as u8,
+        item: x[1].to_string().parse::<u32>().unwrap(),
+        reserved: 2,
+    });
+    let attr = create_inode_file_attributes(inode, 0, constants::DEFAULT_CREATE_TIME);
+    reply.entry(&constants::DEFAULT_TTL, &attr, 0)
 }
 
 fn read_feature_flags_json(fs: &mut GoodDataFS,
@@ -426,6 +443,16 @@ pub fn read(fs: &mut GoodDataFS,
             size: u32,
             reply: ReplyData) {
     let inode = inode::Inode::deserialize(ino);
+    if inode.category == constants::Category::MetadataReports as u8 {
+        println!("ITEM: {}", inode.item);
+        let pid = (inode.project - 1) as usize;
+        let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
+        let report_items =
+            project.get_metadata::<object::ObjectsReport>(&mut fs.client.connector,
+                                                          "report".to_string());
+        println!("FFFF: {}", report_items.objects.items[((inode.item - 1) / 2) as usize].report.meta.identifier.as_ref().unwrap().clone());
+        reply.error(ENOENT)
+    } else {
     let reserved = constants::ReservedFile::from(inode.reserved);
     match reserved {
         constants::ReservedFile::FeatureFlagsJson => {
@@ -444,6 +471,7 @@ pub fn read(fs: &mut GoodDataFS,
             reply.error(ENOENT);
         }
 
+    }
     }
 }
 
@@ -545,7 +573,7 @@ pub fn readdir(fs: &mut GoodDataFS,
 
             if offset == 0 {
                 for item in report_items.objects.items.into_iter() {
-                    let name = format!("{}.json", item.report.meta.identifier.unwrap());
+                    let name = format!("{}.{}.json", item.report.meta.identifier.as_ref().unwrap().clone(), offset + 1);
 
                     // Reports
                     let inode = inode::Inode {
@@ -559,6 +587,19 @@ pub fn readdir(fs: &mut GoodDataFS,
 
                     println!("Adding inode {:?}, name {:?}", inode, &name);
 
+                    offset += 1;
+
+                    // CSV exports
+                    let name = format!("{}.{}.csv", item.report.meta.identifier.as_ref().unwrap().clone(), offset + 1);
+                    let inode = inode::Inode {
+                        project: inode.project,
+                        category: constants::Category::MetadataReports as u8,
+                        item: offset as u32 + 1,
+                        reserved: 2,
+                    };
+                    let fileinode: u64 = inode.into();
+                    reply.add(fileinode, offset, FileType::RegularFile, &name);
+                    println!("Adding inode {:?}, name {:?}", inode, &name);
                     offset += 1;
                 }
             }
