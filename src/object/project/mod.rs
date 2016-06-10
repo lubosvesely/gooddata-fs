@@ -74,10 +74,8 @@ impl Project {
         let uri = format!("/gdc/md/{}/objects/query?category={}&limit=50",
                           self.pid(),
                           md_type);
-        println!("{:?}", uri);
         let mut res = client.get(uri);
         let raw = client.get_content(&mut res);
-        println!("Project::get_metadata() - {} {:?}", md_type, raw);
 
         json::decode::<T>(&raw).unwrap()
     }

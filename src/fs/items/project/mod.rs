@@ -113,6 +113,8 @@ fn project_roles_json(fs: &mut GoodDataFS, _req: &Request, ino: u64, reply: Repl
 
 pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
     let inode = inode::Inode::deserialize(ino);
+    println!("fs::project::getattr() {} - {:?}", ino, inode);
+
     if inode.project > 0 {
         if inode.category == constants::Category::Internal as u8 {
             let reserved = constants::ReservedFile::from(inode.reserved);
@@ -143,8 +145,16 @@ pub fn getattr(fs: &mut GoodDataFS, req: &Request, ino: u64, reply: ReplyAttr) {
             let attr = create_inode_directory_attributes(ino);
             reply.attr(&constants::DEFAULT_TTL, &attr);
         } else if inode.category == constants::Category::MetadataReports as u8 {
-            let attr = create_inode_directory_attributes(ino);
-            reply.attr(&constants::DEFAULT_TTL, &attr);
+            println!("fs::project::getattr() - METADATA REPORTS");
+
+            if inode.reserved == constants::ReservedFile::KeepMe as u8 {
+                println!("KEEP ME!!!");
+                let attr = create_inode_directory_attributes(ino);
+                reply.attr(&constants::DEFAULT_TTL, &attr);
+            } else {
+                println!("N A S T A L   H A P R ! ! !");
+                reply.error(ENOENT);
+            }
         } else if inode.category == constants::Category::MetadataReportDefinition as u8 {
             let attr = create_inode_directory_attributes(ino);
             reply.attr(&constants::DEFAULT_TTL, &attr);
@@ -522,11 +532,31 @@ pub fn readdir(fs: &mut GoodDataFS,
         x if x == constants::Category::MetadataReports as u8 => {
             let pid = (inode.project - 1) as usize;
             let project: &object::Project = &fs.client().projects().as_ref().unwrap()[pid].clone();
-            println!("Listing reports for project {}",
-                     project.project().meta().title().as_ref().unwrap());
+            let report_items =
+                project.get_metadata::<object::ObjectsReport>(&mut fs.client.connector,
+                                                              "report".to_string());
 
-            project.get_metadata::<object::ObjectsReport>(&mut fs.client.connector,
-                                                          "report".to_string());
+            if offset == 0 {
+                for item in report_items.objects.items.into_iter() {
+                    let name = format!("{}.json", item.report.meta.identifier.unwrap());
+
+                    // Reports
+                    let inode = inode::Inode {
+                        project: inode.project,
+                        category: constants::Category::MetadataReports as u8,
+                        item: offset as u32 + 1,
+                        reserved: 1,
+                    };
+                    let fileinode: u64 = inode.into();
+                    reply.add(fileinode, offset, FileType::RegularFile, &name);
+
+                    println!("Adding inode {:?}, name {:?}", inode, &name);
+
+                    offset += 1;
+                }
+            }
+
+            reply.ok();
         }
         _ => {
             let projectid = inode.project;
